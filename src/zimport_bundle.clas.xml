@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Import Bundle from abstract source</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>ADD_CONTENT_ALL_TABLES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>keep the existing entries, only modify or add new ones</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>CALLED_INSIDE_UNIT_TEST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>is called inside an unit-test</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>REPLACE_CONTENT_ALL_TABLES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>replace the content of all tables completely</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

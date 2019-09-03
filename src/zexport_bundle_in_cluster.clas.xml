@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Export Tablebundel into cluster</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>ADD_TABLE_TO_BUNDLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Add the table content to the bundle</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>ATTACH_TO_WB_ORDER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Attach MIME-Object to workbench order</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Testcase is fixed in the constructor</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>CREATE_MIME_OBJECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>create mime object from binary representation</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>EXPORT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Export as mime object</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>GET_TABLE_LIST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>get the list of used tables</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>SERIALIZE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Serialize as json</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_BUNDLE_IN_CLUSTER</CLSNAME>
+     <CMPNAME>SET_FILESIZE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>set filesize of mime-object</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

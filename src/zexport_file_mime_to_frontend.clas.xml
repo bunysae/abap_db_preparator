@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZEXPORT_FILE_MIME_TO_FRONTEND</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Export file from MIME-Object to frontend</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_FILE_MIME_TO_FRONTEND</CLSNAME>
+     <CMPNAME>EXPORT_TO_SAPGUI_WORK_DIR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Export to SAPGUI-working-directory</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_FILE_MIME_TO_FRONTEND</CLSNAME>
+     <CMPNAME>GET_FILENAME</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Filepath is SAPGUI-working-dir &amp;&amp; mime key</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZEXPORT_FILE_MIME_TO_FRONTEND</CLSNAME>
+     <CMPNAME>GET_MIME_OBJECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>get the MIME-Object as binary table</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
