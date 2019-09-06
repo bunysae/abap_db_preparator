@@ -20,8 +20,8 @@
       <DESCRIPT>Export to cluster</DESCRIPT>
       <TYPE>I</TYPE>
       <NEXTSCREEN>0001</NEXTSCREEN>
-      <LINES>035</LINES>
-      <COLUMNS>187</COLUMNS>
+      <LINES>036</LINES>
+      <COLUMNS>186</COLUMNS>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -307,7 +307,10 @@
        <LINE>FIELD: table-name,</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>table-fake.</LINE>
+       <LINE>table-fake,</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>table-where_restriction.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>MODULE check_table_names_0001 ON CHAIN-REQUEST.</LINE>
@@ -339,6 +342,7 @@
       <item>4</item>
       <item>6</item>
       <item>8</item>
+      <item>8</item>
       <item>6</item>
       <item>4</item>
       <item>2</item>
@@ -369,7 +373,7 @@
        <LINE>007</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>182</LENGTH>
-       <HEIGHT>030</HEIGHT>
+       <HEIGHT>029</HEIGHT>
        <C_SCROLL_V>X</C_SCROLL_V>
        <C_SCROLL_H>X</C_SCROLL_H>
        <TC_TABTYPE>ENTRY</TC_TABTYPE>
@@ -722,7 +726,22 @@
        <LINE>ON REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE check_table_names_0002.</LINE>
+       <LINE>CHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>FIELD: table-name,</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>table-fake,</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>table-where_restriction.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>MODULE check_table_names_0002 ON CHAIN-REQUEST.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>ENDLOOP.</LINE>
@@ -744,6 +763,11 @@
       <item>2</item>
       <item>2</item>
       <item>4</item>
+      <item>6</item>
+      <item>4</item>
+      <item>6</item>
+      <item>8</item>
+      <item>8</item>
       <item>6</item>
       <item>4</item>
       <item>2</item>

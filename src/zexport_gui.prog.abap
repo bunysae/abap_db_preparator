@@ -100,6 +100,7 @@ MODULE user_command_9000 INPUT.
     WHEN OTHERS.
       PERFORM user_command_9000.
   ENDCASE.
+  CLEAR sy-ucomm.
 
 ENDMODULE.
 
@@ -368,7 +369,7 @@ FORM export_screen_0001 RAISING zcx_export_error.
 
 ENDFORM.
 
-FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_object_exists.
+FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
   DATA exporter TYPE REF TO zexport_bundle_in_tdc.
 
   IF bundle IS INITIAL.

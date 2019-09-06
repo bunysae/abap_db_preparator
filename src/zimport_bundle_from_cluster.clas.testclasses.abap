@@ -72,9 +72,11 @@ CLASS test_export_import IMPLEMENTATION.
       zexport_ut2, zexport_ut3, zimport_ut2.
 
     export_ut1 = VALUE #( primary_key = 'AAA' content = 'char' ).
+    ##LITERAL
     export_ut2 = VALUE #( primary_key = 'AAA' content = '130' ).
     export_ut3 = VALUE #( primary_key = 'ADA' content = '9999' ).
     import_ut1 = VALUE #( primary_key = 'CCC' content = 'imp' ).
+    ##LITERAL
     import_ut2 = VALUE #( primary_key = 'CCC' content = '30' ).
 
     INSERT zexport_ut1 FROM export_ut1.

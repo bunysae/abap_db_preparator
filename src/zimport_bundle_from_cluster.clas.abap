@@ -134,7 +134,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
       ASSIGN object->*-value->* TO <con>.
 
       READ TABLE table_list REFERENCE INTO DATA(_table)
-        WITH KEY fake_table = object->*-name.
+        WITH KEY fake_table = CONV tabname( object->*-name ).
       ASSERT FIELDS object->*-name CONDITION sy-subrc = 0.
 
       DELETE FROM (object->*-name) WHERE (_table->*-where_restriction).

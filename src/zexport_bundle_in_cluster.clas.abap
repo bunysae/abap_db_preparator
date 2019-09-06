@@ -30,15 +30,16 @@ public section.
   "! An valid sql-where-clause for an restriction of the exported rows.
   "! </li>
   "! </ul>
-  "! @raising zcx_export_table_duplicate | If a table name is
-  "! used more than one time.
+  "! @raising zcx_export_error | If a table name is
+  "! used more than one time,
+  "! or the "where_restriction" is invalid.
   methods ADD_TABLE_TO_BUNDLE
     importing
       VALUE(_table) TYPE zexport_table_list
     returning
       value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_CLUSTER
     RAISING
-      zcx_export_table_duplicate.
+      zcx_export_error.
   methods EXPORT .
   "! Attach the MIME-Object to an workbench order for transportation pruposes
   methods ATTACH_TO_WB_ORDER .
@@ -87,8 +88,15 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
       (_table-source_table).
     ASSIGN <content>-value->* TO <con>.
 
-    SELECT * FROM (_table-source_table) INTO TABLE <con>
-      WHERE (_table-where_restriction).
+    TRY.
+      SELECT * FROM (_table-source_table) INTO TABLE <con>
+        WHERE (_table-where_restriction).
+      CATCH cx_sy_dynamic_osql_error.
+        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
+          EXPORTING
+            table = _table-source_table
+            where_clause = _table-where_restriction.
+    ENDTRY.
 
     instance = me.
 

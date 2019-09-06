@@ -29,20 +29,21 @@ public section.
   "! An valid sql-where-clause for an restriction of the exported rows.
   "! </li>
   "! </ul>
-  "! @raising zcx_export_table_duplicate | If a table name is
-  "! used more than one time.
+  "! @raising zcx_export_error | If a table name is
+  "! used more than one time or,
+  "! if the "where_restriction" is invalid.
   methods ADD_TABLE_TO_BUNDLE
     importing
       VALUE(_TABLE) type zexport_table_list
     returning
       value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_TDC
     raising
-      CX_ECATT_TDC_ACCESS .
+      zcx_export_error .
   methods EXPORT
     IMPORTING
       transport_request TYPE e070-trkorr
     RAISING
-      cx_ecatt_tdc_access.
+      zcx_export_error.
 protected section.
 private section.
 
@@ -70,27 +71,38 @@ ENDCLASS.
 CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
 
-  method ADD_TABLE_TO_BUNDLE.
-    DATA: content TYPE REF TO data,
+  METHOD add_table_to_bundle.
+    DATA: content    TYPE REF TO data,
           param_name TYPE etp_name.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     IF _table-fake_table IS INITIAL.
       _table-fake_table = _table-source_table.
     ENDIF.
-    param_name = create_parameter( _table-fake_table ).
 
-    INSERT _table INTO TABLE table_list.
+    TRY.
+        param_name = create_parameter( _table-fake_table ).
 
-    CREATE DATA content TYPE STANDARD TABLE OF (_table-source_table).
-    ASSIGN content->* TO <con>.
+        INSERT _table INTO TABLE table_list.
 
-    SELECT * FROM (_table-source_table) INTO TABLE <con>
-      WHERE (_table-where_restriction).
+        CREATE DATA content TYPE STANDARD TABLE OF (_table-source_table).
+        ASSIGN content->* TO <con>.
 
-    set_parameter_value( content = <con> name = param_name ).
+        SELECT * FROM (_table-source_table) INTO TABLE <con>
+          WHERE (_table-where_restriction).
 
-  endmethod.
+        set_parameter_value( content = <con> name = param_name ).
+
+      CATCH cx_sy_dynamic_osql_error.
+        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
+          EXPORTING
+            table        = _table-source_table
+            where_clause = _table-where_restriction.
+      CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
+        zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
+    ENDTRY.
+
+  ENDMETHOD.
 
 
   method CONSTRUCTOR.
@@ -132,11 +144,16 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
   method EXPORT.
 
-    DATA(param_for_list) = create_parameter( table = 'ZEXPORT_TABLE_LIST' ).
-    set_parameter_value( content = table_list name = param_for_list ).
+    TRY.
+      DATA(param_for_list) = create_parameter( table = 'ZEXPORT_TABLE_LIST' ).
+      set_parameter_value( content = table_list name = param_for_list ).
 
-    tdc->commit_changes( i_commit_mode = abap_false
-      i_tr_order = transport_request ).
+      tdc->commit_changes( i_commit_mode = abap_false
+        i_tr_order = transport_request ).
+
+      CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
+        zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
+    ENDTRY.
 
   endmethod.
 
