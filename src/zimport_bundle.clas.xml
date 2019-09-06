@@ -29,7 +29,13 @@
      <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
      <CMPNAME>REPLACE_CONTENT_ALL_TABLES</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>replace the content of all tables completely</DESCRIPT>
+     <DESCRIPT>replace the content of all tables specified by the where-res</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>REPLACE_CONTENT_COMPLETLY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>replace the content of all tables completly</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

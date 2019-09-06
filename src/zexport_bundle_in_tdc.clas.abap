@@ -12,26 +12,35 @@ public section.
     RAISING
       cx_ecatt_tdc_access.
   "! Add the content of the table to the bundle (uses the builder-pattern).
-  "! @parameter table | Database table (transparent table),
-  "! where the content lies.
-  "! @parameter fake_table | The fake table, which is used in
-  "! the unit-test. The import-class <em>zimport_bundle_from_cluster</em>
+  "! @parameter _table |
+  "! <ul>
+  "! <li> Component "source_table":
+  "!   Database table (transparent table), where the content lies.
+  "! </li>
+  "! <li> Component "fake_table":
+  "! The fake table, which is used in the unit-test.
+  "! The import-class <em>zimport_bundle_from_cluster</em>
   "! overwrites the content of the fake-table.
   "! This parameter can be used, if working with class <em>cl_osq_replace</em>
   "! to replace table contents.
   "! If this parameter is omitted, parameter <em>table</em> is used.
-  "! @parameter where_restriction | An valid sql-where-clause
-  "! for an restriction of the exported rows
+  "! </li>
+  "! <li> Component "where_restriction":
+  "! An valid sql-where-clause for an restriction of the exported rows.
+  "! </li>
+  "! </ul>
+  "! @raising zcx_export_table_duplicate | If a table name is
+  "! used more than one time.
   methods ADD_TABLE_TO_BUNDLE
     importing
-      !TABLE type TABNAME
-      !FAKE_TABLE type TABNAME optional
-      !WHERE_RESTRICTION type STRING optional
+      VALUE(_TABLE) type zexport_table_list
     returning
       value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_TDC
     raising
       CX_ECATT_TDC_ACCESS .
   methods EXPORT
+    IMPORTING
+      transport_request TYPE e070-trkorr
     RAISING
       cx_ecatt_tdc_access.
 protected section.
@@ -39,6 +48,7 @@ private section.
 
   data TDC type ref to CL_APL_ECATT_TDC_API .
   data VARIANT type ETVAR_ID .
+  DATA table_list TYPE STANDARD TABLE OF zexport_table_list.
 
   methods CREATE_PARAMETER
     importing
@@ -65,17 +75,18 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
           param_name TYPE etp_name.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    IF fake_table IS NOT INITIAL.
-      param_name = create_parameter( fake_table ).
-    ELSE.
-      param_name = create_parameter( table ).
+    IF _table-fake_table IS INITIAL.
+      _table-fake_table = _table-source_table.
     ENDIF.
+    param_name = create_parameter( _table-fake_table ).
 
-    CREATE DATA content TYPE STANDARD TABLE OF (table).
+    INSERT _table INTO TABLE table_list.
+
+    CREATE DATA content TYPE STANDARD TABLE OF (_table-source_table).
     ASSIGN content->* TO <con>.
 
-    SELECT * FROM (table) INTO TABLE <con>
-      WHERE (where_restriction).
+    SELECT * FROM (_table-source_table) INTO TABLE <con>
+      WHERE (_table-where_restriction).
 
     set_parameter_value( content = <con> name = param_name ).
 
@@ -105,8 +116,14 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     CONCATENATE 'STANDARD TABLE OF' table INTO type_definition
       SEPARATED BY space.
 
-    tdc->create_parameter( i_param_name = table
-      i_param_def = type_definition ).
+    TRY.
+      tdc->create_parameter( i_param_name = table
+        i_param_def = type_definition ).
+      CATCH cx_ecatt_tdc_access INTO DATA(failure).
+        IF failure->textid <> cx_ecatt_tdc_access=>parameter_exists.
+          RAISE EXCEPTION failure.
+        ENDIF.
+    ENDTRY.
 
     name = table.
 
@@ -115,7 +132,11 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
   method EXPORT.
 
-    tdc->commit_changes( i_commit_mode = abap_false  ).
+    DATA(param_for_list) = create_parameter( table = 'ZEXPORT_TABLE_LIST' ).
+    set_parameter_value( content = table_list name = param_for_list ).
+
+    tdc->commit_changes( i_commit_mode = abap_false
+      i_tr_order = transport_request ).
 
   endmethod.
 

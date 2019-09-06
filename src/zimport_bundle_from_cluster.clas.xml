@@ -16,12 +16,6 @@
    <DESCRIPTIONS>
     <SEOCOMPOTX>
      <CLSNAME>ZIMPORT_BUNDLE_FROM_CLUSTER</CLSNAME>
-     <CMPNAME>ADD_CONTENT_ALL_TABLES</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>keep the existing entries, only modify or add new ones</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIMPORT_BUNDLE_FROM_CLUSTER</CLSNAME>
      <CMPNAME>CONSTRUCTOR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Testcase is fixed in the constructor</DESCRIPT>
@@ -43,12 +37,6 @@
      <CMPNAME>IMPORT_MIME_OBJECT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Import the mime object</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIMPORT_BUNDLE_FROM_CLUSTER</CLSNAME>
-     <CMPNAME>REPLACE_CONTENT_ALL_TABLES</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>replace the content of all tables completely</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

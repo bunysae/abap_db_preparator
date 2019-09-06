@@ -35,7 +35,11 @@ CLASS test_export_import IMPLEMENTATION.
 
     create_cut( ).
     setup_tables( ).
+    COMMIT WORK AND WAIT.
     export( ).
+    COMMIT WORK AND WAIT.
+
+    DELETE FROM zexport_ut3.
     COMMIT WORK AND WAIT.
 
   ENDMETHOD.
@@ -57,19 +61,22 @@ CLASS test_export_import IMPLEMENTATION.
     DATA: export_ut1 TYPE zexport_ut1,
           export_ut2 TYPE zexport_ut2,
           import_ut1 TYPE zimport_ut1,
-          import_ut2 TYPE zimport_ut2.
+          import_ut2 TYPE zimport_ut2,
+          export_ut3 TYPE zexport_ut3.
 
     " setup the tables in this package
     DELETE FROM: zexport_ut1, zimport_ut1,
-      zexport_ut2, zimport_ut2.
+      zexport_ut2, zexport_ut3, zimport_ut2.
 
     export_ut1 = VALUE #( primary_key = 'AAA' content = 'char' ).
     export_ut2 = VALUE #( primary_key = 'AAA' content = '130' ).
+    export_ut3 = VALUE #( primary_key = 'ADA' content = '9999' ).
     import_ut1 = VALUE #( primary_key = 'CCC' content = 'imp' ).
     import_ut2 = VALUE #( primary_key = 'CCC' content = '30' ).
 
     INSERT zexport_ut1 FROM export_ut1.
     INSERT zexport_ut2 FROM export_ut2.
+    INSERT zexport_ut3 FROM export_ut3.
 
     INSERT zimport_ut1 FROM import_ut1.
     INSERT zimport_ut2 FROM import_ut2.
@@ -80,23 +87,32 @@ CLASS test_export_import IMPLEMENTATION.
 
     DATA(exporter) = NEW zexport_bundle_in_tdc( tdc = tdc
       variant = 'ECATTDEFAULT' ).
-    exporter->add_table_to_bundle( table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' ).
-    exporter->add_table_to_bundle( table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2' ).
-    exporter->export( ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' ) ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2' ) ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT3' ) ).
+    exporter->export( transport_request = space ).
 
   ENDMETHOD.
 
   METHOD import_and_replace.
     DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
           act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          act_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3,
           exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
-          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2.
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3.
 
     exp_cont_import_ut1 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = 'char' )
     ).
     exp_cont_import_ut2 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = '130' )
+    ).
+    exp_cont_export_ut3 = VALUE #(
+      ( client = sy-mandt primary_key = 'ADA' content = '9999' )
     ).
 
     DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
@@ -106,6 +122,7 @@ CLASS test_export_import IMPLEMENTATION.
 
     SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1.
     SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2.
+    SELECT * FROM zexport_ut3 INTO TABLE act_cont_export_ut3.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
       act = act_cont_import_ut1
@@ -113,14 +130,19 @@ CLASS test_export_import IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
       act = act_cont_import_ut2
       msg = 'content imported from table zimport_ut2' ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_export_ut3
+      act = act_cont_export_ut3
+      msg = 'content imported from table zexport_ut3 (no fake-table)' ).
 
   ENDMETHOD.
 
   METHOD import_and_add.
     DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
           act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          act_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3,
           exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
-          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2.
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3.
 
     exp_cont_import_ut1 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = 'char' )
@@ -129,6 +151,9 @@ CLASS test_export_import IMPLEMENTATION.
     exp_cont_import_ut2 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = '130' )
       ( client = sy-mandt primary_key = 'CCC' content = '30' )
+    ).
+    exp_cont_export_ut3 = VALUE #(
+      ( client = sy-mandt primary_key = 'ADA' content = '9999' )
     ).
 
     DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
@@ -140,6 +165,7 @@ CLASS test_export_import IMPLEMENTATION.
       ORDER BY PRIMARY KEY.
     SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
       ORDER BY PRIMARY KEY.
+    SELECT * FROM zexport_ut3 INTO TABLE act_cont_export_ut3.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
       act = act_cont_import_ut1
@@ -147,6 +173,9 @@ CLASS test_export_import IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
       act = act_cont_import_ut2
       msg = 'content imported from table zimport_ut2' ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_export_ut3
+      act = act_cont_export_ut3
+      msg = 'content imported from table zexport_ut3 (no fake-table)' ).
 
   ENDMETHOD.
 

@@ -12,7 +12,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZEXPORT</ARBGB>
      <MSGNR>000</MSGNR>
-     <TEXT>Testcase &amp;1 already exists. Use the overwrite option to overwrite it.</TEXT>
+     <TEXT>Testcase &amp;1 already exists. Overwritting is not active.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -49,6 +49,12 @@
      <ARBGB>ZEXPORT</ARBGB>
      <MSGNR>006</MSGNR>
      <TEXT>Download of file &amp;1 failed (reason: &amp;2)</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZEXPORT</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Testdatacontainer &amp;1 already exists. Overwritting is not active.</TEXT>
     </T100>
    </T100>
   </asx:values>

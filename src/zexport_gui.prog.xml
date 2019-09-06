@@ -366,10 +366,10 @@
        <TYPE>TABLE_CTRL</TYPE>
        <NAME>BUNDLE_TDC</NAME>
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
-       <LINE>005</LINE>
+       <LINE>007</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>182</LENGTH>
-       <HEIGHT>032</HEIGHT>
+       <HEIGHT>030</HEIGHT>
        <C_SCROLL_V>X</C_SCROLL_V>
        <C_SCROLL_H>X</C_SCROLL_H>
        <TC_TABTYPE>ENTRY</TC_TABTYPE>
@@ -387,13 +387,13 @@
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>FRAME</TYPE>
-       <NAME>%#AUTOTEXT009</NAME>
+       <NAME>%#AUTOTEXT010</NAME>
        <TEXT>____________________________________________________________________________________________________________________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>200</LENGTH>
        <VISLENGTH>200</VISLENGTH>
-       <HEIGHT>004</HEIGHT>
+       <HEIGHT>005</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <REQU_ENTRY>N</REQU_ENTRY>
       </RPY_DYFATC>
@@ -538,6 +538,35 @@
        <COLUMN>171</COLUMN>
        <LENGTH>001</LENGTH>
        <VISLENGTH>001</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT009</NAME>
+       <TEXT>Transport_Request</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>003</COLUMN>
+       <LENGTH>017</LENGTH>
+       <VISLENGTH>017</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>HEADER_TDC-TR_ORDER</NAME>
+       <TEXT>__________</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>022</COLUMN>
+       <LENGTH>010</LENGTH>
+       <VISLENGTH>010</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <INPUT_FLD>X</INPUT_FLD>
@@ -918,6 +947,14 @@
       <FUN_TEXT>Cancel</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>READ</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_TOGGLE_DISPLAY_CHANGE</TEXT_NAME>
+      <ICON_ID>@3I@</ICON_ID>
+      <FUN_TEXT>Modify exist. bundle</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>REFRESH</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
@@ -954,6 +991,12 @@
       <NO>03</NO>
       <PFNO>06</PFNO>
      </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
+      <NO>04</NO>
+      <PFNO>08</PFNO>
+     </RSMPE_BUT>
     </BUT>
     <PFK>
      <RSMPE_PFK>
@@ -972,6 +1015,12 @@
       <CODE>000001</CODE>
       <PFNO>06</PFNO>
       <FUNCODE>DELETE_ROW</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>08</PFNO>
+      <FUNCODE>READ</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -1015,6 +1064,10 @@
      <RSMPE_STAF>
       <STATUS>MODIFY</STATUS>
       <FUNCTION>EXIT</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>MODIFY</STATUS>
+      <FUNCTION>READ</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>MODIFY</STATUS>

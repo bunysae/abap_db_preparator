@@ -5,12 +5,21 @@ class ZIMPORT_BUNDLE definition
 
 public section.
 
-  methods REPLACE_CONTENT_ALL_TABLES ABSTRACT
-    RAISING
-      zcx_import_error.
-  methods ADD_CONTENT_ALL_TABLES ABSTRACT
-    RAISING
-      zcx_import_error.
+  data:
+    table_list TYPE STANDARD TABLE OF zexport_table_list read-only .
+
+  methods REPLACE_CONTENT_ALL_TABLES
+  abstract
+    raising
+      ZCX_IMPORT_ERROR .
+  methods REPLACE_CONTENT_COMPLETLY
+  abstract
+    raising
+      ZCX_IMPORT_ERROR .
+  methods ADD_CONTENT_ALL_TABLES
+  abstract
+    raising
+      ZCX_IMPORT_ERROR .
 protected section.
 
   methods CALLED_INSIDE_UNIT_TEST

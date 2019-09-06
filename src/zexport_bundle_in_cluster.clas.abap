@@ -13,23 +13,28 @@ public section.
     raising
       ZCX_EXPORT_OBJECT_EXISTS .
   "! Add the content of the table to the bundle (uses the builder-pattern).
-  "! @parameter table | Database table (transparent table),
-  "! where the content lies.
-  "! @parameter fake_table | The fake table, which is used in
-  "! the unit-test. The import-class <em>zimport_bundle_from_cluster</em>
+  "! @parameter _table |
+  "! <ul>
+  "! <li> Component "source_table":
+  "!   Database table (transparent table), where the content lies.
+  "! </li>
+  "! <li> Component "fake_table":
+  "! The fake table, which is used in the unit-test.
+  "! The import-class <em>zimport_bundle_from_cluster</em>
   "! overwrites the content of the fake-table.
   "! This parameter can be used, if working with class <em>cl_osq_replace</em>
   "! to replace table contents.
   "! If this parameter is omitted, parameter <em>table</em> is used.
-  "! @parameter where_restriction | An valid sql-where-clause
-  "! for an restriction of the exported rows.
+  "! </li>
+  "! <li> Component "where_restriction":
+  "! An valid sql-where-clause for an restriction of the exported rows.
+  "! </li>
+  "! </ul>
   "! @raising zcx_export_table_duplicate | If a table name is
   "! used more than one time.
   methods ADD_TABLE_TO_BUNDLE
     importing
-      !TABLE type TABNAME
-      !FAKE_TABLE type TABNAME optional
-      !WHERE_RESTRICTION type STRING OPTIONAL
+      VALUE(_table) TYPE zexport_table_list
     returning
       value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_CLUSTER
     RAISING
@@ -40,10 +45,8 @@ public section.
 protected section.
 private section.
 
-  types:
-    _tables TYPE STANDARD TABLE OF tabname .
-
   data CLUSTER_OBJECTS type ABAP_TRANS_SRCBIND_TAB .
+  DATA table_list TYPE STANDARD TABLE OF zexport_table_list.
   data MIME_KEY type WWWDATATAB .
 
   methods SERIALIZE
@@ -55,9 +58,6 @@ private section.
   methods SET_FILESIZE
     importing
       !SIZE type I .
-  methods GET_TABLE_LIST
-    exporting
-      !RESULT type _TABLES .
 ENDCLASS.
 
 
@@ -66,30 +66,29 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
 
   method ADD_TABLE_TO_BUNDLE.
-    DATA: name TYPE tabname.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    IF fake_table IS NOT INITIAL.
-      name = fake_table.
-    ELSE.
-      name = table.
+    IF _table-fake_table IS INITIAL.
+      _table-fake_table = _table-source_table.
     ENDIF.
-    IF line_exists( cluster_objects[ name = name ] ).
+    IF line_exists( cluster_objects[ name = _table-fake_table ] ).
       RAISE EXCEPTION TYPE zcx_export_table_duplicate
         EXPORTING
-          table = name.
+          table = _table-fake_table.
     ENDIF.
+
+    INSERT _table INTO TABLE table_list.
 
     APPEND INITIAL LINE TO cluster_objects
       ASSIGNING FIELD-SYMBOL(<content>).
-    <content>-name = name.
+    <content>-name = _table-fake_table.
 
     CREATE DATA <content>-value TYPE STANDARD TABLE OF
-      (table).
+      (_table-source_table).
     ASSIGN <content>-value->* TO <con>.
 
-    SELECT * FROM (table) INTO TABLE <con>
-      WHERE (where_restriction).
+    SELECT * FROM (_table-source_table) INTO TABLE <con>
+      WHERE (_table-where_restriction).
 
     instance = me.
 
@@ -143,7 +142,6 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
     DATA(binary_table_content) = content->get_output( ).
 
     " exporting the table list is necessary for deserialization
-    get_table_list( IMPORTING result = DATA(table_list) ).
     EXPORT content = binary_table_content table_list = table_list
       TO DATA BUFFER binary_content.
 
@@ -169,17 +167,6 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
   method EXPORT.
 
     create_mime_object( serialize( ) ).
-
-  endmethod.
-
-
-  method GET_TABLE_LIST.
-
-    CLEAR result.
-
-    LOOP AT cluster_objects REFERENCE INTO DATA(object).
-      APPEND object->*-name TO result.
-    ENDLOOP.
 
   endmethod.
 

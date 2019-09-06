@@ -11,12 +11,10 @@ public section.
     raising
       ZCX_IMPORT_ERROR .
   methods REPLACE_CONTENT_ALL_TABLES REDEFINITION.
+  METHODS replace_content_completly REDEFINITION.
   methods ADD_CONTENT_ALL_TABLES REDEFINITION.
 protected section.
 private section.
-
-  types:
-    _tables TYPE STANDARD TABLE OF tabname .
 
   data CLUSTER_OBJECTS type ABAP_TRANS_SRCBIND_TAB .
   data MIME_KEY type WWWDATATAB .
@@ -40,6 +38,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   method ADD_CONTENT_ALL_TABLES.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
+    called_inside_unit_test( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
       ASSIGN object->*-value->* TO <con>.
@@ -54,7 +53,6 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   method CONSTRUCTOR.
 
     super->constructor( ).
-    called_inside_unit_test( ).
 
     mime_key-relid = 'MI'.
     mime_key-objid = testcase_id.
@@ -65,16 +63,15 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
 
   method DESERIALIZE.
-    DATA: binary_table_content TYPE xstring,
-          table_list TYPE _tables.
+    DATA: binary_table_content TYPE xstring.
 
     IMPORT content = binary_table_content table_list = table_list
       FROM DATA BUFFER binary_content.
 
-    LOOP AT table_list INTO DATA(table).
+    LOOP AT table_list REFERENCE INTO DATA(_table).
       APPEND INITIAL LINE TO cluster_objects ASSIGNING FIELD-SYMBOL(<object>).
-      <object>-name = table.
-      CREATE DATA <object>-value TYPE STANDARD TABLE OF (table).
+      <object>-name = _table->*-fake_table.
+      CREATE DATA <object>-value TYPE STANDARD TABLE OF (_table->*-fake_table).
     ENDLOOP.
 
     CALL TRANSFORMATION id
@@ -131,6 +128,27 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   method REPLACE_CONTENT_ALL_TABLES.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
+    called_inside_unit_test( ).
+    LOOP AT cluster_objects REFERENCE INTO DATA(object).
+
+      ASSIGN object->*-value->* TO <con>.
+
+      READ TABLE table_list REFERENCE INTO DATA(_table)
+        WITH KEY fake_table = object->*-name.
+      ASSERT FIELDS object->*-name CONDITION sy-subrc = 0.
+
+      DELETE FROM (object->*-name) WHERE (_table->*-where_restriction).
+      INSERT (object->*-name) FROM TABLE <con>.
+
+    ENDLOOP.
+
+  endmethod.
+
+
+  method REPLACE_CONTENT_COMPLETLY.
+    FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
+
+    called_inside_unit_test( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
       ASSIGN object->*-value->* TO <con>.

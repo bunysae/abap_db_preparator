@@ -15,7 +15,7 @@ CONSTANTS: transparent_table TYPE dd02v-tabclass VALUE 'TRANSP'.
 
 CONTROLS: bundle_cluster TYPE TABLEVIEW USING SCREEN '0001',
           bundle_tdc     TYPE TABLEVIEW USING SCREEN '0002',
-          main_tabstrip TYPE TABSTRIP.
+          main_tabstrip  TYPE TABSTRIP.
 DATA: active_screen_no_ts TYPE sy-dynnr VALUE '0001'.
 
 DATA: BEGIN OF header_cluster,
@@ -27,6 +27,7 @@ DATA: BEGIN OF header_cluster,
         name      TYPE etobj_name,
         version   TYPE etobj_ver,
         variant   TYPE etvar_id,
+        tr_order  TYPE e070-trkorr,
         package   TYPE devclass,
         overwrite TYPE abap_bool,
       END OF header_tdc.
@@ -168,6 +169,8 @@ FORM user_command_0001.
 
   TRY.
       CASE sy-ucomm.
+        WHEN 'READ'.
+          PERFORM read_bundle_cluster.
         WHEN 'SAVE'.
           PERFORM export_screen_0001.
         WHEN 'REFRESH'.
@@ -196,6 +199,8 @@ FORM user_command_0002.
 
   TRY.
       CASE sy-ucomm.
+        WHEN 'READ'.
+          PERFORM read_bundle_tdc.
         WHEN 'SAVE'.
           PERFORM export_screen_0002.
         WHEN 'REFRESH'.
@@ -210,8 +215,10 @@ FORM user_command_0002.
           ENDLOOP.
           REFRESH CONTROL 'BUNDLE_TDC' FROM SCREEN '0002'.
       ENDCASE.
-    CATCH cx_ecatt_tdc_access INTO DATA(error).
-      MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
+    CATCH zcx_export_error INTO DATA(export_error).
+      MESSAGE export_error TYPE 'S' DISPLAY LIKE 'E'.
+    CATCH cx_ecatt_tdc_access INTO DATA(tdc_error).
+      MESSAGE tdc_error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
 
 ENDFORM.
@@ -233,6 +240,40 @@ DEFINE check_name.
   ENDIF.
 
 END-OF-DEFINITION.
+
+FORM read_bundle_cluster.
+
+  TRY.
+      DATA(importer) = NEW zimport_bundle_from_cluster( header_cluster-testcase_id ).
+
+      CLEAR: bundle.
+      LOOP AT importer->table_list REFERENCE INTO DATA(table).
+        APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
+          where_restriction = table->*-where_restriction ) TO bundle.
+      ENDLOOP.
+    CATCH zcx_import_error INTO DATA(error).
+      MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
+  ENDTRY.
+
+ENDFORM.
+
+FORM read_bundle_tdc.
+
+  TRY.
+      DATA(importer) = NEW zimport_bundle_from_tdc(
+        tdc = header_tdc-name tdc_version = header_tdc-version
+        variant = header_tdc-variant ).
+
+      CLEAR: bundle.
+      LOOP AT importer->table_list REFERENCE INTO DATA(table).
+        APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
+          where_restriction = table->*-where_restriction ) TO bundle.
+      ENDLOOP.
+    CATCH zcx_import_error INTO DATA(error).
+      MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
+  ENDTRY.
+
+ENDFORM.
 
 FORM check_table_names.
   DATA: object_type TYPE dd02v-tabclass.
@@ -257,8 +298,20 @@ ENDFORM.
 
 FORM create_tdc_exporter
   CHANGING exporter TYPE REF TO zexport_bundle_in_tdc
-  RAISING cx_ecatt_tdc_access.
+  RAISING cx_ecatt_tdc_access zcx_export_object_exists.
   DATA: tdc TYPE REF TO cl_apl_ecatt_tdc_api.
+
+  " check for version again, because empty version causes
+  " the exception cx_ecatt_tdc_access. The exception cx_ecatt_tdc_access
+  " should only been thrown, if the tdc doesn't exists
+  IF header_tdc-version IS INITIAL.
+    RAISE EXCEPTION TYPE cx_ecatt_tdc_access
+      EXPORTING
+        textid     = cx_ecatt_tdc_access=>version_not_found
+        last_obj_ver = space
+        last_obj_type = conv string( cl_apl_ecatt_const=>obj_type_test_data )
+        last_obj_name = header_tdc-name.
+  ENDIF.
 
   TRY.
       tdc = cl_apl_ecatt_tdc_api=>get_instance( EXPORTING
@@ -266,16 +319,20 @@ FORM create_tdc_exporter
         i_testdatacontainer_version = header_tdc-version
         i_write_access = abap_true ).
 
-    CATCH cx_ecatt_tdc_access INTO DATA(failure).
-
-      IF failure->textid = cx_ecatt_tdc_access=>object_not_exists.
-        cl_apl_ecatt_tdc_api=>create_tdc( EXPORTING i_name = header_tdc-name
-          i_version = header_tdc-version i_tadir_devclass = header_tdc-package
-          i_write_access = abap_true
-          IMPORTING e_tdc_ref = tdc ).
-      ELSE.
-        RAISE EXCEPTION failure.
+      IF header_tdc-overwrite = abap_false.
+        " container exists and shouldn't be overwritten
+        RAISE EXCEPTION TYPE zcx_export_object_exists
+          EXPORTING
+            textid   = zcx_export_object_exists=>tdc_exists
+            tdc_name = header_tdc-name.
       ENDIF.
+
+    CATCH cx_ecatt_tdc_access.
+
+      cl_apl_ecatt_tdc_api=>create_tdc( EXPORTING i_tr_order = header_tdc-tr_order
+        i_name = header_tdc-name i_version = header_tdc-version
+        i_tadir_devclass = header_tdc-package i_write_access = abap_true
+        IMPORTING e_tdc_ref = tdc ).
 
   ENDTRY.
 
@@ -299,8 +356,9 @@ FORM export_screen_0001 RAISING zcx_export_error.
   PERFORM create_cluster_exporter CHANGING exporter.
 
   LOOP AT bundle INTO table.
-    exporter->add_table_to_bundle( table = table-name
-      fake_table = table-fake where_restriction = table-where_restriction ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = table-name fake_table = table-fake
+      where_restriction = table-where_restriction ) ).
   ENDLOOP.
   exporter->export( ).
   exporter->attach_to_wb_order( ).
@@ -310,7 +368,7 @@ FORM export_screen_0001 RAISING zcx_export_error.
 
 ENDFORM.
 
-FORM export_screen_0002 RAISING cx_ecatt_tdc_access.
+FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_object_exists.
   DATA exporter TYPE REF TO zexport_bundle_in_tdc.
 
   IF bundle IS INITIAL.
@@ -320,10 +378,11 @@ FORM export_screen_0002 RAISING cx_ecatt_tdc_access.
   PERFORM create_tdc_exporter CHANGING exporter.
 
   LOOP AT bundle INTO table.
-    exporter->add_table_to_bundle( table = table-name
-      fake_table = table-fake where_restriction = table-where_restriction ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = table-name fake_table = table-fake
+      where_restriction = table-where_restriction ) ).
   ENDLOOP.
-  exporter->export( ).
+  exporter->export( transport_request = header_tdc-tr_order ).
 
   is_changed = abap_false.
   COMMIT WORK.

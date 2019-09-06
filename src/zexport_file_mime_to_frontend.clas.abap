@@ -16,6 +16,9 @@ public section.
       !KEY type WWWDATATAB
     returning
       value(FILENAME) type STRING .
+  class-methods DELETE_FROM_SAPGUI_WORK
+    importing
+      !KEY type WWWDATATAB.
 protected section.
 private section.
 
@@ -35,6 +38,18 @@ ENDCLASS.
 
 
 CLASS ZEXPORT_FILE_MIME_TO_FRONTEND IMPLEMENTATION.
+
+
+  method DELETE_FROM_SAPGUI_WORK.
+    DATA:
+          ##NEEDED
+          return_code TYPE i.
+
+    cl_gui_frontend_services=>file_delete( EXPORTING
+      filename = get_filename( key )
+      CHANGING rc = return_code EXCEPTIONS OTHERS = 0 ).
+
+  endmethod.
 
 
   method EXPORT_TO_SAPGUI_WORK_DIR.

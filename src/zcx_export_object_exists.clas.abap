@@ -15,13 +15,23 @@ public section.
     attr3 TYPE scx_attrname VALUE '',
     attr4 TYPE scx_attrname VALUE '',
   END OF zcx_export_object_exists.
+  CONSTANTS: BEGIN OF tdc_exists,
+    msgid TYPE symsgid VALUE 'ZEXPORT',
+    msgno TYPE symsgno VALUE '007',
+    attr1 TYPE scx_attrname VALUE 'TDC_NAME',
+    attr2 TYPE scx_attrname VALUE '',
+    attr3 TYPE scx_attrname VALUE '',
+    attr4 TYPE scx_attrname VALUE '',
+  END OF tdc_exists.
   DATA testcase_id TYPE w3objid.
+  DATA tdc_name TYPE etobj_name.
 
   methods CONSTRUCTOR
     importing
       !TEXTID like IF_T100_MESSAGE=>T100KEY optional
       !PREVIOUS like PREVIOUS optional
-      testcase_id TYPE w3objid.
+      testcase_id TYPE w3objid OPTIONAL
+      tdc_name TYPE etobj_name OPTIONAL.
 protected section.
 private section.
 ENDCLASS.
@@ -37,6 +47,7 @@ EXPORTING
 PREVIOUS = PREVIOUS
 .
 me->TESTCASE_ID = TESTCASE_ID .
+me->TDC_NAME = TDC_NAME .
 clear me->textid.
 if textid is initial.
   IF_T100_MESSAGE~T100KEY = ZCX_EXPORT_OBJECT_EXISTS .
