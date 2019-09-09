@@ -42,7 +42,9 @@ public section.
       zcx_export_error.
   methods EXPORT .
   "! Attach the MIME-Object to an workbench order for transportation pruposes
-  methods ATTACH_TO_WB_ORDER .
+  methods ATTACH_TO_WB_ORDER
+    RAISING
+      zcx_export_error.
 protected section.
 private section.
 
@@ -109,17 +111,30 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
     header = VALUE #(
       ( pgmid = 'R3TR' object = 'W3' && mime_key-relid obj_name = mime_key-objid
-        masterlang = sy-langu ) ).
+        masterlang = sy-langu devclass = mime_key-devclass ) ).
 
     CALL FUNCTION 'TR_OBJECTS_CHECK'
       TABLES
         wt_ko200 = header
-        wt_e071k = items.
+        wt_e071k = items
+      EXCEPTIONS
+        cancel_edit_other_error = 2
+        show_only_other_error = 4.
+    IF sy-subrc <> 0.
+      zcx_export_error=>wrap_t100_message( ).
+    ENDIF.
 
     CALL FUNCTION 'TR_OBJECTS_INSERT'
       TABLES
         wt_ko200 = header
-        wt_e071k = items.
+        wt_e071k = items
+      EXCEPTIONS
+        cancel_edit_other_error = 2
+        show_only_other_error = 4.
+    IF sy-subrc <> 0.
+      zcx_export_error=>wrap_t100_message( ).
+    ENDIF.
+
   ENDMETHOD.
 
 

@@ -1,4 +1,4 @@
-class ZCX_EXPORT_WHERE_CLAUSE_INVALI definition
+class ZCX_EXPORT_TR_ORDER definition
   public
   inheriting from ZCX_EXPORT_ERROR
   final
@@ -6,17 +6,15 @@ class ZCX_EXPORT_WHERE_CLAUSE_INVALI definition
 
 public section.
 
-  constants:
-    BEGIN OF ZCX_EXPORT_WHERE_CLAUSE_INVALI,
+  CONSTANTS: BEGIN OF zcx_export_tr_order,
     msgid TYPE symsgid VALUE 'ZEXPORT',
-    msgno TYPE symsgno VALUE '008',
-    attr1 TYPE scx_attrname VALUE 'TABLE',
-    attr2 TYPE scx_attrname VALUE 'WHERE_CLAUSE',
+    msgno TYPE symsgno VALUE '009',
+    attr1 TYPE scx_attrname VALUE 'TR_ORDER',
+    attr2 TYPE scx_attrname VALUE '',
     attr3 TYPE scx_attrname VALUE '',
     attr4 TYPE scx_attrname VALUE '',
-  END OF ZCX_EXPORT_WHERE_CLAUSE_INVALI .
-  data TABLE type TABNAME .
-  data WHERE_CLAUSE type STRING .
+  END OF zcx_export_tr_order.
+  DATA tr_order TYPE e070-trkorr.
 
   methods CONSTRUCTOR
     importing
@@ -26,15 +24,14 @@ public section.
       !MSGV2 type SYMSGV optional
       !MSGV3 type SYMSGV optional
       !MSGV4 type SYMSGV optional
-      !TABLE type TABNAME
-      !WHERE_CLAUSE type STRING .
+      tr_order TYPE e070-trkorr.
 protected section.
 private section.
 ENDCLASS.
 
 
 
-CLASS ZCX_EXPORT_WHERE_CLAUSE_INVALI IMPLEMENTATION.
+CLASS ZCX_EXPORT_TR_ORDER IMPLEMENTATION.
 
 
   method CONSTRUCTOR.
@@ -46,11 +43,10 @@ MSGV2 = MSGV2
 MSGV3 = MSGV3
 MSGV4 = MSGV4
 .
-me->TABLE = TABLE .
-me->WHERE_CLAUSE = WHERE_CLAUSE .
+me->TR_ORDER = TR_ORDER .
 clear me->textid.
 if textid is initial.
-  IF_T100_MESSAGE~T100KEY = ZCX_EXPORT_WHERE_CLAUSE_INVALI .
+  IF_T100_MESSAGE~T100KEY = ZCX_EXPORT_TR_ORDER .
 else.
   IF_T100_MESSAGE~T100KEY = TEXTID.
 endif.

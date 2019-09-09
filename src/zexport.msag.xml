@@ -62,6 +62,12 @@
      <MSGNR>008</MSGNR>
      <TEXT>The where-clause for table &amp;1 is invalid.</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZEXPORT</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>The transport request &amp;1 must exists and must be open.</TEXT>
+    </T100>
    </T100>
    <LONGTEXTS>
     <item>

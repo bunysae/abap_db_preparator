@@ -4,6 +4,8 @@
 *&---------------------------------------------------------------------*
 REPORT zexport_gui MESSAGE-ID zexport.
 
+INCLUDE rddkorri.
+
 TYPES: BEGIN OF _table,
          name              TYPE tabname,
          fake              TYPE tabname,
@@ -59,6 +61,7 @@ ENDMODULE.
 MODULE status OUTPUT.
 
   SET PF-STATUS 'MODIFY'.
+  SET TITLEBAR 'EXPORT'.
 
 ENDMODULE.
 
@@ -119,7 +122,7 @@ FORM exit_command_0001.
         RETURN.
       ENDIF.
       LEAVE PROGRAM.
-    CATCH zcx_export_error INTO DATA(error).
+    CATCH cx_static_check INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
 
@@ -140,7 +143,7 @@ FORM exit_command_0002.
         RETURN.
       ENDIF.
       LEAVE PROGRAM.
-    CATCH cx_ecatt_tdc_access INTO DATA(error).
+    CATCH cx_static_check INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
 
@@ -203,7 +206,7 @@ FORM user_command_0002.
         WHEN 'READ'.
           PERFORM read_bundle_tdc.
         WHEN 'SAVE'.
-          PERFORM export_screen_0002.
+          PERFORM: check_header_tdc, export_screen_0002.
         WHEN 'REFRESH'.
           CLEAR bundle.
           REFRESH CONTROL 'BUNDLE_TDC' FROM SCREEN '0002'.
@@ -221,6 +224,38 @@ FORM user_command_0002.
     CATCH cx_ecatt_tdc_access INTO DATA(tdc_error).
       MESSAGE tdc_error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
+
+ENDFORM.
+
+"! check package existence and if transport order is mandatory
+FORM check_header_tdc RAISING zcx_export_error.
+
+  cl_package_helper=>check_package_existence(
+    EXPORTING i_package_name = header_tdc-package
+    IMPORTING e_package_exists = DATA(exists) ).
+  IF exists = abap_false.
+    zcx_export_error=>wrap_t100_message( ).
+  ENDIF.
+
+  cl_package_helper=>check_package_name(
+     EXPORTING i_package_name = header_tdc-package
+     IMPORTING e_package_type = DATA(package_type)
+     EXCEPTIONS OTHERS = 4 ).
+  IF sy-subrc <> 0.
+    zcx_export_error=>wrap_t100_message( ).
+  ENDIF.
+
+  IF package_type <> '$'.
+    " for non-local packages transport order must be specified
+    SELECT COUNT(*) FROM e070
+      WHERE trkorr = header_tdc-tr_order AND trfunction = 'K'
+      AND trstatus = 'D'.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_export_tr_order
+        EXPORTING
+          tr_order = header_tdc-tr_order.
+    ENDIF.
+  ENDIF.
 
 ENDFORM.
 
@@ -252,9 +287,17 @@ FORM read_bundle_cluster.
         APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
           where_restriction = table->*-where_restriction ) TO bundle.
       ENDLOOP.
+      PERFORM read_package_bundle_cluster.
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
+
+ENDFORM.
+
+FORM read_package_bundle_cluster.
+
+  SELECT SINGLE devclass INTO header_cluster-package FROM tadir
+    WHERE pgmid = 'R3TR' AND object = 'W3MI' AND obj_name = header_cluster-testcase_id.
 
 ENDFORM.
 
@@ -270,9 +313,29 @@ FORM read_bundle_tdc.
         APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
           where_restriction = table->*-where_restriction ) TO bundle.
       ENDLOOP.
+      PERFORM read_package_bundle_tdc.
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
+
+ENDFORM.
+
+"! reads the package and the open transport order for this tdc
+FORM read_package_bundle_tdc.
+  DATA: task_contains_tdc TYPE e070-trkorr.
+
+  SELECT SINGLE devclass INTO header_tdc-package FROM tadir
+    WHERE pgmid = 'R3TR' AND object = cl_apl_ecatt_const=>obj_type_test_data
+    AND obj_name = header_tdc-name.
+
+  SELECT trkorr UP TO 1 ROWS INTO task_contains_tdc FROM e071
+    WHERE pgmid = 'R3TR' AND object = cl_apl_ecatt_const=>obj_type_test_data
+    AND obj_name = header_tdc-name AND lockflag = abap_true.
+
+    SELECT SINGLE strkorr INTO header_tdc-tr_order FROM e070
+      WHERE trkorr = task_contains_tdc.
+
+  ENDSELECT.
 
 ENDFORM.
 
@@ -354,18 +417,25 @@ FORM export_screen_0001 RAISING zcx_export_error.
     MESSAGE s002.
     RETURN.
   ENDIF.
-  PERFORM create_cluster_exporter CHANGING exporter.
 
-  LOOP AT bundle INTO table.
-    exporter->add_table_to_bundle( _table = VALUE #(
-      source_table = table-name fake_table = table-fake
-      where_restriction = table-where_restriction ) ).
-  ENDLOOP.
-  exporter->export( ).
-  exporter->attach_to_wb_order( ).
+  TRY.
+    PERFORM create_cluster_exporter CHANGING exporter.
 
-  is_changed = abap_false.
-  COMMIT WORK.
+    LOOP AT bundle INTO table.
+      exporter->add_table_to_bundle( _table = VALUE #(
+        source_table = table-name fake_table = table-fake
+        where_restriction = table-where_restriction ) ).
+    ENDLOOP.
+    exporter->export( ).
+    exporter->attach_to_wb_order( ).
+
+    is_changed = abap_false.
+    COMMIT WORK.
+  CATCH zcx_export_error INTO DATA(failure).
+    " rollback necessary, if user canceled the attachment to workbench order
+    ROLLBACK WORK.
+    RAISE EXCEPTION failure.
+  ENDTRY.
 
 ENDFORM.
 
@@ -413,3 +483,95 @@ FORM save_cancel_or_discard USING export_procedure TYPE char30
   ENDCASE.
 
 ENDFORM.
+
+FORM show_own_orders.
+  DATA: selection         TYPE trwbo_selection,
+        new_request_props TYPE trwbo_new_req_props,
+        organizer         TYPE trwbo_calling_organizer,
+        request_header    TYPE trwbo_request_header,
+        title             TYPE trwbo_title.
+
+  selection-client        = sy-mandt.
+  "selection-tarsystem     = target_system
+  selection-taskfunctions = wbtasktype.
+  organizer               = trwbo_wbo.
+
+  selection-reqfunctions  = trco.
+  selection-reqstatus     = notrel.
+  selection-taskstatus    = notrel.
+  selection-connect_req_task_conditions = abap_true.
+
+* parameters for new request
+  PERFORM get_new_req_props CHANGING new_request_props.
+
+  title = text-enw.
+
+  CALL FUNCTION 'TR_PRESENT_REQUESTS_SEL_POPUP'
+       EXPORTING
+            iv_organizer_type    = organizer
+            iv_username          = sy-uname
+            is_selection         = selection
+            iv_title             = title
+            is_new_request_props = new_request_props
+       IMPORTING
+            es_selected_request  = request_header.
+
+  header_tdc-tr_order = request_header-trkorr.
+
+ENDFORM.
+
+FORM get_new_req_props   CHANGING properties TYPE trwbo_new_req_props.
+
+  properties-trfunctions = trco.
+  "properties-tarsystem   = target_system.
+
+* task type
+  properties-taskfunc = tcol.
+
+* source client
+  properties = sy-mandt.
+
+ENDFORM.
+
+FORM show_tdcs.
+  DATA: program TYPE progname.
+
+  program = sy-repid.
+  cl_gui_ecatt_object_usage=>select_object_f4(
+      im_object_type           = 'ECTD'
+      im_dfield_obj_name       = 'HEADER_TDC-NAME'
+      im_dfield_obj_version    = 'HEADER_TDC-VERSION'
+      im_progname              = program
+      im_dynnr                 = sy-dynnr
+      im_without_personal_list = abap_true ).
+
+ENDFORM.
+
+FORM show_tdc_versions.
+  DATA: program TYPE progname.
+
+  program = sy-repid.
+  TRY.
+    cl_gui_ecatt_object_usage=>select_version_f4(
+      im_obj_type           = 'ECTD'
+      im_dfield_obj_name       = 'HEADER_TDC-NAME'
+      im_dfield_obj_version    = 'HEADER_TDC-VERSION'
+      im_progname              = program
+      im_dynnr = sy-dynnr ).
+    CATCH cx_ecatt_apl INTO DATA(failure).
+      MESSAGE failure TYPE 'S' DISPLAY LIKE 'E'.
+  ENDTRY.
+
+ENDFORM.
+
+MODULE show_transport_orders INPUT.
+  PERFORM show_own_orders.
+ENDMODULE.
+
+MODULE show_tdcs INPUT.
+  PERFORM show_tdcs.
+ENDMODULE.
+
+MODULE show_tdc_versions INPUT.
+  PERFORM show_tdc_versions.
+ENDMODULE.

@@ -1,37 +1,42 @@
 class ZCX_EXPORT_OBJECT_EXISTS definition
   public
-  inheriting from zcx_export_error
+  inheriting from ZCX_EXPORT_ERROR
   final
   create public .
 
 public section.
 
-  interfaces IF_T100_MESSAGE .
-  CONSTANTS: BEGIN OF zcx_export_object_exists,
+  constants:
+    BEGIN OF zcx_export_object_exists,
     msgid TYPE symsgid VALUE 'ZEXPORT',
     msgno TYPE symsgno VALUE '000',
     attr1 TYPE scx_attrname VALUE 'TESTCASE_ID',
     attr2 TYPE scx_attrname VALUE '',
     attr3 TYPE scx_attrname VALUE '',
     attr4 TYPE scx_attrname VALUE '',
-  END OF zcx_export_object_exists.
-  CONSTANTS: BEGIN OF tdc_exists,
+  END OF zcx_export_object_exists .
+  constants:
+    BEGIN OF tdc_exists,
     msgid TYPE symsgid VALUE 'ZEXPORT',
     msgno TYPE symsgno VALUE '007',
     attr1 TYPE scx_attrname VALUE 'TDC_NAME',
     attr2 TYPE scx_attrname VALUE '',
     attr3 TYPE scx_attrname VALUE '',
     attr4 TYPE scx_attrname VALUE '',
-  END OF tdc_exists.
-  DATA testcase_id TYPE w3objid.
-  DATA tdc_name TYPE etobj_name.
+  END OF tdc_exists .
+  data TESTCASE_ID type W3OBJID .
+  data TDC_NAME type ETOBJ_NAME .
 
   methods CONSTRUCTOR
     importing
       !TEXTID like IF_T100_MESSAGE=>T100KEY optional
       !PREVIOUS like PREVIOUS optional
-      testcase_id TYPE w3objid OPTIONAL
-      tdc_name TYPE etobj_name OPTIONAL.
+      !MSGV1 type SYMSGV optional
+      !MSGV2 type SYMSGV optional
+      !MSGV3 type SYMSGV optional
+      !MSGV4 type SYMSGV optional
+      !TESTCASE_ID type W3OBJID optional
+      !TDC_NAME type ETOBJ_NAME optional .
 protected section.
 private section.
 ENDCLASS.
@@ -45,6 +50,10 @@ CLASS ZCX_EXPORT_OBJECT_EXISTS IMPLEMENTATION.
 CALL METHOD SUPER->CONSTRUCTOR
 EXPORTING
 PREVIOUS = PREVIOUS
+MSGV1 = MSGV1
+MSGV2 = MSGV2
+MSGV3 = MSGV3
+MSGV4 = MSGV4
 .
 me->TESTCASE_ID = TESTCASE_ID .
 me->TDC_NAME = TDC_NAME .

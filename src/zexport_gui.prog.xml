@@ -122,6 +122,7 @@
        <FORMAT>CHAR</FORMAT>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
+       <MATCHCODE>PB_PACKAGE_NAME</MATCHCODE>
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
@@ -518,6 +519,7 @@
        <FORMAT>CHAR</FORMAT>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
+       <MATCHCODE>PB_PACKAGE_NAME</MATCHCODE>
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
@@ -750,6 +752,19 @@
       <RPY_DYFLOW>
        <LINE>MODULE user_command_0002.</LINE>
       </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>PROCESS ON VALUE-REQUEST.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>FIELD header_tdc-tr_order MODULE show_transport_orders.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>FIELD header_tdc-name MODULE show_tdcs.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>FIELD header_tdc-version MODULE show_tdc_versions.</LINE>
+      </RPY_DYFLOW>
      </FLOW_LOGIC>
      <SPACES>
       <item>0</item>
@@ -772,6 +787,11 @@
       <item>4</item>
       <item>2</item>
       <item>0</item>
+      <item>2</item>
+      <item>0</item>
+      <item>0</item>
+      <item>2</item>
+      <item>2</item>
       <item>2</item>
      </SPACES>
     </item>
@@ -1123,8 +1143,20 @@
       <INT_NOTE>Modification</INT_NOTE>
      </RSMPE_ATRT>
     </DOC>
+    <TIT>
+     <RSMPE_TITT>
+      <CODE>EXPORT</CODE>
+      <TEXT>Export Bundle</TEXT>
+     </RSMPE_TITT>
+    </TIT>
    </CUA>
    <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>ENW</KEY>
+     <ENTRY>Prompt for customizing request</ENTRY>
+     <LENGTH>60</LENGTH>
+    </item>
     <item>
      <ID>I</ID>
      <KEY>SAV</KEY>
