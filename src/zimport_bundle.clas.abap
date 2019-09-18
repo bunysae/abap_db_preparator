@@ -22,6 +22,10 @@ public section.
       ZCX_IMPORT_ERROR .
 protected section.
 
+  "! Called either in abap unit-test
+  "! or if the method is called outside of an unit-test, at least dangerous
+  "! unit-tests must be enabled
+  "! @raising zcx_import_not_allowed | Of the above conditions are not met
   methods CALLED_INSIDE_UNIT_TEST
     RAISING
       zcx_import_not_allowed.
@@ -46,15 +50,23 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
     " progname=CL_AUNIT_TEST_CLASS===========CP
     " event: a method of CL_AUNIT_TEST_CLASS=>if_aunit_test_class_handle
 
-    ##NEEDED
     LOOP AT call_stack TRANSPORTING NO FIELDS
       WHERE kind = 'METHOD' AND progname = 'CL_AUNIT_TEST_CLASS===========CP'
       AND event CS 'CL_AUNIT_TEST_CLASS=>IF_AUNIT_TEST_CLASS_HANDLE'.
 
+      RETURN.
+
     ENDLOOP.
-    IF sy-subrc <> 0.
-      RAISE EXCEPTION TYPE zcx_import_not_allowed.
+
+    DATA(aunit_setup) = cl_aunit_customizing=>get_setup( ).
+    IF aunit_setup-client-max_risk_level >= if_Aunit_Attribute_Enums=>c_Risk_Level-dangerous
+      AND aunit_setup-client-deny_execution = abap_false.
+
+      RETURN.
+
     ENDIF.
+
+    RAISE EXCEPTION TYPE zcx_import_not_allowed.
 
   endmethod.
 ENDCLASS.
