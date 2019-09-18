@@ -23,6 +23,10 @@ CLASS test_export_import DEFINITION FOR TESTING
       RAISING
         cx_static_check.
 
+    METHODS import_and_replace_all FOR TESTING
+      RAISING
+        cx_static_check.
+
     METHODS import_and_add FOR TESTING
       RAISING
         cx_static_check.
@@ -73,6 +77,7 @@ CLASS test_export_import IMPLEMENTATION.
     ##LITERAL
     export_ut2 = VALUE #( primary_key = 'AAA' content = '130' ).
     export_ut3 = VALUE #( primary_key = 'ADA' content = '9999' ).
+
     import_ut1 = VALUE #( primary_key = 'CCC' content = 'imp' ).
     ##LITERAL
     import_ut2 = VALUE #( primary_key = 'CCC' content = '30' ).
@@ -121,6 +126,45 @@ CLASS test_export_import IMPLEMENTATION.
     DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
       variant = 'ECATTDEFAULT' ).
     cut->replace_content_all_tables( ).
+    COMMIT WORK AND WAIT.
+
+    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1.
+    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2.
+    SELECT * FROM zexport_ut3 INTO TABLE act_cont_export_ut3.
+
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
+      act = act_cont_import_ut1
+      msg = 'content imported from table zimport_ut1' ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
+      act = act_cont_import_ut2
+      msg = 'content imported from table zimport_ut2' ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_export_ut3
+      act = act_cont_export_ut3
+      msg = 'content imported from table zexport_ut3 (no fake-table)' ).
+
+  ENDMETHOD.
+
+  METHOD import_and_replace_all.
+    DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          act_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3,
+          exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3.
+
+    exp_cont_import_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+    ).
+    exp_cont_import_ut2 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = '130' )
+    ).
+    exp_cont_export_ut3 = VALUE #(
+      ( client = sy-mandt primary_key = 'ADA' content = '9999' )
+    ).
+
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    cut->replace_content_completly( ).
     COMMIT WORK AND WAIT.
 
     SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1.

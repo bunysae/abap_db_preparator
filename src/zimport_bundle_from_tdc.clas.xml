@@ -20,12 +20,6 @@
      <LANGU>E</LANGU>
      <DESCRIPT>fix the data container and the variant in the constructor</DESCRIPT>
     </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIMPORT_BUNDLE_FROM_TDC</CLSNAME>
-     <CMPNAME>GET_WHERE_RESTRICTION</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>get the where restriction for the current table</DESCRIPT>
-    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

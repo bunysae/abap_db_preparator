@@ -25,12 +25,6 @@ private section.
 
   data TDC type ref to CL_APL_ECATT_TDC_API .
   data VARIANT type ETVAR_ID .
-
-  methods GET_WHERE_RESTRICTION
-    importing
-      !PARAM type ETP_NAME
-    returning
-      value(RESULT) type STRING .
 ENDCLASS.
 
 
@@ -44,17 +38,20 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
     called_inside_unit_test( ).
     TRY.
-        " it's assumed, that all params of the tdc are transparent tables
-        " and the name of the parameter is equal to the name of transparent table
-        LOOP AT tdc->get_param_list( ) REFERENCE INTO DATA(param)
-          WHERE table_line <> 'ZEXPORT_TABLE_LIST'.
+        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
+        " The parameter-list is not used, because different variants can use
+        " different parameters and some parameters may be not database-tables.
+        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
+          CHANGING e_param_value = table_list ).
 
-          CREATE DATA content TYPE STANDARD TABLE OF (param->*).
+        LOOP AT table_list REFERENCE INTO DATA(table).
+
+          CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
-          tdc->get_value( EXPORTING i_param_name = param->* i_variant_name = variant
+          tdc->get_value( EXPORTING i_param_name = table->*-fake_table i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
-          MODIFY (param->*) FROM TABLE <con>.
+          MODIFY (table->*-fake_table) FROM TABLE <con>.
 
         ENDLOOP.
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
@@ -83,41 +80,31 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method GET_WHERE_RESTRICTION.
-
-    READ TABLE table_list REFERENCE INTO DATA(table)
-      WITH KEY fake_table = param.
-    ASSERT FIELDS param CONDITION sy-subrc = 0.
-
-    result = table->*-where_restriction.
-
-  endmethod.
-
-
   METHOD replace_content_all_tables.
-    DATA: content TYPE REF TO data.
+    DATA: content TYPE REF TO data,
+          table_list TYPE STANDARD TABLE OF zexport_table_list.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     called_inside_unit_test( ).
     TRY.
-        " it's assumed, that all params of the tdc are transparent tables
-        " and the name of the parameter is equal to the name of transparent table
-        LOOP AT tdc->get_param_list( ) REFERENCE INTO DATA(param)
-          WHERE table_line <> 'ZEXPORT_TABLE_LIST'.
+        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
+        " The parameter-list is not used, because different variants can use
+        " different parameters and some parameters may be not database-tables.
+        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
+          CHANGING e_param_value = table_list ).
 
-          CREATE DATA content TYPE STANDARD TABLE OF (param->*).
+        LOOP AT table_list REFERENCE INTO DATA(table).
+
+          CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
-          tdc->get_value( EXPORTING i_param_name = param->* i_variant_name = variant
+          tdc->get_value( EXPORTING i_param_name = table->*-fake_table i_variant_name = variant
             CHANGING e_param_value = <con> ).
-          IF <con> IS INITIAL.
-            CONTINUE.
-          ENDIF.
 
-          DATA(where_restriction) = get_where_restriction( param->* ).
-          DELETE FROM (param->*) WHERE (where_restriction).
-          INSERT (param->*) FROM TABLE <con>.
+          DELETE FROM (table->*-fake_table) WHERE (table->*-where_restriction).
+          INSERT (table->*-fake_table) FROM TABLE <con>.
 
         ENDLOOP.
+
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.
@@ -131,20 +118,24 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
     called_inside_unit_test( ).
     TRY.
-        " it's assumed, that all params of the tdc are transparent tables
-        " and the name of the parameter is equal to the name of transparent table
-        LOOP AT tdc->get_param_list( ) REFERENCE INTO DATA(param)
-          WHERE table_line <> 'ZEXPORT_TABLE_LIST'.
+        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
+        " The parameter-list is not used, because different variants can use
+        " different parameters and some parameters may be not database-tables.
+        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
+          CHANGING e_param_value = table_list ).
 
-          CREATE DATA content TYPE STANDARD TABLE OF (param->*).
+        LOOP AT table_list REFERENCE INTO DATA(table).
+
+          CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
-          tdc->get_value( EXPORTING i_param_name = param->* i_variant_name = variant
+          tdc->get_value( EXPORTING i_param_name = table->*-fake_table i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
-          DELETE FROM (param->*).
-          INSERT (param->*) FROM TABLE <con>.
+          DELETE FROM (table->*-fake_table).
+          INSERT (table->*-fake_table) FROM TABLE <con>.
 
         ENDLOOP.
+
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.
