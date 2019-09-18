@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>Import bundle RFC-API</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZIMPORT_BUNDLETOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZIMPORT_BUNDLE</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZIMPORT_BUNDLE_FROM_CLUSTER</FUNCNAME>
+     <SHORT_TEXT>Imprt Bundle from cluster</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>TESTCASE_ID</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>W3OBJID</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>SEOCMPNAME</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>ABAP_BOOL</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXCEPTION>
+      <RSEXC>
+       <EXCEPTION>ZCX_IMPORT_ERROR</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
+       <EXCEPTION>CX_SY_DYN_CALL_ILLEGAL_METHOD</EXCEPTION>
+      </RSEXC>
+     </EXCEPTION>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>TESTCASE_ID</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Id of cluster</STEXT>
+       <INDEX> 001</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Handler (method)</STEXT>
+       <INDEX> 002</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>execute &quot;COMMIT WORK&quot;</STEXT>
+       <INDEX> 003</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>ZCX_IMPORT_ERROR</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Import-Errors</STEXT>
+       <INDEX> 004</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>CX_SY_DYN_CALL_ILLEGAL_METHOD</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Content-Handler is not a valid method</STEXT>
+       <INDEX> 005</INDEX>
+      </RSFDO>
+     </DOCUMENTATION>
+     <EXCEPTION_CLASSES>X</EXCEPTION_CLASSES>
+    </item>
+    <item>
+     <FUNCNAME>ZIMPORT_BUNDLE_FROM_TDC</FUNCNAME>
+     <SHORT_TEXT>Import bundle from Test-Data-Container</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>TDC</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>ETOBJ_NAME</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>TDC_VERSION</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>ETOBJ_VER</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>VARIANT</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>ETVAR_ID</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <REFERENCE>X</REFERENCE>
+       <TYP>SEOCMPNAME</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <DEFAULT>ABAP_TRUE</DEFAULT>
+       <REFERENCE>X</REFERENCE>
+       <TYP>SAP_BOOL</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXCEPTION>
+      <RSEXC>
+       <EXCEPTION>ZCX_IMPORT_ERROR</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
+       <EXCEPTION>CX_SY_DYN_CALL_ILLEGAL_METHOD</EXCEPTION>
+      </RSEXC>
+     </EXCEPTION>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>TDC</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Testdatacontainer</STEXT>
+       <INDEX> 001</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>TDC_VERSION</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Version TDC</STEXT>
+       <INDEX> 002</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>VARIANT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Variant name</STEXT>
+       <INDEX> 003</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Handler (method)</STEXT>
+       <INDEX> 004</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>execute &quot;COMMIT WORK AND WAIT&quot;</STEXT>
+       <INDEX> 005</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>ZCX_IMPORT_ERROR</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Import-Errors</STEXT>
+       <INDEX> 006</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>CX_SY_DYN_CALL_ILLEGAL_METHOD</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>content-handler is invalid</STEXT>
+       <INDEX> 007</INDEX>
+      </RSFDO>
+     </DOCUMENTATION>
+     <EXCEPTION_CLASSES>X</EXCEPTION_CLASSES>
+    </item>
+    <item>
+     <FUNCNAME>ZRFCIMPORT_BUNDLE_FROM_CLUSTER</FUNCNAME>
+     <REMOTE_CALL>R</REMOTE_CALL>
+     <SHORT_TEXT>Imprt Bundle from cluster</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>TESTCASE_ID</PARAMETER>
+       <TYP>W3OBJID</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <TYP>SEOCMPNAME</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <DEFAULT>ABAP_TRUE</DEFAULT>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>SAP_BOOL</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXCEPTION>
+      <RSEXC>
+       <EXCEPTION>IMPORT_ERROR</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
+       <EXCEPTION>INVALID_CONTENT_HANDLER</EXCEPTION>
+      </RSEXC>
+     </EXCEPTION>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>TESTCASE_ID</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Id of cluster</STEXT>
+       <INDEX> 001</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Handler (method)</STEXT>
+       <INDEX> 002</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>execute &quot;COMMIT WORK&quot;</STEXT>
+       <INDEX> 003</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IMPORT_ERROR</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Import-errors</STEXT>
+       <INDEX> 004</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>INVALID_CONTENT_HANDLER</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Content-Handler is invalid</STEXT>
+       <INDEX> 005</INDEX>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+    <item>
+     <FUNCNAME>ZRFC_IMPORT_BUNDLE_FROM_TDC</FUNCNAME>
+     <REMOTE_CALL>R</REMOTE_CALL>
+     <SHORT_TEXT>Import bundle from Test-Data-Container</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>TDC</PARAMETER>
+       <TYP>ETOBJ_NAME</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>TDC_VERSION</PARAMETER>
+       <TYP>ETOBJ_VER</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>VARIANT</PARAMETER>
+       <TYP>ETVAR_ID</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <TYP>SEOCMPNAME</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <DEFAULT>ABAP_TRUE</DEFAULT>
+       <TYP>SAP_BOOL</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXCEPTION>
+      <RSEXC>
+       <EXCEPTION>IMPORT_ERROR</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
+       <EXCEPTION>INVALID_CONTENT_HANDLER</EXCEPTION>
+      </RSEXC>
+     </EXCEPTION>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>TDC</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Testdatacontainer</STEXT>
+       <INDEX> 001</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>TDC_VERSION</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Version TDC</STEXT>
+       <INDEX> 002</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>VARIANT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Variant name</STEXT>
+       <INDEX> 003</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>CONTENT_HANDLER</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>Handler (method)</STEXT>
+       <INDEX> 004</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>DO_COMMIT</PARAMETER>
+       <KIND>P</KIND>
+       <STEXT>execute &quot;COMMIT WORK AND WAIT&quot;</STEXT>
+       <INDEX> 005</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IMPORT_ERROR</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Import-Error</STEXT>
+       <INDEX> 006</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>INVALID_CONTENT_HANDLER</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>Content-Handler is invalid</STEXT>
+       <INDEX> 007</INDEX>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

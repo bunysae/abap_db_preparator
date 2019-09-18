@@ -68,6 +68,12 @@
      <MSGNR>009</MSGNR>
      <TEXT>The transport request &amp;1 must exists and must be open.</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZEXPORT</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>The content-handler &amp;1 is invalid.</TEXT>
+    </T100>
    </T100>
    <LONGTEXTS>
     <item>
@@ -112,6 +118,62 @@
       </TLINE>
       <TLINE/>
       <TLINE/>
+     </LINES>
+    </item>
+    <item>
+     <DOKIL>
+      <ID>NA</ID>
+      <OBJECT>ZEXPORT010</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0001</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00006</TXTLINES>
+      <DOKSTATE>R</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZEXPORT010</TDNAME>
+      <TDID>NA</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00001</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;CAUSE&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>The content-handler must be a public method of the class &quot;ZIMPORT_BUNDLE</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>=</TDFORMAT>
+       <TDLINE>&quot;.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;WHAT_TO_DO&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Valid content-handlers are:</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>REPLACE_CONTENT_ALL_TABLES</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>REPLACE_CONTENT_COMPLETLY</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>ADD_CONTENT_ALL_TABLES</TDLINE>
+      </TLINE>
      </LINES>
     </item>
    </LONGTEXTS>
