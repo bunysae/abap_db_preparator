@@ -149,7 +149,7 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
       set_parameter_value( content = table_list name = param_for_list ).
 
       tdc->commit_changes( i_commit_mode = abap_false
-        i_tr_order = transport_request ).
+        i_tr_order = transport_request i_release_lock = abap_true ).
 
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
