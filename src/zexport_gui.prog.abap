@@ -4,7 +4,7 @@
 *&---------------------------------------------------------------------*
 REPORT zexport_gui MESSAGE-ID zexport.
 
-INCLUDE rddkorri.
+INCLUDE: rddkorri, zexport_batch_input.
 
 TYPES: BEGIN OF _table,
          name              TYPE tabname,
@@ -225,6 +225,8 @@ FORM user_command_0002.
             DELETE bundle INDEX marked.
           ENDLOOP.
           REFRESH CONTROL 'BUNDLE_TDC' FROM SCREEN '0002'.
+        WHEN 'DISPLAY'.
+          PERFORM display_tdc_content.
       ENDCASE.
     CATCH zcx_export_error INTO DATA(export_error).
       MESSAGE export_error TYPE 'S' DISPLAY LIKE 'E'.
@@ -421,6 +423,7 @@ ENDFORM.
 FORM export_screen_0001 RAISING zcx_export_error.
   DATA: exporter TYPE REF TO zexport_bundle_in_cluster.
 
+  DELETE bundle WHERE name IS INITIAL.
   IF bundle IS INITIAL.
     MESSAGE s002.
     RETURN.
@@ -450,6 +453,7 @@ ENDFORM.
 FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
   DATA exporter TYPE REF TO zexport_bundle_in_tdc.
 
+  DELETE bundle WHERE name IS INITIAL.
   IF bundle IS INITIAL.
     MESSAGE s002.
     RETURN.
@@ -569,6 +573,19 @@ FORM show_tdc_versions.
     CATCH cx_ecatt_apl INTO DATA(failure).
       MESSAGE failure TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
+
+ENDFORM.
+
+"! Display the tdc via batch-input
+FORM display_tdc_content.
+
+  DATA(bi_handler) = NEW batch_input( ).
+  bi_handler->dynpro_head( report = 'SAPLECATT_MAIN' dynpro = '0100' ).
+  bi_handler->dynpro_field( name = 'RB_TEST_DATA' fvalue = abap_true ).
+  bi_handler->dynpro_field( name = 'ECTD_VER-NAME' fvalue = header_tdc-name ).
+  bi_handler->dynpro_field( name = 'ECTD_VER-VERSION' fvalue = header_tdc-version ).
+
+  bi_handler->call_transaction( code = 'SECATT' ).
 
 ENDFORM.
 
