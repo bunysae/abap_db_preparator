@@ -48,6 +48,9 @@ MODULE check_table_names_0001 INPUT.
   is_changed = abap_true.
   PERFORM check_table_names.
   MODIFY bundle FROM table INDEX bundle_cluster-current_line.
+  IF sy-subrc <> 0.
+    APPEND table TO bundle.
+  ENDIF.
 
 ENDMODULE.
 
@@ -56,6 +59,9 @@ MODULE check_table_names_0002 INPUT.
   is_changed = abap_true.
   PERFORM check_table_names.
   MODIFY bundle FROM table INDEX bundle_tdc-current_line.
+  IF sy-subrc <> 0.
+    APPEND table TO bundle.
+  ENDIF.
 
 ENDMODULE.
 

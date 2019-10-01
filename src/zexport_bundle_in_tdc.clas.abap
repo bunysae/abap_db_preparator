@@ -79,6 +79,11 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     IF _table-fake_table IS INITIAL.
       _table-fake_table = _table-source_table.
     ENDIF.
+    IF line_exists( table_list[ fake_table = _table-fake_table ] ).
+      RAISE EXCEPTION TYPE zcx_export_table_duplicate
+        EXPORTING
+          table = _table-fake_table.
+    ENDIF.
 
     TRY.
         param_name = create_parameter( _table-fake_table ).
