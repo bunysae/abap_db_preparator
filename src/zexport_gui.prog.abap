@@ -287,6 +287,7 @@ END-OF-DEFINITION.
 FORM read_bundle_cluster.
 
   TRY.
+      PERFORM read_package_bundle_cluster.
       DATA(importer) = NEW zimport_bundle_from_cluster( header_cluster-testcase_id ).
 
       CLEAR: bundle.
@@ -294,7 +295,6 @@ FORM read_bundle_cluster.
         APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
           where_restriction = table->*-where_restriction ) TO bundle.
       ENDLOOP.
-      PERFORM read_package_bundle_cluster.
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
@@ -311,6 +311,8 @@ ENDFORM.
 FORM read_bundle_tdc.
 
   TRY.
+      PERFORM read_package_bundle_tdc.
+
       DATA(importer) = NEW zimport_bundle_from_tdc(
         tdc = header_tdc-name tdc_version = header_tdc-version
         variant = header_tdc-variant ).
@@ -320,7 +322,6 @@ FORM read_bundle_tdc.
         APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
           where_restriction = table->*-where_restriction ) TO bundle.
       ENDLOOP.
-      PERFORM read_package_bundle_tdc.
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
