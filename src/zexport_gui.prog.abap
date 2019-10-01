@@ -14,7 +14,8 @@ TYPES: BEGIN OF _table,
        END OF _table.
 
 CONSTANTS: transparent_table TYPE dd02v-tabclass VALUE 'TRANSP',
-  cluster_table TYPE dd02v-tabclass VALUE 'CLUSTER'.
+  cluster_table TYPE dd02v-tabclass VALUE 'CLUSTER',
+  pool_table TYPE dd02v-tabclass VALUE 'POOL'.
 
 CONTROLS: bundle_cluster TYPE TABLEVIEW USING SCREEN '0001',
           bundle_tdc     TYPE TABLEVIEW USING SCREEN '0002',
@@ -280,7 +281,8 @@ DEFINE check_name.
   IF sy-subrc <> 0.
     MESSAGE e004 WITH &1.
   ENDIF.
-  IF NOT ( object_type = transparent_table OR object_type = cluster_table ).
+  IF NOT ( object_type = transparent_table OR object_type = cluster_table
+    OR object_type = pool_table ).
     MESSAGE e005 WITH &1.
   ENDIF.
 
