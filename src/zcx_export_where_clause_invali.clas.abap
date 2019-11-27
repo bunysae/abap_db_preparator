@@ -12,11 +12,12 @@ public section.
     msgno TYPE symsgno VALUE '008',
     attr1 TYPE scx_attrname VALUE 'TABLE',
     attr2 TYPE scx_attrname VALUE 'WHERE_CLAUSE',
-    attr3 TYPE scx_attrname VALUE '',
+    attr3 TYPE scx_attrname VALUE 'FAILURE_DESCRIPTION',
     attr4 TYPE scx_attrname VALUE '',
   END OF ZCX_EXPORT_WHERE_CLAUSE_INVALI .
   data TABLE type TABNAME .
   data WHERE_CLAUSE type STRING .
+  data failure_description type STRING.
 
   methods CONSTRUCTOR
     importing
@@ -27,7 +28,8 @@ public section.
       !MSGV3 type SYMSGV optional
       !MSGV4 type SYMSGV optional
       !TABLE type TABNAME
-      !WHERE_CLAUSE type STRING .
+      !WHERE_CLAUSE type STRING
+      failure_description type STRING.
 protected section.
 private section.
 ENDCLASS.
@@ -48,6 +50,7 @@ MSGV4 = MSGV4
 .
 me->TABLE = TABLE .
 me->WHERE_CLAUSE = WHERE_CLAUSE .
+me->FAILURE_DESCRIPTION = FAILURE_DESCRIPTION .
 clear me->textid.
 if textid is initial.
   IF_T100_MESSAGE~T100KEY = ZCX_EXPORT_WHERE_CLAUSE_INVALI .

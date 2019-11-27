@@ -104,10 +104,8 @@
       </TLINE>
       <TLINE>
        <TDFORMAT>AS</TDFORMAT>
-       <TDLINE>The where-clause &amp;V2&amp; should be an valid sql-where-clause.</TDLINE>
+       <TDLINE>&amp;V3&amp;</TDLINE>
       </TLINE>
-      <TLINE/>
-      <TLINE/>
       <TLINE>
        <TDFORMAT>U1</TDFORMAT>
        <TDLINE>&amp;WHAT_TO_DO&amp;</TDLINE>
@@ -116,8 +114,6 @@
        <TDFORMAT>AS</TDFORMAT>
        <TDLINE>Please correct the where-clause.</TDLINE>
       </TLINE>
-      <TLINE/>
-      <TLINE/>
      </LINES>
     </item>
     <item>
