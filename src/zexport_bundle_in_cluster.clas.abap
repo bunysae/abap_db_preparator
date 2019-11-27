@@ -91,13 +91,14 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
     ASSIGN <content>-value->* TO <con>.
 
     TRY.
-      SELECT * FROM (_table-source_table) INTO TABLE <con>
+      SELECT * FROM (_table-source_table) INTO TABLE @<con>
         WHERE (_table-where_restriction).
-      CATCH cx_sy_dynamic_osql_error.
+      CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
         RAISE EXCEPTION TYPE zcx_export_where_clause_invali
           EXPORTING
             table = _table-source_table
-            where_clause = _table-where_restriction.
+            where_clause = _table-where_restriction
+            failure_description = osql_syntax_error->msgtext.
     ENDTRY.
 
     instance = me.
