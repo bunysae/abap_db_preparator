@@ -9,8 +9,8 @@ public section.
     importing
       !TDC type ref to CL_APL_ECATT_TDC_API
       !VARIANT type ETVAR_ID
-    RAISING
-      cx_ecatt_tdc_access.
+    raising
+      CX_ECATT_TDC_ACCESS .
   "! Add the content of the table to the bundle (uses the builder-pattern).
   "! @parameter _table |
   "! <ul>
@@ -34,22 +34,23 @@ public section.
   "! if the "where_restriction" is invalid.
   methods ADD_TABLE_TO_BUNDLE
     importing
-      VALUE(_TABLE) type zexport_table_list
+      value(_TABLE) type ZEXPORT_TABLE_LIST
     returning
       value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_TDC
     raising
-      zcx_export_error .
+      ZCX_EXPORT_ERROR .
   methods EXPORT
-    IMPORTING
-      transport_request TYPE e070-trkorr
-    RAISING
-      zcx_export_error.
+    importing
+      !TRANSPORT_REQUEST type E070-TRKORR
+    raising
+      ZCX_EXPORT_ERROR .
 protected section.
 private section.
 
   data TDC type ref to CL_APL_ECATT_TDC_API .
   data VARIANT type ETVAR_ID .
-  DATA table_list TYPE STANDARD TABLE OF zexport_table_list.
+  data:
+    table_list TYPE STANDARD TABLE OF zexport_table_list .
 
   methods CREATE_PARAMETER
     importing
@@ -62,8 +63,14 @@ private section.
     importing
       !CONTENT type STANDARD TABLE
       !NAME type ETP_NAME
-    RAISING
-      cx_ecatt_tdc_access.
+    raising
+      CX_ECATT_TDC_ACCESS .
+  "! Invalid characters for ecatt parameters are replaced by '_'.
+  methods GET_PARAMETER_NAME
+    importing
+      !TABLE_NAME type TABNAME
+    returning
+      value(RESULT) type ETP_NAME .
 ENDCLASS.
 
 
@@ -86,7 +93,7 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     ENDIF.
 
     TRY.
-        param_name = create_parameter( _table-fake_table ).
+        _table-tdc_parameter_name = create_parameter( _table-fake_table ).
 
         INSERT _table INTO TABLE table_list.
 
@@ -96,7 +103,7 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
         SELECT * FROM (_table-source_table) INTO TABLE @<con>
           WHERE (_table-where_restriction).
 
-        set_parameter_value( content = <con> name = param_name ).
+        set_parameter_value( content = <con> name = _table-tdc_parameter_name ).
 
       CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
         RAISE EXCEPTION TYPE zcx_export_where_clause_invali
@@ -133,17 +140,16 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
     CONCATENATE 'STANDARD TABLE OF' table INTO type_definition
       SEPARATED BY space.
+    name = get_parameter_name( table ).
 
     TRY.
-      tdc->create_parameter( i_param_name = table
+      tdc->create_parameter( i_param_name = name
         i_param_def = type_definition ).
       CATCH cx_ecatt_tdc_access INTO DATA(failure).
         IF failure->textid <> cx_ecatt_tdc_access=>parameter_exists.
           RAISE EXCEPTION failure.
         ENDIF.
     ENDTRY.
-
-    name = table.
 
   ENDMETHOD.
 
@@ -160,6 +166,15 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.
+
+  endmethod.
+
+
+  method GET_PARAMETER_NAME.
+
+    result = table_name.
+    REPLACE ALL OCCURRENCES OF REGEX '[^A-Za-z0-9_\s]'
+      IN result WITH '_'.
 
   endmethod.
 
