@@ -25,6 +25,11 @@ private section.
 
   data TDC type ref to CL_APL_ECATT_TDC_API .
   data VARIANT type ETVAR_ID .
+
+  methods get_tdc_parameter_name
+    IMPORTING
+      table TYPE zexport_table_list
+    RETURNING VALUE(result) TYPE etp_name.
 ENDCLASS.
 
 
@@ -48,7 +53,8 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
           CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
-          tdc->get_value( EXPORTING i_param_name = table->*-fake_table i_variant_name = variant
+          tdc->get_value( EXPORTING i_param_name = get_tdc_parameter_name( table->* )
+            i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
           MODIFY (table->*-fake_table) FROM TABLE <con>.
@@ -80,6 +86,21 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
   ENDMETHOD.
 
 
+  method GET_TDC_PARAMETER_NAME.
+
+    " backwards-compatibility: until commit
+    " 550688c21ca119ffaecd4e1c11a68ab504fc53ee
+    " tdc-parameter-name was the fake-table name.
+    " So 'table-tdc_parameter_name' can be empty.
+    IF table-tdc_parameter_name IS INITIAL.
+      result = table-fake_table.
+    ELSE.
+      result = table-tdc_parameter_name.
+    ENDIF.
+
+  endmethod.
+
+
   METHOD replace_content_all_tables.
     DATA: content TYPE REF TO data,
           table_list TYPE STANDARD TABLE OF zexport_table_list.
@@ -97,7 +118,8 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
           CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
-          tdc->get_value( EXPORTING i_param_name = table->*-fake_table i_variant_name = variant
+          tdc->get_value( EXPORTING i_param_name = get_tdc_parameter_name( table->* )
+            i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
           DELETE FROM (table->*-fake_table) WHERE (table->*-where_restriction).
@@ -128,7 +150,8 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
           CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
-          tdc->get_value( EXPORTING i_param_name = table->*-fake_table i_variant_name = variant
+          tdc->get_value( EXPORTING i_param_name = get_tdc_parameter_name( table->* )
+            i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
           DELETE FROM (table->*-fake_table).
