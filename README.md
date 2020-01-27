@@ -6,7 +6,7 @@ Automated testing (ABAP unit) requires a predefined environment.
 The database records are part of this environment.
 If database records are modified, tests can fail.
 
-ABAP comes since release 7.52 with a replacement service for OpenSQL (class `cl_osql_replace`) and for ABAP-CDS (class `todo`). These replacement services provide predefined database records.
+ABAP comes since release 7.52 with a replacement service for OpenSQL (class `cl_osql_replace`) and for ABAP-CDS (class `cl_cds_test_environment`). These replacement services provide predefined database records.
 Preparing huge tables like `mseg` can be quite annoying. This repository makes the setup of the replacement services more easy. 
 
 ## How it works ##
@@ -20,7 +20,7 @@ structure as the original table. From this fake table the database records are
 read or they are written back in this fake table. In the export step we link
 original and fake table as shown in the picture below.
 ![program zexport_gui](img/export_scarr.png)
-*Figure 1 Export step for table scarr in program zexport_gui*
+*Figure 1 Export step for table scarr in program `zexport_gui`*
 In figure 1 the original table is named `scarr`, the fake table `zcarr_fake`.
 
 If you don't want to use the OpenSQL replacement service, you can leave the fake table empty.
@@ -82,10 +82,10 @@ dangerous ABAP unit-testclasses can be executed.
 
 ## Terms ##
 
-* Bundle: a collection of database records, which are stored in outside
-  of the corresponding database tables.
+* Bundle: a collection of database records, which are stored outside
+  of the database tables.
 * Cluster: a MIME-object in transaction `smw0`, which contains the bundle
-* TDC: abbreviation for ecatt test data container
+* TDC: abbreviation for ECATT test data container
 
 ## Cloning this repository ##
 Cloning can be done with [abapGit](https://github.com/larshp/abapgit).
