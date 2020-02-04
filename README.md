@@ -6,15 +6,21 @@ Automated testing (ABAP unit) requires a predefined environment.
 The database records are part of this environment.
 If database records are modified, tests can fail.
 
-ABAP comes since release 7.52 with a replacement service for OpenSQL (class `cl_osql_replace`) and for ABAP-CDS (class `cl_cds_test_environment`). These replacement services provide predefined database records.
-Preparing huge tables like `mseg` can be quite annoying. This repository makes the setup of the replacement services more easy. 
+ABAP comes since release 7.52 with a replacement service for OpenSQL (class `cl_osql_replace`)
+and for ABAP-CDS (class `cl_cds_test_environment`).
+These replacement services provide predefined database records.
+Preparing huge tables like `mseg` can be quite annoying.
+This repository makes the setup of the replacement services more easy. 
 
 ## How it works ##
-The database records are bundled up in so called bundle. This bundle can contain records from multiple tables and is stored either in ECATT test data container
+The database records are bundled up in so called bundle.
+This bundle can contain records from multiple tables and
+is stored either in ECATT test data container
 or in an cluster (binary MIME-object in transaction smw0).
 
 ### Export step ###
-In the first step we can choose the database records, which should be exported into the bundle.
+In the first step we can choose the database records,
+which should be exported into the bundle.
 The OpenSQL replacement service needs a so called fake table with the same
 structure as the original table. From this fake table the database records are
 read or they are written back in this fake table. In the export step we link
@@ -23,18 +29,23 @@ original and fake table as shown in the picture below.
 *Figure 1 Export step for table scarr in program `zexport_gui`*
 In figure 1 the original table is named `scarr`, the fake table `zcarr_fake`.
 
-If you don't want to use the OpenSQL replacement service, you can leave the fake table empty.
+If you don't want to use the OpenSQL replacement service,
+you can leave the fake table empty.
 
 ### Import step ###
 In the ABAP unit-testclass the database records exported in previous step
 can be imported in the fake table or in the original table, 
 if the fake table was left empty.
-The API for the import step is located in class `zimport_bundle_from_cluster` for clusters or in class `zimport_bundle_from_tdc` for ECATT test data container.
+The API for the import step is located in class `zimport_bundle_from_cluster`
+for clusters or in class `zimport_bundle_from_tdc` for
+ECATT test data container.
 
-For testing Rfc-Client- or Rfc-Serverprograms or programs, which interact through the [JSON Adapter for ABAP Function Modules](https://github.com/cesar-sap/abap_fm_json/) a API is located in function-group `zimport_bundle`.
+For testing Rfc-Client- or Rfc-Serverprograms or programs,
+which interact through the [JSON Adapter for ABAP Function Modules](https://github.com/cesar-sap/abap_fm_json/)
+a API is located in function-group `zimport_bundle`.
 
 A example can be found in the listing below.
-```
+```ABAP
 CLASS test_airlines DEFINITION FOR TESTING DURATION SHORT
   RISK LEVEL HARMLESS.
   
@@ -56,7 +67,7 @@ CLASS test_airlines IMPLEMENTATION.
     db_preparator->replace_content_completly( ).
     COMMIT WORK AND WAIT.
 
-    " todo activate replacement service
+    db_preparator->activate_osql_replacement( ).
 
   ENDMETHOD.
 
@@ -77,7 +88,9 @@ ENDCLASS.
 ```
 
 ### Authorization ###
-Modifying database records with the APIs in class `zimport_bundle_from_cluster` or in class `zimport_bundle_from_tdc` should only be possible in development systems, where 
+Modifying database records with the APIs in class `zimport_bundle_from_cluster` or 
+in class `zimport_bundle_from_tdc` should only be possible in 
+development systems, where 
 dangerous ABAP unit-testclasses can be executed.
 
 ## Terms ##
