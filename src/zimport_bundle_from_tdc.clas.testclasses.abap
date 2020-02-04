@@ -31,6 +31,10 @@ CLASS test_export_import DEFINITION FOR TESTING
       RAISING
         cx_static_check.
 
+    METHODS activate_osql_replacement FOR TESTING
+      RAISING
+        cx_static_check.
+
 ENDCLASS.
 
 CLASS test_export_import IMPLEMENTATION.
@@ -223,6 +227,32 @@ CLASS test_export_import IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_export_ut3
       act = act_cont_export_ut3
       msg = 'content imported from table zexport_ut3 (no fake-table)' ).
+
+  ENDMETHOD.
+
+  METHOD activate_osql_replacement.
+    DATA: act_cont_export_ut1 TYPE STANDARD TABLE OF zexport_ut1,
+          exp_cont_export_ut1 TYPE STANDARD TABLE OF zexport_ut1.
+
+    exp_cont_export_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+    ).
+
+    " when
+    DELETE FROM zexport_ut1.
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    cut->replace_content_completly( ).
+    cut->activate_osql_replacement( ).
+    COMMIT WORK AND WAIT.
+
+    " then
+    SELECT * FROM zexport_ut1 INTO TABLE act_cont_export_ut1.
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_export_ut1
+      act = act_cont_export_ut1 ).
+
+    " teardown
+    CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement.
 
   ENDMETHOD.
 
