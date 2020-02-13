@@ -20,6 +20,10 @@ public section.
   abstract
     raising
       ZCX_IMPORT_ERROR .
+  "! 7.51 feature, for backwards-compatibility uses dynamic method calls
+  methods ACTIVATE_OSQL_REPLACEMENT
+    raising
+      ZCX_IMPORT_ERROR .
 protected section.
 
   "! Called either in abap unit-test
@@ -30,11 +34,42 @@ protected section.
     RAISING
       zcx_import_not_allowed.
 private section.
+
+  types:
+    begin of REPLACED_TABLE,
+      SOURCE type TABNAME,
+      TARGET type STRING,
+    end of REPLACED_TABLE .
+  types:
+    REPLACED_TABLES type sorted table of REPLACED_TABLE with unique key SOURCE .
 ENDCLASS.
 
 
 
 CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
+
+
+METHOD activate_osql_replacement.
+  DATA: replaced_tables TYPE replaced_tables,
+        _replaced_tables TYPE REF TO data.
+  FIELD-SYMBOLS: <replaced_tables> TYPE ANY TABLE.
+
+  CREATE DATA _replaced_tables TYPE ('CL_OSQL_REPLACE=>TT_REPLACEMENT').
+  ASSIGN _replaced_tables->* TO <replaced_tables>.
+
+  LOOP AT table_list REFERENCE INTO DATA(pair).
+    IF pair->*-source_table <> pair->*-fake_table.
+      INSERT VALUE #( source = pair->*-source_table target = pair->*-fake_table )
+        INTO TABLE replaced_tables.
+    ENDIF.
+  ENDLOOP.
+
+  MOVE-CORRESPONDING replaced_tables TO <replaced_tables>.
+  CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement
+    EXPORTING
+      replacement_table = <replaced_tables>.
+
+ENDMETHOD.
 
 
   method CALLED_INSIDE_UNIT_TEST.

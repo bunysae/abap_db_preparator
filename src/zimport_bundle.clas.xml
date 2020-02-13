@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Import Bundle from abstract source</DESCRIPT>
     <STATE>1</STATE>
@@ -13,6 +12,12 @@
     <UNICODE>X</UNICODE>
    </VSEOCLASS>
    <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>ACTIVATE_OSQL_REPLACEMENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Activate OpenSQL replacement service</DESCRIPT>
+    </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
      <CMPNAME>ADD_CONTENT_ALL_TABLES</CMPNAME>

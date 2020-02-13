@@ -7,7 +7,8 @@ Please stick to [clean-code styleguides](https://github.com/sap/styleguides).
 Refactorings are always welcome!
 
 * Please use the Pretty Printer with keywords in upper-case.
-* Code should be compatible with release 7.40 or higher.
+* Code should be compatible with release 7.40. The sytnax check
+  shouldn't find any errors, if features from higher releases are used.
 * Development objects should begin with `zexport` or with `zimport`.
 
 ## Testing ##
