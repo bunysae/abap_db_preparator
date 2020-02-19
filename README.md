@@ -77,7 +77,7 @@ CLASS test_airlines IMPLEMENTATION.
     exp_airlines = VALUE #( ( carrid = 'TG' carrname = 'Thai airways'
                               currcode = 'THB' url = 'https://thaiairways.com' ) ).
 
-    SELECT * FROM scarr INTO @DATA(act_airlines).
+    SELECT * FROM scarr INTO TABLE @DATA(act_airlines).
 
     cl_abap_unit_assert=>assert_equals( exp = exp_airlines
       act = act_airlines ).
@@ -104,3 +104,6 @@ dangerous ABAP unit-testclasses can be executed.
 Cloning can be done with [abapGit](https://github.com/larshp/abapgit).
 The code is backwards compatible until release 7.40. The replacement services
 need higher releases (SAP NetWeaver 7.51 or 7.52).
+
+## Further links ##
+[Blog entry on SAP community network](https://blogs.sap.com/?p=1049057)
