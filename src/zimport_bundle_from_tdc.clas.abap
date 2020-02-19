@@ -57,7 +57,12 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
             i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
-          MODIFY (table->*-fake_table) FROM TABLE <con>.
+          " If no content is exported in other than the "ECATTDEFAULT"-variant,
+          " <con> contains the parameter value of the "ECATTDEFAULT"-variant.
+          " Therefore INSERT-Statement is only executed, when the exported content is not initial.
+          IF table->*-is_initial = abap_false.
+            MODIFY (table->*-fake_table) FROM TABLE <con>.
+          ENDIF.
 
         ENDLOOP.
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
@@ -123,7 +128,12 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
             CHANGING e_param_value = <con> ).
 
           DELETE FROM (table->*-fake_table) WHERE (table->*-where_restriction).
-          INSERT (table->*-fake_table) FROM TABLE <con>.
+          " If no content is exported in other than the "ECATTDEFAULT"-variant,
+          " <con> contains the parameter value of the "ECATTDEFAULT"-variant.
+          " Therefore INSERT-Statement is only executed, when the exported content is not initial.
+          IF table->*-is_initial = abap_false.
+            INSERT (table->*-fake_table) FROM TABLE <con>.
+          ENDIF.
 
         ENDLOOP.
 
@@ -155,7 +165,12 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
             CHANGING e_param_value = <con> ).
 
           DELETE FROM (table->*-fake_table).
-          INSERT (table->*-fake_table) FROM TABLE <con>.
+          " If no content is exported in other than the "ECATTDEFAULT"-variant,
+          " <con> contains the parameter value of the "ECATTDEFAULT"-variant.
+          " Therefore INSERT-Statement is only executed, when the exported content is not initial.
+          IF table->*-is_initial = abap_false.
+            INSERT (table->*-fake_table) FROM TABLE <con>.
+          ENDIF.
 
         ENDLOOP.
 

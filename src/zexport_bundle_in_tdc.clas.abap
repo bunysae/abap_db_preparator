@@ -95,15 +95,16 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     TRY.
         _table-tdc_parameter_name = create_parameter( _table-fake_table ).
 
-        INSERT _table INTO TABLE table_list.
-
         CREATE DATA content TYPE STANDARD TABLE OF (_table-source_table).
         ASSIGN content->* TO <con>.
 
         SELECT * FROM (_table-source_table) INTO TABLE @<con>
           WHERE (_table-where_restriction).
+        _table-is_initial = xsdbool( <con> IS INITIAL ).
 
         set_parameter_value( content = <con> name = _table-tdc_parameter_name ).
+
+        INSERT _table INTO TABLE table_list.
 
       CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
         RAISE EXCEPTION TYPE zcx_export_where_clause_invali

@@ -4,6 +4,8 @@
   <asx:values>
    <PROGDIR>
     <NAME>LZIMPORT_BUNDLETOP</NAME>
+    <STATE>A</STATE>
+    <VARCL>X</VARCL>
     <DBAPL>S</DBAPL>
     <DBNA>D$</DBNA>
     <SUBC>I</SUBC>

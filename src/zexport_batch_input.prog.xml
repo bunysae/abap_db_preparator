@@ -4,6 +4,8 @@
   <asx:values>
    <PROGDIR>
     <NAME>ZEXPORT_BATCH_INPUT</NAME>
+    <STATE>A</STATE>
+    <VARCL>X</VARCL>
     <SUBC>I</SUBC>
     <APPL>S</APPL>
     <RLOAD>E</RLOAD>
