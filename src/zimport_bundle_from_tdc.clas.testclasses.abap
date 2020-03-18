@@ -57,9 +57,19 @@ CLASS test_export_import DEFINITION FOR TESTING
       RAISING
         cx_static_check.
 
+    METHODS no_import_for_blacklist FOR TESTING
+      RAISING
+        cx_static_check.
+
+    METHODS activate_tvarvc_replacement.
+
+    METHODS set_replacement_whitelist.
+
     METHODS activate_osql_replacement FOR TESTING
       RAISING
         cx_static_check.
+
+    METHODS teardown.
 
 ENDCLASS.
 
@@ -78,7 +88,17 @@ CLASS test_export_import IMPLEMENTATION.
     COMMIT WORK AND WAIT.
 
     setup_import_tables( ).
+    activate_tvarvc_replacement( ).
     COMMIT WORK AND WAIT.
+
+  ENDMETHOD.
+
+  METHOD teardown.
+
+    IF sy-saprl < 751.
+      RETURN.
+    ENDIF.
+    CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement.
 
   ENDMETHOD.
 
@@ -382,6 +402,79 @@ CLASS test_export_import IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
       act = act_cont_import_ut2
       msg = 'content from table zimport_ut2 should not change' ).
+
+  ENDMETHOD.
+
+  METHOD no_import_for_blacklist.
+    DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2.
+
+    " given
+    set_replacement_whitelist( ).
+
+    exp_cont_import_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'CCC' content = 'imp' )
+    ).
+    exp_cont_import_ut2 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = '130' )
+    ).
+
+    " when
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    cut->replace_content_completly( ).
+    COMMIT WORK AND WAIT.
+
+    " then
+    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1.
+    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2.
+
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
+      act = act_cont_import_ut1
+      msg = 'table zimport_ut1 is excluded from the whitelist' ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
+      act = act_cont_import_ut2
+      msg = 'content from table zimport_ut2' ).
+
+  ENDMETHOD.
+
+  METHOD activate_tvarvc_replacement.
+    TYPES: BEGIN OF replacement,
+            source TYPE tabname,
+            target TYPE tabname,
+          END OF replacement.
+    DATA: replaced_tables TYPE STANDARD TABLE OF replacement,
+          _replaced_tables TYPE REF TO data.
+    FIELD-SYMBOLS: <replaced_tables> TYPE ANY TABLE.
+
+    DELETE FROM zimport_tvarvc.
+
+    IF sy-saprl < 751.
+      RETURN.
+    ENDIF.
+
+    CREATE DATA _replaced_tables TYPE ('CL_OSQL_REPLACE=>TT_REPLACEMENT').
+    ASSIGN _replaced_tables->* TO <replaced_tables>.
+
+    replaced_tables = VALUE #( ( source = 'TVARVC' target = 'ZIMPORT_TVARVC' ) ).
+    MOVE-CORRESPONDING replaced_tables TO <replaced_tables>.
+    CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement
+      EXPORTING
+        replacement_table = <replaced_tables>.
+
+  ENDMETHOD.
+
+  METHOD set_replacement_whitelist.
+    DATA: whitelist TYPE STANDARD TABLE OF zimport_tvarvc.
+
+    whitelist = VALUE #(
+      ( name = 'OTHER' type = 'S' sign = 'E' opti = 'EQ' low = 'Z*' )
+      ( name = 'ZIMPORT_REPLACE_WHITELIST' type = 'S' sign = 'E' opti = 'EQ' low = 'ZIMPORT_UT1' )
+    ).
+    INSERT zimport_tvarvc FROM TABLE whitelist.
+    COMMIT WORK AND WAIT.
 
   ENDMETHOD.
 
