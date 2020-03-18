@@ -26,13 +26,19 @@ public section.
       ZCX_IMPORT_ERROR .
 protected section.
 
+  types:
+    whitelist type range of tabname .
+
   "! Called either in abap unit-test
   "! or if the method is called outside of an unit-test, at least dangerous
   "! unit-tests must be enabled
   "! @raising zcx_import_not_allowed | Of the above conditions are not met
   methods CALLED_INSIDE_UNIT_TEST
-    RAISING
-      zcx_import_not_allowed.
+    raising
+      ZCX_IMPORT_NOT_ALLOWED .
+  methods GET_WHITELIST
+    returning
+      value(RESULT) type WHITELIST .
 private section.
 
   types:
@@ -102,6 +108,15 @@ ENDMETHOD.
     ENDIF.
 
     RAISE EXCEPTION TYPE zcx_import_not_allowed.
+
+  endmethod.
+
+
+  method GET_WHITELIST.
+
+    SELECT sign, opti AS option, low, high FROM tvarvc
+      INTO CORRESPONDING FIELDS OF TABLE @result
+      WHERE name = 'ZIMPORT_REPLACE_WHITELIST' AND type = 'S'.
 
   endmethod.
 ENDCLASS.

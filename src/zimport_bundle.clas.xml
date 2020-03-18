@@ -33,6 +33,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>GET_WHITELIST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Whitelist: complete replacement of table-content is allowed</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
      <CMPNAME>REPLACE_CONTENT_ALL_TABLES</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>replace the content of all tables specified by the where-res</DESCRIPT>
