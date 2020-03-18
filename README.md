@@ -93,6 +93,11 @@ in class `zimport_bundle_from_tdc` should only be possible in
 development systems, where 
 dangerous ABAP unit-testclasses can be executed.
 
+### Whitelist-check ###
+Content of fake-tables listed in the whitelist can be completely
+overriden. The whitelist is maintained in parameter
+`ZIMPORT_REPLACE_WHITELIST` (transaction `stvarv`, table `tvarvc`).
+
 ## Terms ##
 
 * Bundle: a collection of database records, which are stored outside
