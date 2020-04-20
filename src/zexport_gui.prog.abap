@@ -31,6 +31,7 @@ DATA: BEGIN OF header_cluster,
         name      TYPE etobj_name,
         version   TYPE etobj_ver,
         variant   TYPE etvar_id,
+        title     TYPE twb_title,
         tr_order  TYPE e070-trkorr,
         package   TYPE devclass,
         overwrite TYPE abap_bool,
@@ -212,7 +213,7 @@ FORM user_command_0002.
   TRY.
       CASE sy-ucomm.
         WHEN 'READ'.
-          PERFORM read_bundle_tdc.
+          PERFORM: read_bundle_tdc, read_title_tdc.
         WHEN 'SAVE'.
           PERFORM: check_header_tdc, export_screen_0002.
         WHEN 'REFRESH'.
@@ -351,6 +352,21 @@ FORM read_package_bundle_tdc.
 
 ENDFORM.
 
+FORM read_title_tdc
+  RAISING cx_ecatt_tdc_access.
+
+  CLEAR header_tdc-title.
+  DATA(tdc_accessor) = cl_apl_ecatt_tdc_api=>get_instance(
+    i_testdatacontainer = header_tdc-name
+    i_testdatacontainer_version = header_tdc-version
+    i_write_access = abap_true ).
+
+  tdc_accessor->get_tdc_attributes( IMPORTING e_version_dependant_attribs
+    = DATA(attributes) ).
+  header_tdc-title = attributes-twb_title.
+
+ENDFORM.
+
 FORM check_table_names.
   DATA: object_type TYPE dd02v-tabclass.
 
@@ -412,13 +428,30 @@ FORM create_tdc_exporter
 
   ENDTRY.
 
-  " create variant, if not exists
+  PERFORM create_tdc_variant USING tdc.
+  PERFORM set_tdc_title USING tdc.
+
+  exporter = NEW zexport_bundle_in_tdc( tdc = tdc variant = header_tdc-variant ).
+
+ENDFORM.
+
+" create variant, if not exists
+FORM create_tdc_variant USING VALUE(tdc) TYPE REF TO cl_apl_ecatt_tdc_api
+  RAISING cx_ecatt_tdc_access.
+
   DATA(variant_list) = tdc->get_variant_list( ).
   IF NOT line_exists( variant_list[ table_line = header_tdc-variant ] ).
     tdc->create_variant( i_variant_name = header_tdc-variant ).
   ENDIF.
 
-  exporter = NEW zexport_bundle_in_tdc( tdc = tdc variant = header_tdc-variant ).
+ENDFORM.
+
+FORM set_tdc_title USING VALUE(tdc) TYPE REF TO cl_apl_ecatt_tdc_api
+  RAISING cx_ecatt_tdc_access.
+
+  tdc->set_tdc_attributes( EXPORTING
+    i_version_dependant_attribs = VALUE #( twb_title = header_tdc-title )
+  ).
 
 ENDFORM.
 
