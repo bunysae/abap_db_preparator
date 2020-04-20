@@ -10,6 +10,7 @@ public section.
       !TESTCASE_ID type W3OBJID
       !FORCE_OVERWRITE type ABAP_BOOL default ABAP_FALSE
       dev_package TYPE devclass
+      title type w3_text
     raising
       ZCX_EXPORT_OBJECT_EXISTS .
   "! Add the content of the table to the bundle (uses the builder-pattern).
@@ -144,6 +145,7 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
     mime_key-relid = 'MI'.
     mime_key-objid = testcase_id.
     mime_key-devclass = dev_package.
+    mime_key-text = title.
 
     IF force_overwrite = abap_false.
       SELECT COUNT(*) FROM wwwdata WHERE relid = mime_key-relid

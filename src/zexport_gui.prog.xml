@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <abapGit version="v1.0.0" serializer="LCL_OBJECT_PROG" serializer_version="v1.0.0">
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <PROGDIR>
     <NAME>ZEXPORT_GUI</NAME>
-    <STATE>A</STATE>
-    <VARCL>X</VARCL>
     <SUBC>1</SUBC>
     <RLOAD>E</RLOAD>
     <FIXPT>X</FIXPT>
@@ -59,7 +57,7 @@
        <COLUMN>003</COLUMN>
        <LENGTH>184</LENGTH>
        <VISLENGTH>184</VISLENGTH>
-       <HEIGHT>004</HEIGHT>
+       <HEIGHT>005</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <REQU_ENTRY>N</REQU_ENTRY>
       </RPY_DYFATC>
@@ -128,10 +126,40 @@
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>%#AUTOTEXT003</NAME>
-       <TEXT>Overwrite_existing_object</TEXT>
+       <NAME>%#AUTOTEXT008</NAME>
+       <TEXT>Title</TEXT>
        <LINE>002</LINE>
        <COLUMN>111</COLUMN>
+       <LENGTH>005</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>HEADER_CLUSTER-TITLE</NAME>
+       <TEXT>______________________________</TEXT>
+       <LINE>002</LINE>
+       <COLUMN>118</COLUMN>
+       <LENGTH>030</LENGTH>
+       <VISLENGTH>030</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <UP_LOWER>X</UP_LOWER>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT003</NAME>
+       <TEXT>Overwrite_existing_object</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>004</COLUMN>
        <LENGTH>025</LENGTH>
        <VISLENGTH>025</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -143,8 +171,8 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>CHECK</TYPE>
        <NAME>HEADER_CLUSTER-OVERWRITE</NAME>
-       <LINE>002</LINE>
-       <COLUMN>138</COLUMN>
+       <LINE>004</LINE>
+       <COLUMN>031</COLUMN>
        <LENGTH>001</LENGTH>
        <VISLENGTH>001</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -525,10 +553,40 @@
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT011</NAME>
+       <TEXT>Title</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>003</COLUMN>
+       <LENGTH>005</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>HEADER_TDC-TITLE</NAME>
+       <TEXT>______________________________</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>010</COLUMN>
+       <LENGTH>030</LENGTH>
+       <VISLENGTH>030</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <UP_LOWER>X</UP_LOWER>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT003</NAME>
        <TEXT>Overwrite_existing_Container</TEXT>
        <LINE>004</LINE>
-       <COLUMN>003</COLUMN>
+       <COLUMN>044</COLUMN>
        <LENGTH>028</LENGTH>
        <VISLENGTH>028</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -541,7 +599,7 @@
        <TYPE>CHECK</TYPE>
        <NAME>HEADER_TDC-OVERWRITE</NAME>
        <LINE>004</LINE>
-       <COLUMN>033</COLUMN>
+       <COLUMN>074</COLUMN>
        <LENGTH>001</LENGTH>
        <VISLENGTH>001</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -556,7 +614,7 @@
        <NAME>%#AUTOTEXT009</NAME>
        <TEXT>Transport_Request</TEXT>
        <LINE>004</LINE>
-       <COLUMN>040</COLUMN>
+       <COLUMN>077</COLUMN>
        <LENGTH>017</LENGTH>
        <VISLENGTH>017</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -570,7 +628,7 @@
        <NAME>HEADER_TDC-TR_ORDER</NAME>
        <TEXT>__________</TEXT>
        <LINE>004</LINE>
-       <COLUMN>059</COLUMN>
+       <COLUMN>096</COLUMN>
        <LENGTH>010</LENGTH>
        <VISLENGTH>010</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -585,7 +643,7 @@
        <NAME>DISPLAY_TDC</NAME>
        <TEXT>Goto_TDC_(SECATT)</TEXT>
        <LINE>004</LINE>
-       <COLUMN>076</COLUMN>
+       <COLUMN>108</COLUMN>
        <LENGTH>017</LENGTH>
        <VISLENGTH>017</VISLENGTH>
        <HEIGHT>001</HEIGHT>

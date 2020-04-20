@@ -25,6 +25,7 @@ DATA: active_screen_no_ts TYPE sy-dynnr VALUE '0001'.
 DATA: BEGIN OF header_cluster,
         testcase_id TYPE w3objid,
         package     TYPE devclass,
+        title       TYPE w3_text,
         overwrite   TYPE abap_bool,
       END OF header_cluster,
       BEGIN OF header_tdc,
@@ -183,7 +184,7 @@ FORM user_command_0001.
   TRY.
       CASE sy-ucomm.
         WHEN 'READ'.
-          PERFORM read_bundle_cluster.
+          PERFORM: read_bundle_cluster, read_title_cluster.
         WHEN 'SAVE'.
           PERFORM export_screen_0001.
         WHEN 'REFRESH'.
@@ -313,6 +314,14 @@ FORM read_package_bundle_cluster.
 
 ENDFORM.
 
+FORM read_title_cluster.
+
+  SELECT text UP TO 1 ROWS FROM wwwdata INTO header_cluster-title
+    WHERE relid = 'MI' AND objid = header_cluster-testcase_id.
+  ENDSELECT.
+
+ENDFORM.
+
 FORM read_bundle_tdc.
 
   TRY.
@@ -384,7 +393,8 @@ FORM create_cluster_exporter
   exporter = NEW zexport_bundle_in_cluster(
     testcase_id = header_cluster-testcase_id
     force_overwrite = header_cluster-overwrite
-    dev_package = header_cluster-package ).
+    dev_package = header_cluster-package
+    title = header_cluster-title ).
 
 ENDFORM.
 

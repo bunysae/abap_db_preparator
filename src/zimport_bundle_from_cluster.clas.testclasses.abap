@@ -100,7 +100,7 @@ CLASS test_export_import IMPLEMENTATION.
       WHERE pgmid = 'R3TR' AND object = 'CLAS' AND obj_name = 'ZIMPORT_BUNDLE_FROM_CLUSTER'.
 
     DATA(exporter) = NEW zexport_bundle_in_cluster( testcase_id = testcase_id
-      dev_package = dev_package ).
+      dev_package = dev_package title = 'Unit-Test ABAP DB preparator' ).
 
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' ) ).
