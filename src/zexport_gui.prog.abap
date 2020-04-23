@@ -4,18 +4,22 @@
 *&---------------------------------------------------------------------*
 REPORT zexport_gui MESSAGE-ID zexport.
 
-INCLUDE: rddkorri, zexport_batch_input.
-
+TABLES: zexport_table_mod.
 TYPES: BEGIN OF _table,
          name              TYPE tabname,
          fake              TYPE tabname,
-         where_restriction TYPE string,
-         marked            TYPE abap_bool,
-       END OF _table.
+         where_restriction TYPE string.
+        INCLUDE TYPE zexport_table_mod.
+TYPES END OF _table.
+INCLUDE: rddkorri, zexport_batch_input.
 
 CONSTANTS: transparent_table TYPE dd02v-tabclass VALUE 'TRANSP',
-  cluster_table TYPE dd02v-tabclass VALUE 'CLUSTER',
-  pool_table TYPE dd02v-tabclass VALUE 'POOL'.
+           cluster_table     TYPE dd02v-tabclass VALUE 'CLUSTER',
+           pool_table        TYPE dd02v-tabclass VALUE 'POOL'.
+CONSTANTS: BEGIN OF overwrite_option,
+             no  TYPE zexport_overwrite VALUE '1',
+             yes TYPE zexport_overwrite VALUE '2',
+           END OF overwrite_option.
 
 CONTROLS: bundle_cluster TYPE TABLEVIEW USING SCREEN '0001',
           bundle_tdc     TYPE TABLEVIEW USING SCREEN '0002',
@@ -50,6 +54,7 @@ MODULE check_table_names_0001 INPUT.
 
   is_changed = abap_true.
   PERFORM check_table_names.
+  table-overwrite = overwrite_option-yes.
   MODIFY bundle FROM table INDEX bundle_cluster-current_line.
   IF sy-subrc <> 0.
     APPEND table TO bundle.
@@ -61,6 +66,7 @@ MODULE check_table_names_0002 INPUT.
 
   is_changed = abap_true.
   PERFORM check_table_names.
+  table-overwrite = overwrite_option-yes.
   MODIFY bundle FROM table INDEX bundle_tdc-current_line.
   IF sy-subrc <> 0.
     APPEND table TO bundle.
@@ -77,6 +83,11 @@ ENDMODULE.
 
 MODULE initialize OUTPUT.
   CLEAR marked_rows.
+ENDMODULE.
+
+MODULE fill_table_control OUTPUT.
+  ##ENH_OK
+  MOVE-CORRESPONDING table TO zexport_table_mod.
 ENDMODULE.
 
 MODULE exit_command_9000 INPUT.
@@ -199,8 +210,10 @@ FORM user_command_0001.
           ENDLOOP.
           REFRESH CONTROL 'BUNDLE_CLUSTER' FROM SCREEN '0001'.
       ENDCASE.
-    CATCH zcx_export_error INTO DATA(error).
-      MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
+    CATCH zcx_export_error INTO DATA(e_error).
+      MESSAGE e_error TYPE 'S' DISPLAY LIKE 'E'.
+    CATCH zcx_import_error INTO DATA(i_error).
+      MESSAGE i_error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
 
 ENDFORM.
@@ -290,17 +303,31 @@ DEFINE check_name.
 
 END-OF-DEFINITION.
 
+FORM mark_changed_tables USING importer TYPE REF TO zimport_bundle
+  RAISING zcx_import_error.
+
+  importer->get_changed_source_tables( IMPORTING indicies = DATA(indicies) ).
+  LOOP AT indicies INTO DATA(tabix_bundle).
+    bundle[ tabix_bundle ]-changed = abap_true.
+  ENDLOOP.
+
+ENDFORM.
+
 FORM read_bundle_cluster.
+  DATA importer TYPE REF TO zimport_bundle.
 
   TRY.
       PERFORM read_package_bundle_cluster.
-      DATA(importer) = NEW zimport_bundle_from_cluster( header_cluster-testcase_id ).
+      importer = NEW zimport_bundle_from_cluster( header_cluster-testcase_id ).
 
       CLEAR: bundle.
       LOOP AT importer->table_list REFERENCE INTO DATA(table).
         APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
-          where_restriction = table->*-where_restriction ) TO bundle.
+          where_restriction = table->*-where_restriction
+          overwrite = overwrite_option-no ) TO bundle.
       ENDLOOP.
+      PERFORM mark_changed_tables USING importer.
+
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
@@ -323,19 +350,23 @@ FORM read_title_cluster.
 ENDFORM.
 
 FORM read_bundle_tdc.
+  DATA importer TYPE REF TO zimport_bundle.
 
   TRY.
       PERFORM read_package_bundle_tdc.
 
-      DATA(importer) = NEW zimport_bundle_from_tdc(
+      importer = NEW zimport_bundle_from_tdc(
         tdc = header_tdc-name tdc_version = header_tdc-version
         variant = header_tdc-variant ).
 
       CLEAR: bundle.
       LOOP AT importer->table_list REFERENCE INTO DATA(table).
         APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
-          where_restriction = table->*-where_restriction ) TO bundle.
+          where_restriction = table->*-where_restriction
+          overwrite = overwrite_option-no ) TO bundle.
       ENDLOOP.
+      PERFORM mark_changed_tables USING importer.
+
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.
@@ -409,9 +440,9 @@ FORM create_tdc_exporter
   IF header_tdc-version IS INITIAL.
     RAISE EXCEPTION TYPE cx_ecatt_tdc_access
       EXPORTING
-        textid     = cx_ecatt_tdc_access=>version_not_found
-        last_obj_ver = space
-        last_obj_type = conv string( cl_apl_ecatt_const=>obj_type_test_data )
+        textid        = cx_ecatt_tdc_access=>version_not_found
+        last_obj_ver  = space
+        last_obj_type = CONV string( cl_apl_ecatt_const=>obj_type_test_data )
         last_obj_name = header_tdc-name.
   ENDIF.
 
@@ -465,8 +496,10 @@ FORM set_tdc_title USING VALUE(tdc) TYPE REF TO cl_apl_ecatt_tdc_api
 
 ENDFORM.
 
-FORM export_screen_0001 RAISING zcx_export_error.
-  DATA: exporter TYPE REF TO zexport_bundle_in_cluster.
+FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
+  DATA: exporter      TYPE REF TO zexport_bundle_in_cluster,
+        importer      TYPE REF TO zimport_bundle_from_cluster,
+        prior_content TYPE REF TO data.
 
   DELETE bundle WHERE name IS INITIAL.
   IF bundle IS INITIAL.
@@ -475,26 +508,44 @@ FORM export_screen_0001 RAISING zcx_export_error.
   ENDIF.
 
   TRY.
-    PERFORM create_cluster_exporter CHANGING exporter.
+      importer = NEW zimport_bundle_from_cluster( testcase_id = header_cluster-testcase_id ).
+      ##NO_HANDLER
+    CATCH zcx_import_error.
+  ENDTRY.
 
-    LOOP AT bundle INTO table.
-      exporter->add_table_to_bundle( _table = VALUE #(
-        source_table = table-name fake_table = table-fake
-        where_restriction = table-where_restriction ) ).
-    ENDLOOP.
-    exporter->export( ).
-    exporter->attach_to_wb_order( ).
+  TRY.
+      PERFORM create_cluster_exporter CHANGING exporter.
 
-    is_changed = abap_false.
-    COMMIT WORK.
-  CATCH zcx_export_error INTO DATA(failure).
-    " rollback necessary, if user canceled the attachment to workbench order
-    ROLLBACK WORK.
-    RAISE EXCEPTION failure.
+      LOOP AT bundle INTO table.
+
+        IF table-overwrite = overwrite_option-yes.
+          exporter->add_table_to_bundle( _table = VALUE #(
+            source_table = table-name fake_table = table-fake
+            where_restriction = table-where_restriction ) ).
+        ELSEIF importer IS BOUND.
+          importer->get_exported_content_for_table( EXPORTING source_table = table-name
+            IMPORTING content = prior_content ).
+          exporter->add_prior_content( _table = VALUE #(
+            source_table = table-name fake_table = table-fake
+            where_restriction = table-where_restriction )
+            content = prior_content ).
+        ENDIF.
+      ENDLOOP.
+      exporter->export( ).
+      exporter->attach_to_wb_order( ).
+
+      is_changed = abap_false.
+      COMMIT WORK.
+    CATCH zcx_export_error INTO DATA(failure).
+      " rollback necessary, if user canceled the attachment to workbench order
+      ROLLBACK WORK.
+      RAISE EXCEPTION failure.
   ENDTRY.
 
 ENDFORM.
 
+"! Table conjunctions are just added. The test-data-container isn't
+"! refreshed before. These behavior should not change (see rem1).
 FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
   DATA exporter TYPE REF TO zexport_bundle_in_tdc.
 
@@ -505,7 +556,9 @@ FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
   ENDIF.
   PERFORM create_tdc_exporter CHANGING exporter.
 
-  LOOP AT bundle INTO table.
+  " rem1: Just the conjunctions are added, the user has
+  " choosen explicitly.
+  LOOP AT bundle INTO table WHERE overwrite = overwrite_option-yes.
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = table-name fake_table = table-fake
       where_restriction = table-where_restriction ) ).
@@ -564,14 +617,14 @@ FORM show_own_orders.
   title = text-enw.
 
   CALL FUNCTION 'TR_PRESENT_REQUESTS_SEL_POPUP'
-       EXPORTING
-            iv_organizer_type    = organizer
-            iv_username          = sy-uname
-            is_selection         = selection
-            iv_title             = title
-            is_new_request_props = new_request_props
-       IMPORTING
-            es_selected_request  = request_header.
+    EXPORTING
+      iv_organizer_type    = organizer
+      iv_username          = sy-uname
+      is_selection         = selection
+      iv_title             = title
+      is_new_request_props = new_request_props
+    IMPORTING
+      es_selected_request  = request_header.
 
   header_tdc-tr_order = request_header-trkorr.
 
@@ -609,12 +662,12 @@ FORM show_tdc_versions.
 
   program = sy-repid.
   TRY.
-    cl_gui_ecatt_object_usage=>select_version_f4(
-      im_obj_type           = 'ECTD'
-      im_dfield_obj_name       = 'HEADER_TDC-NAME'
-      im_dfield_obj_version    = 'HEADER_TDC-VERSION'
-      im_progname              = program
-      im_dynnr = sy-dynnr ).
+      cl_gui_ecatt_object_usage=>select_version_f4(
+        im_obj_type           = 'ECTD'
+        im_dfield_obj_name       = 'HEADER_TDC-NAME'
+        im_dfield_obj_version    = 'HEADER_TDC-VERSION'
+        im_progname              = program
+        im_dynnr = sy-dynnr ).
     CATCH cx_ecatt_apl INTO DATA(failure).
       MESSAGE failure TYPE 'S' DISPLAY LIKE 'E'.
   ENDTRY.

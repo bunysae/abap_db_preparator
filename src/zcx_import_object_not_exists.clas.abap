@@ -1,27 +1,29 @@
 class ZCX_IMPORT_OBJECT_NOT_EXISTS definition
   public
-  inheriting from zcx_import_error
+  inheriting from ZCX_IMPORT_ERROR
   final
   create public .
 
 public section.
 
   interfaces IF_T100_MESSAGE .
-  CONSTANTS: BEGIN OF zcx_export_object_exists,
-    msgid TYPE symsgid VALUE 'ZEXPORT',
-    msgno TYPE symsgno VALUE '001',
-    attr1 TYPE scx_attrname VALUE 'TESTCASE_ID',
-    attr2 TYPE scx_attrname VALUE '',
-    attr3 TYPE scx_attrname VALUE '',
-    attr4 TYPE scx_attrname VALUE '',
-  END OF zcx_export_object_exists.
-  DATA testcase_id TYPE w3objid.
+
+  constants:
+    begin of ZCX_IMPORT_OBJECT_NOT_EXISTS,
+      msgid type symsgid value 'ZEXPORT',
+      msgno type symsgno value '001',
+      attr1 type scx_attrname value 'TESTCASE_ID',
+      attr2 type scx_attrname value '',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of ZCX_IMPORT_OBJECT_NOT_EXISTS .
+  data TESTCASE_ID type W3OBJID .
 
   methods CONSTRUCTOR
     importing
       !TEXTID like IF_T100_MESSAGE=>T100KEY optional
       !PREVIOUS like PREVIOUS optional
-      testcase_id TYPE w3objid.
+      !TESTCASE_ID type W3OBJID .
 protected section.
 private section.
 ENDCLASS.
@@ -39,7 +41,7 @@ PREVIOUS = PREVIOUS
 me->TESTCASE_ID = TESTCASE_ID .
 clear me->textid.
 if textid is initial.
-  IF_T100_MESSAGE~T100KEY = IF_T100_MESSAGE=>DEFAULT_TEXTID.
+  IF_T100_MESSAGE~T100KEY = ZCX_IMPORT_OBJECT_NOT_EXISTS .
 else.
   IF_T100_MESSAGE~T100KEY = TEXTID.
 endif.

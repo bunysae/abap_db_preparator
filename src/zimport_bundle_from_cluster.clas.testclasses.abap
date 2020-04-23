@@ -32,6 +32,18 @@ CLASS test_export_import DEFINITION FOR TESTING DURATION SHORT
       RAISING
         cx_static_check.
 
+    METHODS get_exported_content FOR TESTING
+      RAISING
+        cx_static_check.
+
+    METHODS reexport
+      RAISING
+        cx_static_check.
+
+    METHODS reexport_subset FOR TESTING
+      RAISING
+        cx_static_check.
+
 ENDCLASS.
 
 CLASS test_export_import IMPLEMENTATION.
@@ -242,6 +254,78 @@ CLASS test_export_import IMPLEMENTATION.
     APPEND: 2 TO exp_indicies, 3 TO exp_indicies.
     cl_abap_unit_assert=>assert_equals( exp = exp_indicies
       act = act_indicies ).
+
+  ENDMETHOD.
+
+  METHOD get_exported_content.
+    DATA: act_content TYPE REF TO data,
+          exp_content TYPE STANDARD TABLE OF zexport_ut1.
+    FIELD-SYMBOLS: <act_content> LIKE exp_content.
+
+    exp_content = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+    ).
+
+    " when
+    CREATE DATA act_content LIKE exp_content.
+    DATA(cut) = NEW zimport_bundle_from_cluster( testcase_id ).
+    cut->get_exported_content_for_table( EXPORTING source_table = 'ZEXPORT_UT1'
+      IMPORTING content = act_content ).
+
+    " then
+    ASSIGN act_content->* TO <act_content>.
+    cl_abap_unit_assert=>assert_equals( exp = exp_content
+      act = <act_content> ).
+
+  ENDMETHOD.
+
+  METHOD reexport.
+    DATA: prior_content_ut1 TYPE REF TO data,
+          dev_package TYPE devclass.
+
+    SELECT SINGLE devclass FROM tadir INTO dev_package
+      WHERE pgmid = 'R3TR' AND object = 'CLAS' AND obj_name = 'ZIMPORT_BUNDLE_FROM_CLUSTER'.
+
+    DATA(exporter) = NEW zexport_bundle_in_cluster( testcase_id = testcase_id
+      dev_package = dev_package title = 'Unit-Test ABAP DB preparator'
+      force_overwrite = abap_true ).
+    DATA(importer) = NEW zimport_bundle_from_cluster( testcase_id = testcase_id ).
+
+    importer->get_exported_content_for_table( EXPORTING source_table = 'ZEXPORT_UT1'
+      IMPORTING content = prior_content_ut1 ).
+    exporter->add_prior_content( _table = VALUE #(
+      source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' )
+      content = prior_content_ut1 ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2' ) ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT3' ) ).
+
+    exporter->export( ).
+
+  ENDMETHOD.
+
+  METHOD reexport_subset.
+    DATA: act_content_ut1 TYPE REF TO data,
+          exp_content_ut1 TYPE STANDARD TABLE OF zexport_ut1.
+    FIELD-SYMBOLS: <act_content_ut1> LIKE exp_content_ut1.
+
+    exp_content_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+    ).
+
+    " when
+    reexport( ).
+    COMMIT WORK AND WAIT.
+
+    " then
+    DATA(importer) = NEW zimport_bundle_from_cluster( testcase_id = testcase_id ).
+    importer->get_exported_content_for_table( EXPORTING source_table = 'ZEXPORT_UT1'
+      IMPORTING content = act_content_ut1 ).
+    ASSIGN act_content_ut1->* TO <act_content_ut1>.
+
+    cl_abap_unit_assert=>assert_equals( exp = exp_content_ut1
+      act = <act_content_ut1> ).
 
   ENDMETHOD.
 

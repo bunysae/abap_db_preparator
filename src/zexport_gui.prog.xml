@@ -197,10 +197,40 @@
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
        <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT009</NAME>
+       <TEXT>Changed</TEXT>
+       <LINE>001</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>007</LENGTH>
+       <VISLENGTH>007</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <TC_HEADING>X</TC_HEADING>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT010</NAME>
+       <TEXT>Override</TEXT>
+       <LINE>001</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>008</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <TC_HEADING>X</TC_HEADING>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
+       <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT004</NAME>
        <TEXT>Database_table</TEXT>
        <LINE>001</LINE>
-       <COLUMN>001</COLUMN>
+       <COLUMN>003</COLUMN>
        <LENGTH>014</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -215,7 +245,7 @@
        <NAME>%#AUTOTEXT006</NAME>
        <TEXT>Fake_Database_table</TEXT>
        <LINE>001</LINE>
-       <COLUMN>002</COLUMN>
+       <COLUMN>004</COLUMN>
        <LENGTH>019</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -230,7 +260,7 @@
        <NAME>%#AUTOTEXT005</NAME>
        <TEXT>SQL_where_restriction</TEXT>
        <LINE>001</LINE>
-       <COLUMN>003</COLUMN>
+       <COLUMN>005</COLUMN>
        <LENGTH>021</LENGTH>
        <VISLENGTH>150</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -255,11 +285,44 @@
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>TABLE-CHANGED</NAME>
+       <LINE>001</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>001</LENGTH>
+       <VISLENGTH>007</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>ZEXPORT_TABLE_MOD-OVERWRITE</NAME>
+       <TEXT>_</TEXT>
+       <DROPDOWN>L</DROPDOWN>
+       <LINE>001</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>001</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <FOREIGNKEY>X</FOREIGNKEY>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <DICT_I_VAL>X</DICT_I_VAL>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>TABLE-NAME</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>001</COLUMN>
+       <COLUMN>003</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -274,7 +337,7 @@
        <NAME>TABLE-FAKE</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>002</COLUMN>
+       <COLUMN>004</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -289,7 +352,7 @@
        <NAME>TABLE-WHERE_RESTRICTION</NAME>
        <TEXT>____________________________________________________________________________________________________________________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>003</COLUMN>
+       <COLUMN>005</COLUMN>
        <LENGTH>255</LENGTH>
        <VISLENGTH>255</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -308,6 +371,9 @@
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>LOOP AT bundle INTO table WITH CONTROL bundle_cluster.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>MODULE fill_table_control.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>ENDLOOP.</LINE>
@@ -362,6 +428,7 @@
       <item>2</item>
       <item>0</item>
       <item>2</item>
+      <item>4</item>
       <item>2</item>
       <item>0</item>
       <item>0</item>
@@ -668,10 +735,40 @@
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>BUNDLE_TDC</CONT_NAME>
        <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT012</NAME>
+       <TEXT>Changed</TEXT>
+       <LINE>001</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>007</LENGTH>
+       <VISLENGTH>007</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <TC_HEADING>X</TC_HEADING>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_TDC</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>%#AUTOTEXT013</NAME>
+       <TEXT>Option</TEXT>
+       <LINE>001</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>006</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <TC_HEADING>X</TC_HEADING>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_TDC</CONT_NAME>
+       <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT004</NAME>
        <TEXT>Database_table</TEXT>
        <LINE>001</LINE>
-       <COLUMN>001</COLUMN>
+       <COLUMN>003</COLUMN>
        <LENGTH>014</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -686,7 +783,7 @@
        <NAME>%#AUTOTEXT007</NAME>
        <TEXT>Fake_Database_table</TEXT>
        <LINE>001</LINE>
-       <COLUMN>002</COLUMN>
+       <COLUMN>004</COLUMN>
        <LENGTH>019</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -701,7 +798,7 @@
        <NAME>%#AUTOTEXT005</NAME>
        <TEXT>SQL_where_restriction</TEXT>
        <LINE>001</LINE>
-       <COLUMN>003</COLUMN>
+       <COLUMN>005</COLUMN>
        <LENGTH>021</LENGTH>
        <VISLENGTH>150</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -726,11 +823,44 @@
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>BUNDLE_TDC</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>TABLE-CHANGED</NAME>
+       <LINE>001</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>001</LENGTH>
+       <VISLENGTH>007</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_TDC</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>ZEXPORT_TABLE_MOD-OVERWRITE</NAME>
+       <TEXT>_</TEXT>
+       <DROPDOWN>L</DROPDOWN>
+       <LINE>001</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>001</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <FOREIGNKEY>X</FOREIGNKEY>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <DICT_I_VAL>X</DICT_I_VAL>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>BUNDLE_TDC</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>TABLE-NAME</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>001</COLUMN>
+       <COLUMN>003</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -745,7 +875,7 @@
        <NAME>TABLE-FAKE</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>002</COLUMN>
+       <COLUMN>004</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -760,7 +890,7 @@
        <NAME>TABLE-WHERE_RESTRICTION</NAME>
        <TEXT>____________________________________________________________________________________________________________________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>003</COLUMN>
+       <COLUMN>005</COLUMN>
        <LENGTH>255</LENGTH>
        <VISLENGTH>255</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -779,6 +909,9 @@
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>LOOP AT bundle INTO table WITH CONTROL bundle_tdc.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>MODULE fill_table_control.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>ENDLOOP.</LINE>
@@ -846,6 +979,7 @@
       <item>2</item>
       <item>0</item>
       <item>2</item>
+      <item>4</item>
       <item>2</item>
       <item>0</item>
       <item>0</item>

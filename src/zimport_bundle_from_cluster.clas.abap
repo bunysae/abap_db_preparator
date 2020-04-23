@@ -11,6 +11,13 @@ public section.
       !TESTCASE_ID type W3OBJID
     raising
       ZCX_IMPORT_ERROR .
+  methods GET_EXPORTED_CONTENT_FOR_TABLE
+    importing
+      source_table type tabname
+    exporting
+      content type ref to data
+    raising
+      zcx_import_error.
 
   methods ADD_CONTENT_ALL_TABLES
     redefinition .
@@ -95,6 +102,17 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
     content = object->*-value.
 
   ENDMETHOD.
+
+
+  method GET_EXPORTED_CONTENT_FOR_TABLE.
+
+    READ TABLE table_list REFERENCE INTO DATA(table_conjunction)
+      WITH KEY source_table = source_table.
+
+    get_exported_content( EXPORTING table_conjunction = table_conjunction->*
+      IMPORTING content = content ).
+
+  endmethod.
 
 
   METHOD get_filesize.

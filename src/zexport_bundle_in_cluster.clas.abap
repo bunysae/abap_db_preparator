@@ -9,8 +9,8 @@ public section.
     importing
       !TESTCASE_ID type W3OBJID
       !FORCE_OVERWRITE type ABAP_BOOL default ABAP_FALSE
-      dev_package TYPE devclass
-      title type w3_text
+      !DEV_PACKAGE type DEVCLASS
+      !TITLE type W3_TEXT
     raising
       ZCX_EXPORT_OBJECT_EXISTS .
   "! Add the content of the table to the bundle (uses the builder-pattern).
@@ -36,15 +36,22 @@ public section.
   "! or the "where_restriction" is invalid.
   methods ADD_TABLE_TO_BUNDLE
     importing
-      VALUE(_table) TYPE zexport_table_list
+      value(_TABLE) type ZEXPORT_TABLE_LIST
     returning
       value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_CLUSTER
-    RAISING
-      zcx_export_error.
+    raising
+      ZCX_EXPORT_ERROR .
   methods EXPORT .
   "! Attach the MIME-Object to an workbench order for transportation pruposes
   methods ATTACH_TO_WB_ORDER
-    RAISING
+    raising
+      ZCX_EXPORT_ERROR .
+  methods ADD_PRIOR_CONTENT
+    importing
+      value(_table) type zexport_table_list
+      content type ref to data
+    returning value(instance) type ref to ZEXPORT_BUNDLE_IN_CLUSTER
+    raising
       zcx_export_error.
 protected section.
 private section.
@@ -67,6 +74,30 @@ ENDCLASS.
 
 
 CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
+
+
+  method ADD_PRIOR_CONTENT.
+    FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
+
+    IF _table-fake_table IS INITIAL.
+      _table-fake_table = _table-source_table.
+    ENDIF.
+    IF line_exists( cluster_objects[ name = _table-fake_table ] ).
+      RAISE EXCEPTION TYPE zcx_export_table_duplicate
+        EXPORTING
+          table = _table-fake_table.
+    ENDIF.
+
+    INSERT _table INTO TABLE table_list.
+
+    APPEND INITIAL LINE TO cluster_objects
+      ASSIGNING FIELD-SYMBOL(<content>).
+    <content>-name = _table-fake_table.
+    <content>-value = content.
+
+    instance = me.
+
+  endmethod.
 
 
   method ADD_TABLE_TO_BUNDLE.
