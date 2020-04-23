@@ -1,7 +1,8 @@
 class ZIMPORT_BUNDLE_FROM_CLUSTER definition
   public
+  inheriting from ZIMPORT_BUNDLE
   final
-  create public INHERITING FROM zimport_bundle.
+  create public .
 
 public section.
 
@@ -10,11 +11,16 @@ public section.
       !TESTCASE_ID type W3OBJID
     raising
       ZCX_IMPORT_ERROR .
-  methods REPLACE_CONTENT_ALL_TABLES REDEFINITION.
-  METHODS replace_content_completly REDEFINITION.
-  methods ADD_CONTENT_ALL_TABLES REDEFINITION.
-  methods get_exported_content REDEFINITION.
+
+  methods ADD_CONTENT_ALL_TABLES
+    redefinition .
+  methods REPLACE_CONTENT_ALL_TABLES
+    redefinition .
+  methods REPLACE_CONTENT_COMPLETLY
+    redefinition .
 protected section.
+
+  methods get_exported_content redefinition.
 private section.
 
   data CLUSTER_OBJECTS type ABAP_TRANS_SRCBIND_TAB .
@@ -84,19 +90,9 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
   METHOD get_exported_content.
 
-    READ TABLE table_list REFERENCE INTO DATA(table_conjunction)
-      WITH KEY source_table = table.
-    IF sy-subrc <> 0.
-      RETURN.
-    ENDIF.
-    found_in_bundle = abap_true.
-
-    LOOP AT cluster_objects REFERENCE INTO DATA(object)
-      WHERE name = table_conjunction->*-fake_table.
-
-      content = object->*-value.
-
-    ENDLOOP.
+    READ TABLE cluster_objects REFERENCE INTO DATA(object)
+      WITH KEY name = table_conjunction-fake_table.
+    content = object->*-value.
 
   ENDMETHOD.
 

@@ -3,41 +3,48 @@ class ZIMPORT_BUNDLE definition
   abstract
   create public .
 
-  public section.
+public section.
 
-    data:
-      TABLE_LIST type standard table of ZEXPORT_TABLE_LIST read-only .
+  data:
+    TABLE_LIST type standard table of ZEXPORT_TABLE_LIST read-only .
+  types:
+    index_table type standard table of i.
 
-    methods REPLACE_CONTENT_ALL_TABLES
-          abstract
-      raising
-        ZCX_IMPORT_ERROR .
-    methods REPLACE_CONTENT_COMPLETLY
-          abstract
-      raising
-        ZCX_IMPORT_ERROR .
-    methods ADD_CONTENT_ALL_TABLES
-          abstract
-      raising
-        ZCX_IMPORT_ERROR .
+  methods REPLACE_CONTENT_ALL_TABLES
+  abstract
+    raising
+      ZCX_IMPORT_ERROR .
+  methods REPLACE_CONTENT_COMPLETLY
+  abstract
+    raising
+      ZCX_IMPORT_ERROR .
+  methods ADD_CONTENT_ALL_TABLES
+  abstract
+    raising
+      ZCX_IMPORT_ERROR .
     "! 7.51 feature, for backwards-compatibility uses dynamic method calls
-    methods ACTIVATE_OSQL_REPLACEMENT
-      raising
-        ZCX_IMPORT_ERROR .
-    methods GET_EXPORTED_CONTENT
-          abstract
-      importing
-        TABLE type TABNAME
-      exporting
-        CONTENT    type ref to data
-      returning value(found_in_bundle) type ABAP_BOOL
-      raising
-        ZCX_IMPORT_ERROR.
+  methods ACTIVATE_OSQL_REPLACEMENT
+    raising
+      ZCX_IMPORT_ERROR .
+  "! Indicies relate to the attribute "table_list"
+  methods GET_CHANGED_SOURCE_TABLES
+    exporting
+      INDICIES type INDEX_TABLE
+    raising
+      ZCX_IMPORT_ERROR .
 protected section.
 
   types:
-    whitelist type range of tabname .
+    WHITELIST type range of TABNAME .
 
+  methods GET_EXPORTED_CONTENT
+        abstract
+    importing
+      !TABLE_CONJUNCTION type ZEXPORT_TABLE_LIST
+    exporting
+      !CONTENT           type ref to DATA
+    raising
+      ZCX_IMPORT_ERROR .
   methods PERMISSION_IS_GRANTED
     raising
       ZCX_IMPORT_NOT_ALLOWED .
@@ -53,6 +60,12 @@ private section.
     end of REPLACED_TABLE .
   types:
     REPLACED_TABLES type sorted table of REPLACED_TABLE with unique key SOURCE .
+
+  methods COMPARE
+    importing
+      LHS type standard table
+      RHS type standard table
+    returning value(differs) type abap_bool.
 ENDCLASS.
 
 
@@ -81,6 +94,64 @@ METHOD activate_osql_replacement.
       replacement_table = <replaced_tables>.
 
 ENDMETHOD.
+
+
+  method COMPARE.
+    FIELD-SYMBOLS: <lhs> TYPE any,
+                   <rhs> TYPE any.
+
+    IF lines( lhs ) <> lines( rhs ).
+      differs = abap_true.
+      RETURN.
+    ENDIF.
+
+    " "lhs" and "rhs" may have different sort order
+    LOOP AT lhs ASSIGNING <lhs>.
+      READ TABLE rhs ASSIGNING <rhs> FROM <lhs>.
+      IF sy-subrc = 0.
+        IF <lhs> <> <rhs>.
+          differs = abap_true.
+          RETURN.
+        ENDIF.
+      ELSE.
+        differs = abap_true.
+        RETURN.
+      ENDIF.
+    ENDLOOP.
+
+  endmethod.
+
+
+  METHOD get_changed_source_tables.
+    DATA: actual_content TYPE REF TO data,
+          exported_content TYPE REF TO data.
+    FIELD-SYMBOLS: <actual_content> TYPE STANDARD TABLE,
+                   <exported_content> TYPE STANDARD TABLE.
+
+    CLEAR indicies.
+    LOOP AT table_list REFERENCE INTO DATA(table_conjunction).
+
+      DATA(idx) = sy-tabix.
+
+      CREATE DATA:
+        actual_content TYPE STANDARD TABLE OF (table_conjunction->*-source_table),
+        exported_content TYPE STANDARD TABLE OF (table_conjunction->*-source_table).
+      ASSIGN actual_content->* TO <actual_content>.
+
+      get_exported_content( EXPORTING table_conjunction = table_conjunction->*
+        IMPORTING content = exported_content ).
+      ASSIGN exported_content->* TO <exported_content>.
+      SELECT * FROM (table_conjunction->*-source_table)
+        INTO TABLE @<actual_content>
+        WHERE (table_conjunction->*-where_restriction).
+
+      IF compare( lhs = <exported_content> rhs = <actual_content> ) = abap_true.
+        APPEND idx TO indicies.
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
 
 
   method GET_WHITELIST.

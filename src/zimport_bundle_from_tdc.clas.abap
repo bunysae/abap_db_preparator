@@ -9,7 +9,7 @@ public section.
   methods CONSTRUCTOR
     importing
       !TDC type ETOBJ_NAME
-      !TDC_VERSION type ETOBJ_VER OPTIONAL
+      !TDC_VERSION type ETOBJ_VER optional
       !VARIANT type ETVAR_ID
     raising
       ZCX_IMPORT_ERROR .
@@ -18,11 +18,12 @@ public section.
     redefinition .
   methods REPLACE_CONTENT_ALL_TABLES
     redefinition .
-  METHODS replace_content_completly
-    REDEFINITION.
+  methods REPLACE_CONTENT_COMPLETLY
+    redefinition .
+protected section.
+
   methods get_exported_content
     redefinition.
-protected section.
 private section.
 
   data TDC type ref to CL_APL_ECATT_TDC_API .
@@ -45,11 +46,6 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
     permission_is_granted( ).
     TRY.
-        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
-        " The parameter-list is not used, because different variants can use
-        " different parameters and some parameters may be not database-tables.
-        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
-          CHANGING e_param_value = table_list ).
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
@@ -83,6 +79,9 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
           i_testdatacontainer_version = tdc_version ).
         me->variant = variant.
 
+        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
+        " The parameter-list is not used, because different variants can use
+        " different parameters and some parameters may be not database-tables.
         me->tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
           CHANGING e_param_value = table_list ).
 
@@ -94,19 +93,11 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
 
   METHOD get_exported_content.
-    DATA: table_list TYPE STANDARD TABLE OF zexport_table_list.
 
     TRY.
-        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
+        tdc->get_value_ref( EXPORTING i_param_name = get_tdc_parameter_name( table_conjunction )
           i_variant_name = variant
-          CHANGING e_param_value = table_list ).
-        LOOP AT table_list REFERENCE INTO DATA(table_conjunction)
-          WHERE source_table = table.
-          tdc->get_value_ref( EXPORTING i_param_name = get_tdc_parameter_name( table_conjunction->* )
-            i_variant_name = variant
-            CHANGING e_param_ref = content ).
-        ENDLOOP.
-        found_in_bundle = xsdbool( sy-subrc = 0 ).
+          CHANGING e_param_ref = content ).
 
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
@@ -131,17 +122,11 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
 
   METHOD replace_content_all_tables.
-    DATA: content TYPE REF TO data,
-          table_list TYPE STANDARD TABLE OF zexport_table_list.
+    DATA: content TYPE REF TO data.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     permission_is_granted( ).
     TRY.
-        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
-        " The parameter-list is not used, because different variants can use
-        " different parameters and some parameters may be not database-tables.
-        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
-          CHANGING e_param_value = table_list ).
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
@@ -174,11 +159,6 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
     permission_is_granted( ).
     TRY.
-        " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
-        " The parameter-list is not used, because different variants can use
-        " different parameters and some parameters may be not database-tables.
-        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
-          CHANGING e_param_value = table_list ).
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
