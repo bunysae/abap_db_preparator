@@ -27,6 +27,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>GET_EXPORTED_CONTENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>get the exported content</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
      <CMPNAME>GET_WHITELIST</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Whitelist: complete replacement of table-content is allowed</DESCRIPT>

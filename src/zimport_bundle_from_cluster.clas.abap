@@ -13,6 +13,7 @@ public section.
   methods REPLACE_CONTENT_ALL_TABLES REDEFINITION.
   METHODS replace_content_completly REDEFINITION.
   methods ADD_CONTENT_ALL_TABLES REDEFINITION.
+  methods get_exported_content REDEFINITION.
 protected section.
 private section.
 
@@ -79,6 +80,25 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
       RESULT (cluster_objects).
 
   endmethod.
+
+
+  METHOD get_exported_content.
+
+    READ TABLE table_list REFERENCE INTO DATA(table_conjunction)
+      WITH KEY source_table = table.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
+    found_in_bundle = abap_true.
+
+    LOOP AT cluster_objects REFERENCE INTO DATA(object)
+      WHERE name = table_conjunction->*-fake_table.
+
+      content = object->*-value.
+
+    ENDLOOP.
+
+  ENDMETHOD.
 
 
   METHOD get_filesize.

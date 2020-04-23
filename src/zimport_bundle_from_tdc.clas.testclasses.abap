@@ -69,6 +69,16 @@ CLASS test_export_import DEFINITION FOR TESTING
       RAISING
         cx_static_check.
 
+    "! Exported content from table in bundle
+    METHODS get_exported_content_tib FOR TESTING
+      RAISING
+        cx_static_check.
+
+    "! Exported content from table not in bundle
+    METHODS get_exported_content_tnib FOR TESTING
+      RAISING
+        cx_static_check.
+
     METHODS teardown.
 
 ENDCLASS.
@@ -501,6 +511,41 @@ CLASS test_export_import IMPLEMENTATION.
 
     " teardown
     CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement.
+
+  ENDMETHOD.
+
+  METHOD get_exported_content_tib.
+    DATA: act_content TYPE REF TO data,
+          exp_content TYPE STANDARD TABLE OF zimport_ut1.
+    FIELD-SYMBOLS: <content> TYPE any.
+
+    exp_content = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+    ).
+
+    " when
+    CREATE DATA act_content TYPE STANDARD TABLE OF zimport_ut1.
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    DATA(found_in_bundle) = cut->get_exported_content( EXPORTING table = 'ZEXPORT_UT1'
+      IMPORTING content = act_content ).
+
+    " then
+    ASSIGN act_content->* TO <content>.
+    cl_abap_unit_assert=>assert_equals( exp = exp_content
+      act = <content> msg = 'Content' ).
+    cl_abap_unit_assert=>assert_true( act = found_in_bundle
+      msg = 'Should found table zexport_ut1 in bundle' ).
+
+  ENDMETHOD.
+
+  METHOD get_exported_content_tnib.
+
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    DATA(found_in_bundle) = cut->get_exported_content( EXPORTING table = 'ZFOO' ).
+
+    cl_abap_unit_assert=>assert_false( act = found_in_bundle ).
 
   ENDMETHOD.
 

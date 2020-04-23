@@ -3,27 +3,36 @@ class ZIMPORT_BUNDLE definition
   abstract
   create public .
 
-public section.
+  public section.
 
-  data:
-    table_list TYPE STANDARD TABLE OF zexport_table_list read-only .
+    data:
+      TABLE_LIST type standard table of ZEXPORT_TABLE_LIST read-only .
 
-  methods REPLACE_CONTENT_ALL_TABLES
-  abstract
-    raising
-      ZCX_IMPORT_ERROR .
-  methods REPLACE_CONTENT_COMPLETLY
-  abstract
-    raising
-      ZCX_IMPORT_ERROR .
-  methods ADD_CONTENT_ALL_TABLES
-  abstract
-    raising
-      ZCX_IMPORT_ERROR .
-  "! 7.51 feature, for backwards-compatibility uses dynamic method calls
-  methods ACTIVATE_OSQL_REPLACEMENT
-    raising
-      ZCX_IMPORT_ERROR .
+    methods REPLACE_CONTENT_ALL_TABLES
+          abstract
+      raising
+        ZCX_IMPORT_ERROR .
+    methods REPLACE_CONTENT_COMPLETLY
+          abstract
+      raising
+        ZCX_IMPORT_ERROR .
+    methods ADD_CONTENT_ALL_TABLES
+          abstract
+      raising
+        ZCX_IMPORT_ERROR .
+    "! 7.51 feature, for backwards-compatibility uses dynamic method calls
+    methods ACTIVATE_OSQL_REPLACEMENT
+      raising
+        ZCX_IMPORT_ERROR .
+    methods GET_EXPORTED_CONTENT
+          abstract
+      importing
+        TABLE type TABNAME
+      exporting
+        CONTENT    type ref to data
+      returning value(found_in_bundle) type ABAP_BOOL
+      raising
+        ZCX_IMPORT_ERROR.
 protected section.
 
   types:

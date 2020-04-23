@@ -20,6 +20,8 @@ public section.
     redefinition .
   METHODS replace_content_completly
     REDEFINITION.
+  methods get_exported_content
+    redefinition.
 protected section.
 private section.
 
@@ -83,6 +85,28 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         me->tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
           CHANGING e_param_value = table_list ).
+
+      CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
+        zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
+    ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD get_exported_content.
+    DATA: table_list TYPE STANDARD TABLE OF zexport_table_list.
+
+    TRY.
+        tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
+          i_variant_name = variant
+          CHANGING e_param_value = table_list ).
+        LOOP AT table_list REFERENCE INTO DATA(table_conjunction)
+          WHERE source_table = table.
+          tdc->get_value_ref( EXPORTING i_param_name = get_tdc_parameter_name( table_conjunction->* )
+            i_variant_name = variant
+            CHANGING e_param_ref = content ).
+        ENDLOOP.
+        found_in_bundle = xsdbool( sy-subrc = 0 ).
 
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
