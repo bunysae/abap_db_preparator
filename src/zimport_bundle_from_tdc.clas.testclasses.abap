@@ -111,7 +111,7 @@ CLASS test_export_import IMPLEMENTATION.
     ENDTRY.
 
     cl_apl_ecatt_tdc_api=>create_tdc( EXPORTING
-      i_name = 'ZEXPORT_UNIT_TEST' i_tadir_devclass = '$TMP' i_write_access = abap_true
+      i_name = tdc_name i_tadir_devclass = '$TMP' i_write_access = abap_true
       IMPORTING e_tdc_ref = DATA(tdc_accessor) ).
     tdc_accessor->commit_changes( i_release_lock = abap_true
       i_commit_mode = abap_false ).

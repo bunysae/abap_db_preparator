@@ -27,15 +27,15 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
-     <CMPNAME>CALLED_INSIDE_UNIT_TEST</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>is called inside an unit-test</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
      <CMPNAME>GET_WHITELIST</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Whitelist: complete replacement of table-content is allowed</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>
+     <CMPNAME>PERMISSION_IS_GRANTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>permission to override content is granted</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIMPORT_BUNDLE</CLSNAME>

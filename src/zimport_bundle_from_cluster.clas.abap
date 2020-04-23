@@ -38,7 +38,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   method ADD_CONTENT_ALL_TABLES.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    called_inside_unit_test( ).
+    permission_is_granted( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
       ASSIGN object->*-value->* TO <con>.
@@ -128,7 +128,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   method REPLACE_CONTENT_ALL_TABLES.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    called_inside_unit_test( ).
+    permission_is_granted( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
       ASSIGN object->*-value->* TO <con>.
@@ -148,7 +148,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   method REPLACE_CONTENT_COMPLETLY.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    called_inside_unit_test( ).
+    permission_is_granted( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
       ASSIGN object->*-value->* TO <con>.

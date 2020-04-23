@@ -41,7 +41,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
     DATA: content TYPE REF TO data.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    called_inside_unit_test( ).
+    permission_is_granted( ).
     TRY.
         " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
         " The parameter-list is not used, because different variants can use
@@ -111,7 +111,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
           table_list TYPE STANDARD TABLE OF zexport_table_list.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    called_inside_unit_test( ).
+    permission_is_granted( ).
     TRY.
         " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
         " The parameter-list is not used, because different variants can use
@@ -148,7 +148,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
     DATA: content TYPE REF TO data.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    called_inside_unit_test( ).
+    permission_is_granted( ).
     TRY.
         " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
         " The parameter-list is not used, because different variants can use

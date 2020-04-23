@@ -18,7 +18,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZEXPORT</ARBGB>
      <MSGNR>001</MSGNR>
-     <TEXT>Import is not allowed outside of an unit-test</TEXT>
+     <TEXT>Import is just allowed when dangerous testclasses can be executed.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -76,6 +76,55 @@
     </T100>
    </T100>
    <LONGTEXTS>
+    <item>
+     <DOKIL>
+      <ID>NA</ID>
+      <OBJECT>ZEXPORT001</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0001</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00004</TXTLINES>
+      <DOKSTATE>R</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZEXPORT001</TDNAME>
+      <TDID>NA</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00001</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;CAUSE&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Testclasses (ABAP Unit) have different risk levels. The import is not</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>allowed, when just the execution of harmless testclasses is permitted.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;WHAT_TO_DO&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Set the risk level limit to dangerous or critical in report</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>SAUNIT_CLIENT_SETUP.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+     </LINES>
+    </item>
     <item>
      <DOKIL>
       <ID>NA</ID>
