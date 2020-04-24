@@ -8,7 +8,8 @@ TABLES: zexport_table_mod.
 TYPES: BEGIN OF _table,
          name              TYPE tabname,
          fake              TYPE tabname,
-         where_restriction TYPE string.
+         where_restriction TYPE string,
+         marked            TYPE abap_bool.
         INCLUDE TYPE zexport_table_mod.
 TYPES END OF _table.
 INCLUDE: rddkorri, zexport_batch_input.
@@ -67,6 +68,28 @@ MODULE check_table_names_0002 INPUT.
   is_changed = abap_true.
   PERFORM check_table_names.
   table-overwrite = overwrite_option-yes.
+  MODIFY bundle FROM table INDEX bundle_tdc-current_line.
+  IF sy-subrc <> 0.
+    APPEND table TO bundle.
+  ENDIF.
+
+ENDMODULE.
+
+MODULE set_overwrite_sign_0001 INPUT.
+
+  ##ENH_OK
+  MOVE-CORRESPONDING zexport_table_mod TO table.
+  MODIFY bundle FROM table INDEX bundle_cluster-current_line.
+  IF sy-subrc <> 0.
+    APPEND table TO bundle.
+  ENDIF.
+
+ENDMODULE.
+
+MODULE set_overwrite_sign_0002 INPUT.
+
+  ##ENH_OK
+  MOVE-CORRESPONDING zexport_table_mod TO table.
   MODIFY bundle FROM table INDEX bundle_tdc-current_line.
   IF sy-subrc <> 0.
     APPEND table TO bundle.
@@ -524,10 +547,8 @@ FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
             where_restriction = table-where_restriction ) ).
         ELSEIF importer IS BOUND.
           importer->get_exported_content_for_table( EXPORTING source_table = table-name
-            IMPORTING content = prior_content ).
-          exporter->add_prior_content( _table = VALUE #(
-            source_table = table-name fake_table = table-fake
-            where_restriction = table-where_restriction )
+            IMPORTING table_conjunction = DATA(table_conjunction) content = prior_content ).
+          exporter->add_prior_content( _table = table_conjunction
             content = prior_content ).
         ENDIF.
       ENDLOOP.

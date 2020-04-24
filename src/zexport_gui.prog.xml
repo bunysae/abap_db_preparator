@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <abapGit version="v1.0.0" serializer="LCL_OBJECT_PROG" serializer_version="v1.0.0">
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <PROGDIR>
     <NAME>ZEXPORT_GUI</NAME>
-    <STATE>A</STATE>
-    <VARCL>X</VARCL>
     <SUBC>1</SUBC>
     <RLOAD>E</RLOAD>
     <FIXPT>X</FIXPT>
@@ -286,15 +284,17 @@
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>BUNDLE_CLUSTER</CONT_NAME>
        <TYPE>CHECK</TYPE>
-       <NAME>TABLE-CHANGED</NAME>
+       <NAME>ZEXPORT_TABLE_MOD-CHANGED</NAME>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>001</LENGTH>
-       <VISLENGTH>007</VISLENGTH>
+       <VISLENGTH>001</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>N</REQU_ENTRY>
+       <DICT_I_VAL>X</DICT_I_VAL>
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
@@ -416,6 +416,12 @@
        <LINE>ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
+       <LINE>FIELD zexport_table_mod-overwrite MODULE set_overwrite_sign_0001</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>ON REQUEST.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
        <LINE>ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
@@ -443,6 +449,8 @@
       <item>8</item>
       <item>6</item>
       <item>4</item>
+      <item>4</item>
+      <item>6</item>
       <item>2</item>
       <item>0</item>
       <item>2</item>
@@ -954,6 +962,12 @@
        <LINE>ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
+       <LINE>FIELD zexport_table_mod-overwrite MODULE set_overwrite_sign_0001</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>ON REQUEST.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
        <LINE>ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
@@ -994,6 +1008,8 @@
       <item>8</item>
       <item>6</item>
       <item>4</item>
+      <item>4</item>
+      <item>6</item>
       <item>2</item>
       <item>0</item>
       <item>2</item>

@@ -16,6 +16,7 @@ public section.
       source_table type tabname
     exporting
       content type ref to data
+      table_conjunction type zexport_table_list
     raising
       zcx_import_error.
 
@@ -106,10 +107,10 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
   method GET_EXPORTED_CONTENT_FOR_TABLE.
 
-    READ TABLE table_list REFERENCE INTO DATA(table_conjunction)
+    READ TABLE table_list INTO table_conjunction
       WITH KEY source_table = source_table.
 
-    get_exported_content( EXPORTING table_conjunction = table_conjunction->*
+    get_exported_content( EXPORTING table_conjunction = table_conjunction
       IMPORTING content = content ).
 
   endmethod.
