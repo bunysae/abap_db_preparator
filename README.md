@@ -1,22 +1,44 @@
 # ABAP Database preparator #
-Database preparation made simple.
+Database preparation for unit testing made simple. Store snapshots of
+your database records for later use in unit tests.
 
-## Introduction ##
-Automated testing (ABAP unit) requires a predefined environment.
-The database records are part of this environment.
-If database records are modified, tests can fail.
+## Good bye huge setups ##
+Replace this huge setup method
+```ABAP
+METHOD setup.
+  DATA: airlines TYPE STANDARD TABLE OF zcarr_fake,
+        replaced_tables TYPE cl_osql_replace=>tt_replacement.
 
-ABAP comes since release 7.52 with a replacement service for OpenSQL (class `cl_osql_replace`)
-and for ABAP-CDS (class `cl_cds_test_environment`).
-These replacement services provide predefined database records.
-Preparing huge tables like `mseg` can be quite annoying.
-This repository makes the setup of the replacement services more easy. 
+  DELETE FROM airlines.
+  airlines = VALUE #(
+    ( carrid = 'TG' carrname = 'Thai Airways' )
+  ).
+  INSERT zcarr_fake FROM airlines.
+
+  replaced_tables = VALUE #(
+    ( source = 'SCARR' target = 'ZCARR_FAKE' )
+  ).
+  cl_osql_replace=>activate_replacement( EXPORTING
+    replacement_table = replaced_tables ).
+
+ENDMETHOD.
+```
+by just two method calls:
+```ABAP
+METHOD setup.
+
+  DATA(db_preparator) = NEW zimport_bundle_from_tdc( tdc = 'ZAIRLINES'
+    tdc_version = 1 variant = 'ECATTDEFAULT' ).
+  db_preparator->replace_content_completly( ).
+  db_preparator->activate_osql_replacement( ).
+
+ENDMETHOD.
+```
 
 ## How it works ##
-The database records are bundled up in so called bundle.
-This bundle can contain records from multiple tables and
-is stored either in ECATT test data container
-or in an cluster (binary MIME-object in transaction smw0).
+The snapshot (bundle of database records) is stored either in an ECATT 
+test data container
+or in a cluster (binary MIME-object in transaction smw0).
 
 ### Export step ###
 In the first step we can choose the database records,
@@ -65,8 +87,6 @@ CLASS test_airlines IMPLEMENTATION.
     DATA(db_preparator) = NEW zimport_bundle_from_tdc( tdc = 'ZAIRLINES'
       tdc_version = 1 variant = 'ECATTDEFAULT' ).
     db_preparator->replace_content_completly( ).
-    COMMIT WORK AND WAIT.
-
     db_preparator->activate_osql_replacement( ).
 
   ENDMETHOD.
@@ -88,10 +108,10 @@ ENDCLASS.
 ```
 
 ### Authorization ###
-Modifying database records with the APIs in class `zimport_bundle_from_cluster` or 
-in class `zimport_bundle_from_tdc` should only be possible in 
+The APIs in class `zimport_bundle_from_cluster` or 
+in class `zimport_bundle_from_tdc` can only be used in 
 development systems, where 
-dangerous ABAP unit-testclasses can be executed.
+dangerous ABAP unit-testclasses are enabled.
 
 ### Whitelist-check ###
 Content of fake-tables listed in the whitelist can be completely
