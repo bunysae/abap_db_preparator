@@ -11,7 +11,7 @@ public section.
   constants:
     begin of ZCX_IMPORT_OBJECT_NOT_EXISTS,
       msgid type symsgid value 'ZEXPORT',
-      msgno type symsgno value '001',
+      msgno type symsgno value '012',
       attr1 type scx_attrname value 'TESTCASE_ID',
       attr2 type scx_attrname value '',
       attr3 type scx_attrname value '',

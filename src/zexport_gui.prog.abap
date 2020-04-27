@@ -12,6 +12,7 @@ TYPES: BEGIN OF _table,
          marked            TYPE abap_bool.
         INCLUDE TYPE zexport_table_mod.
 TYPES END OF _table.
+TYPES _table_list TYPE STANDARD TABLE OF zexport_table_list.
 INCLUDE: rddkorri, zexport_batch_input.
 
 CONSTANTS: transparent_table TYPE dd02v-tabclass VALUE 'TRANSP',
@@ -46,6 +47,8 @@ DATA: table       TYPE _table,
       bundle      TYPE STANDARD TABLE OF _table,
       is_changed  TYPE abap_bool,
       marked_rows TYPE STANDARD TABLE OF i.
+
+INCLUDE ztest_export_gui.
 
 START-OF-SELECTION.
 
@@ -454,8 +457,10 @@ ENDFORM.
 
 FORM create_tdc_exporter
   CHANGING exporter TYPE REF TO zexport_bundle_in_tdc
+    existing_table_list TYPE _table_list
+    is_new_bundle TYPE abap_bool
   RAISING cx_ecatt_tdc_access zcx_export_object_exists.
-  DATA: tdc TYPE REF TO cl_apl_ecatt_tdc_api.
+  DATA tdc TYPE REF TO cl_apl_ecatt_tdc_api.
 
   " check for version again, because empty version causes
   " the exception cx_ecatt_tdc_access. The exception cx_ecatt_tdc_access
@@ -482,6 +487,9 @@ FORM create_tdc_exporter
             textid   = zcx_export_object_exists=>tdc_exists
             tdc_name = header_tdc-name.
       ENDIF.
+      tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
+        i_variant_name = header_tdc-variant
+        CHANGING e_param_value = existing_table_list ).
 
     CATCH cx_ecatt_tdc_access.
 
@@ -489,24 +497,13 @@ FORM create_tdc_exporter
         i_name = header_tdc-name i_version = header_tdc-version
         i_tadir_devclass = header_tdc-package i_write_access = abap_true
         IMPORTING e_tdc_ref = tdc ).
+      is_new_bundle = abap_true.
 
   ENDTRY.
 
-  PERFORM create_tdc_variant USING tdc.
   PERFORM set_tdc_title USING tdc.
 
   exporter = NEW zexport_bundle_in_tdc( tdc = tdc variant = header_tdc-variant ).
-
-ENDFORM.
-
-" create variant, if not exists
-FORM create_tdc_variant USING VALUE(tdc) TYPE REF TO cl_apl_ecatt_tdc_api
-  RAISING cx_ecatt_tdc_access.
-
-  DATA(variant_list) = tdc->get_variant_list( ).
-  IF NOT line_exists( variant_list[ table_line = header_tdc-variant ] ).
-    tdc->create_variant( i_variant_name = header_tdc-variant ).
-  ENDIF.
 
 ENDFORM.
 
@@ -522,7 +519,8 @@ ENDFORM.
 FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
   DATA: exporter      TYPE REF TO zexport_bundle_in_cluster,
         importer      TYPE REF TO zimport_bundle_from_cluster,
-        prior_content TYPE REF TO data.
+        prior_content TYPE REF TO data,
+        is_new_cluster TYPE abap_bool.
 
   DELETE bundle WHERE name IS INITIAL.
   IF bundle IS INITIAL.
@@ -532,31 +530,40 @@ FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
 
   TRY.
       importer = NEW zimport_bundle_from_cluster( testcase_id = header_cluster-testcase_id ).
-      ##NO_HANDLER
     CATCH zcx_import_error.
+      is_new_cluster = abap_true.
   ENDTRY.
 
   TRY.
       PERFORM create_cluster_exporter CHANGING exporter.
 
-      LOOP AT bundle INTO table.
-
-        IF table-overwrite = overwrite_option-yes.
+      IF is_new_cluster = abap_true.
+        LOOP AT bundle INTO table.
           exporter->add_table_to_bundle( _table = VALUE #(
             source_table = table-name fake_table = table-fake
             where_restriction = table-where_restriction ) ).
-        ELSEIF importer IS BOUND.
-          importer->get_exported_content_for_table( EXPORTING source_table = table-name
-            IMPORTING table_conjunction = DATA(table_conjunction) content = prior_content ).
-          exporter->add_prior_content( _table = table_conjunction
-            content = prior_content ).
-        ENDIF.
-      ENDLOOP.
+        ENDLOOP.
+      ELSE.
+        LOOP AT bundle INTO table.
+
+          IF table-overwrite = overwrite_option-yes.
+            exporter->add_table_to_bundle( _table = VALUE #(
+              source_table = table-name fake_table = table-fake
+              where_restriction = table-where_restriction ) ).
+          ELSE.
+            importer->get_exported_content_for_table( EXPORTING source_table = table-name
+              IMPORTING table_conjunction = DATA(table_conjunction) content = prior_content ).
+            exporter->add_prior_content( _table = table_conjunction
+              content = prior_content ).
+          ENDIF.
+
+        ENDLOOP.
+      ENDIF.
       exporter->export( ).
       exporter->attach_to_wb_order( ).
 
       is_changed = abap_false.
-      COMMIT WORK.
+      COMMIT WORK AND WAIT.
     CATCH zcx_export_error INTO DATA(failure).
       " rollback necessary, if user canceled the attachment to workbench order
       ROLLBACK WORK.
@@ -565,29 +572,44 @@ FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
 
 ENDFORM.
 
-"! Table conjunctions are just added. The test-data-container isn't
-"! refreshed before. These behavior should not change (see rem1).
 FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
-  DATA exporter TYPE REF TO zexport_bundle_in_tdc.
+  DATA: exporter TYPE REF TO zexport_bundle_in_tdc,
+        existing_table_list TYPE _table_list,
+        is_new_bundle TYPE abap_bool.
 
   DELETE bundle WHERE name IS INITIAL.
   IF bundle IS INITIAL.
     MESSAGE s002.
     RETURN.
   ENDIF.
-  PERFORM create_tdc_exporter CHANGING exporter.
+  PERFORM create_tdc_exporter CHANGING exporter existing_table_list
+    is_new_bundle.
 
-  " rem1: Just the conjunctions are added, the user has
-  " choosen explicitly.
-  LOOP AT bundle INTO table WHERE overwrite = overwrite_option-yes.
-    exporter->add_table_to_bundle( _table = VALUE #(
-      source_table = table-name fake_table = table-fake
-      where_restriction = table-where_restriction ) ).
-  ENDLOOP.
+  IF is_new_bundle = abap_true.
+    LOOP AT bundle INTO table.
+      exporter->add_table_to_bundle( _table = VALUE #(
+        source_table = table-name fake_table = table-fake
+        where_restriction = table-where_restriction ) ).
+    ENDLOOP.
+  ELSE.
+    LOOP AT bundle INTO table.
+      IF table-overwrite = overwrite_option-yes.
+        exporter->add_table_to_bundle( _table = VALUE #(
+          source_table = table-name fake_table = table-fake
+          where_restriction = table-where_restriction ) ).
+      ELSE.
+        READ TABLE existing_table_list REFERENCE INTO DATA(table_conjunction)
+          WITH KEY source_table = table-name.
+        IF sy-subrc = 0.
+          exporter->add_prior_content( table_conjunction->* ).
+        ENDIF.
+      ENDIF.
+    ENDLOOP.
+  ENDIF.
   exporter->export( transport_request = header_tdc-tr_order ).
 
   is_changed = abap_false.
-  COMMIT WORK.
+  COMMIT WORK AND WAIT.
 
 ENDFORM.
 

@@ -44,6 +44,9 @@ public section.
       !TRANSPORT_REQUEST type E070-TRKORR
     raising
       ZCX_EXPORT_ERROR .
+  methods ADD_PRIOR_CONTENT
+    importing
+      table_conjunction type zexport_table_list.
 protected section.
 private section.
 
@@ -76,6 +79,19 @@ ENDCLASS.
 
 
 CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
+
+
+  METHOD add_prior_content.
+
+    IF line_exists( table_list[ fake_table = table_conjunction-fake_table ] ).
+      RAISE EXCEPTION TYPE zcx_export_table_duplicate
+        EXPORTING
+          table = table_conjunction-fake_table.
+    ENDIF.
+
+    INSERT table_conjunction INTO TABLE table_list.
+
+  ENDMETHOD.
 
 
   METHOD add_table_to_bundle.
@@ -126,7 +142,7 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
     " create variant, if not exists
     TRY.
-      tdc->create_variant( i_variant_name = variant ).
+        tdc->create_variant( i_variant_name = variant ).
       CATCH cx_ecatt_tdc_access INTO DATA(failure).
         IF failure->textid <> cx_ecatt_tdc_access=>variant_exists.
           RAISE EXCEPTION failure.
