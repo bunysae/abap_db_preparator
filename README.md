@@ -1,8 +1,14 @@
 # ABAP Database preparator #
-Database preparation for unit testing made simple. Store snapshots of
-your database records for later use in unit tests.
+Database preparation for unit testing made simple. Store snapshots 
+(bundles) of your database records for later use in unit tests.
 
-## Good bye huge setups ##
+## No more breaking unit tests ##
+The snapshots should avoid breaking unit tests after system copies and 
+other database manipulations. This is achieved by providing a wrapper
+for the OpenSQL replacement service in class `cl_osql_replace`, that 
+makes huge setups unnecessary.
+
+### Good bye huge setups ###
 Replace this huge setup method
 ```ABAP
 METHOD setup.
@@ -36,8 +42,7 @@ ENDMETHOD.
 ```
 
 ## How it works ##
-The snapshot (bundle of database records) is stored either in an ECATT 
-test data container
+Bundles are stored either in an ECATT test data container
 or in a cluster (binary MIME-object in transaction smw0).
 
 ### Export step ###
@@ -51,13 +56,13 @@ original and fake table as shown in the picture below.
 *Figure 1 Export step for table scarr in program `zexport_gui`*
 In figure 1 the original table is named `scarr`, the fake table `zcarr_fake`.
 
-If you don't want to use the OpenSQL replacement service,
-you can leave the fake table empty.
+Fake tables can be left empty, if the OpenSQL replacement service isn't
+installed.
 
 ### Import step ###
 In the ABAP unit-testclass the database records exported in previous step
-can be imported in the fake table or in the original table, 
-if the fake table was left empty.
+can be imported in the fake tables or in the original tables,
+if the corresponding fake table was left empty.
 The API for the import step is located in class `zimport_bundle_from_cluster`
 for clusters or in class `zimport_bundle_from_tdc` for
 ECATT test data container.
@@ -114,7 +119,7 @@ development systems, where
 dangerous ABAP unit-testclasses are enabled.
 
 ### Whitelist-check ###
-Content of fake-tables listed in the whitelist can be completely
+Content of fake tables listed in the whitelist can be completely
 overriden. The whitelist is maintained in parameter
 `ZIMPORT_REPLACE_WHITELIST` (transaction `stvarv`, table `tvarvc`).
 
