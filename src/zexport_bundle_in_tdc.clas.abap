@@ -163,7 +163,12 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
       tdc->create_parameter( i_param_name = name
         i_param_def = type_definition ).
       CATCH cx_ecatt_tdc_access INTO DATA(failure).
-        IF failure->textid <> cx_ecatt_tdc_access=>parameter_exists.
+        IF failure->textid = cx_ecatt_tdc_access=>parameter_exists.
+          IF tdc->get_param_definition( name ) <> type_definition.
+            tdc->change_parameter( EXPORTING i_param_name = name
+              i_param_def = type_definition ).
+          ENDIF.
+        ELSE.
           RAISE EXCEPTION failure.
         ENDIF.
     ENDTRY.

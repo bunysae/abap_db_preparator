@@ -180,7 +180,8 @@ CLASS test_export_cluster DEFINITION FOR TESTING DURATION SHORT
     TYPES: _export_ut1 TYPE STANDARD TABLE OF zexport_ut1,
            _export_ut2 TYPE STANDARD TABLE OF zexport_ut2.
 
-    METHODS setup.
+    METHODS setup
+      RAISING cx_static_check.
 
     METHODS setup_mime.
 

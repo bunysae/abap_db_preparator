@@ -42,6 +42,7 @@ DATA: BEGIN OF header_cluster,
         tr_order  TYPE e070-trkorr,
         package   TYPE devclass,
         overwrite TYPE abap_bool,
+        accessor  TYPE REF TO cl_apl_ecatt_tdc_api,
       END OF header_tdc.
 DATA: table       TYPE _table,
       bundle      TYPE STANDARD TABLE OF _table,
@@ -339,24 +340,20 @@ FORM mark_changed_tables USING importer TYPE REF TO zimport_bundle
 
 ENDFORM.
 
-FORM read_bundle_cluster.
+FORM read_bundle_cluster
+  RAISING zcx_import_error.
   DATA importer TYPE REF TO zimport_bundle.
 
-  TRY.
-      PERFORM read_package_bundle_cluster.
-      importer = NEW zimport_bundle_from_cluster( header_cluster-testcase_id ).
+  PERFORM read_package_bundle_cluster.
+  importer = NEW zimport_bundle_from_cluster( header_cluster-testcase_id ).
 
-      CLEAR: bundle.
-      LOOP AT importer->table_list REFERENCE INTO DATA(table).
-        APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
-          where_restriction = table->*-where_restriction
-          overwrite = overwrite_option-no ) TO bundle.
-      ENDLOOP.
-      PERFORM mark_changed_tables USING importer.
-
-    CATCH zcx_import_error INTO DATA(error).
-      MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
-  ENDTRY.
+  CLEAR: bundle.
+  LOOP AT importer->table_list REFERENCE INTO DATA(table).
+    APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
+      where_restriction = table->*-where_restriction
+      overwrite = overwrite_option-no ) TO bundle.
+  ENDLOOP.
+  PERFORM mark_changed_tables USING importer.
 
 ENDFORM.
 
@@ -375,27 +372,32 @@ FORM read_title_cluster.
 
 ENDFORM.
 
-FORM read_bundle_tdc.
+FORM read_bundle_tdc
+  RAISING zcx_import_error cx_ecatt_tdc_access.
   DATA importer TYPE REF TO zimport_bundle.
 
-  TRY.
-      PERFORM read_package_bundle_tdc.
+  IF header_tdc-accessor IS BOUND.
+    header_tdc-accessor->close_instance( ).
+  ENDIF.
 
-      importer = NEW zimport_bundle_from_tdc(
-        tdc = header_tdc-name tdc_version = header_tdc-version
-        variant = header_tdc-variant ).
+  header_tdc-accessor = cl_apl_ecatt_tdc_api=>get_instance(
+    i_testdatacontainer = header_tdc-name
+    i_testdatacontainer_version = header_tdc-version
+    i_write_access = abap_true ).
 
-      CLEAR: bundle.
-      LOOP AT importer->table_list REFERENCE INTO DATA(table).
-        APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
-          where_restriction = table->*-where_restriction
-          overwrite = overwrite_option-no ) TO bundle.
-      ENDLOOP.
-      PERFORM mark_changed_tables USING importer.
+  PERFORM read_package_bundle_tdc.
 
-    CATCH zcx_import_error INTO DATA(error).
-      MESSAGE error TYPE 'S' DISPLAY LIKE 'E'.
-  ENDTRY.
+  importer = NEW zimport_bundle_from_tdc(
+    tdc = header_tdc-name tdc_version = header_tdc-version
+    variant = header_tdc-variant ).
+
+  CLEAR: bundle.
+  LOOP AT importer->table_list REFERENCE INTO DATA(table).
+    APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
+      where_restriction = table->*-where_restriction
+      overwrite = overwrite_option-no ) TO bundle.
+  ENDLOOP.
+  PERFORM mark_changed_tables USING importer.
 
 ENDFORM.
 
@@ -422,12 +424,8 @@ FORM read_title_tdc
   RAISING cx_ecatt_tdc_access.
 
   CLEAR header_tdc-title.
-  DATA(tdc_accessor) = cl_apl_ecatt_tdc_api=>get_instance(
-    i_testdatacontainer = header_tdc-name
-    i_testdatacontainer_version = header_tdc-version
-    i_write_access = abap_true ).
 
-  tdc_accessor->get_tdc_attributes( IMPORTING e_version_dependant_attribs
+  header_tdc-accessor->get_tdc_attributes( IMPORTING e_version_dependant_attribs
     = DATA(attributes) ).
   header_tdc-title = attributes-twb_title.
 
@@ -460,7 +458,6 @@ FORM create_tdc_exporter
     existing_table_list TYPE _table_list
     is_new_bundle TYPE abap_bool
   RAISING cx_ecatt_tdc_access zcx_export_object_exists.
-  DATA tdc TYPE REF TO cl_apl_ecatt_tdc_api.
 
   " check for version again, because empty version causes
   " the exception cx_ecatt_tdc_access. The exception cx_ecatt_tdc_access
@@ -474,8 +471,12 @@ FORM create_tdc_exporter
         last_obj_name = header_tdc-name.
   ENDIF.
 
+  IF header_tdc-accessor IS BOUND.
+    header_tdc-accessor->close_instance( ).
+  ENDIF.
+
   TRY.
-      tdc = cl_apl_ecatt_tdc_api=>get_instance( EXPORTING
+      header_tdc-accessor = cl_apl_ecatt_tdc_api=>get_instance( EXPORTING
         i_testdatacontainer = header_tdc-name
         i_testdatacontainer_version = header_tdc-version
         i_write_access = abap_true ).
@@ -487,7 +488,7 @@ FORM create_tdc_exporter
             textid   = zcx_export_object_exists=>tdc_exists
             tdc_name = header_tdc-name.
       ENDIF.
-      tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
+      header_tdc-accessor->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
         i_variant_name = header_tdc-variant
         CHANGING e_param_value = existing_table_list ).
 
@@ -496,30 +497,30 @@ FORM create_tdc_exporter
       cl_apl_ecatt_tdc_api=>create_tdc( EXPORTING i_tr_order = header_tdc-tr_order
         i_name = header_tdc-name i_version = header_tdc-version
         i_tadir_devclass = header_tdc-package i_write_access = abap_true
-        IMPORTING e_tdc_ref = tdc ).
+        IMPORTING e_tdc_ref = header_tdc-accessor ).
       is_new_bundle = abap_true.
 
   ENDTRY.
 
-  PERFORM set_tdc_title USING tdc.
+  PERFORM set_tdc_title.
 
-  exporter = NEW zexport_bundle_in_tdc( tdc = tdc variant = header_tdc-variant ).
+  exporter = NEW zexport_bundle_in_tdc( tdc = header_tdc-accessor variant = header_tdc-variant ).
 
 ENDFORM.
 
-FORM set_tdc_title USING VALUE(tdc) TYPE REF TO cl_apl_ecatt_tdc_api
+FORM set_tdc_title
   RAISING cx_ecatt_tdc_access.
 
-  tdc->set_tdc_attributes( EXPORTING
+  header_tdc-accessor->set_tdc_attributes( EXPORTING
     i_version_dependant_attribs = VALUE #( twb_title = header_tdc-title )
   ).
 
 ENDFORM.
 
 FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
-  DATA: exporter      TYPE REF TO zexport_bundle_in_cluster,
-        importer      TYPE REF TO zimport_bundle_from_cluster,
-        prior_content TYPE REF TO data,
+  DATA: exporter       TYPE REF TO zexport_bundle_in_cluster,
+        importer       TYPE REF TO zimport_bundle_from_cluster,
+        prior_content  TYPE REF TO data,
         is_new_cluster TYPE abap_bool.
 
   DELETE bundle WHERE name IS INITIAL.
@@ -573,9 +574,9 @@ FORM export_screen_0001 RAISING zcx_export_error zcx_import_error.
 ENDFORM.
 
 FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
-  DATA: exporter TYPE REF TO zexport_bundle_in_tdc,
+  DATA: exporter            TYPE REF TO zexport_bundle_in_tdc,
         existing_table_list TYPE _table_list,
-        is_new_bundle TYPE abap_bool.
+        is_new_bundle       TYPE abap_bool.
 
   DELETE bundle WHERE name IS INITIAL.
   IF bundle IS INITIAL.
