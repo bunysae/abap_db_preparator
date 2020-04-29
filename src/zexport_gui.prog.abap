@@ -6,8 +6,8 @@ REPORT zexport_gui MESSAGE-ID zexport.
 
 TABLES: zexport_table_mod.
 TYPES: BEGIN OF _table,
-         name              TYPE tabname,
-         fake              TYPE tabname,
+         name              TYPE zexport_source_table,
+         fake              TYPE zexport_fake_table,
          where_restriction TYPE string,
          marked            TYPE abap_bool.
         INCLUDE TYPE zexport_table_mod.
