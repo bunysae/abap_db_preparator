@@ -46,7 +46,9 @@ public section.
       ZCX_EXPORT_ERROR .
   methods ADD_PRIOR_CONTENT
     importing
-      table_conjunction type zexport_table_list.
+      table_conjunction type zexport_table_list
+    raising
+      ZCX_EXPORT_ERROR .
 protected section.
 private section.
 

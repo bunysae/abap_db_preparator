@@ -83,7 +83,7 @@ MODULE set_overwrite_sign_0001 INPUT.
 
   ##ENH_OK
   MOVE-CORRESPONDING zexport_table_mod TO table.
-  MODIFY bundle FROM table INDEX bundle_cluster-current_line.
+  MODIFY bundle FROM table INDEX bundle_tdc-current_line.
   IF sy-subrc <> 0.
     APPEND table TO bundle.
   ENDIF.
@@ -480,7 +480,6 @@ FORM create_tdc_exporter
         i_testdatacontainer = header_tdc-name
         i_testdatacontainer_version = header_tdc-version
         i_write_access = abap_true ).
-
       IF header_tdc-overwrite = abap_false.
         " container exists and shouldn't be overwritten
         RAISE EXCEPTION TYPE zcx_export_object_exists
@@ -488,10 +487,6 @@ FORM create_tdc_exporter
             textid   = zcx_export_object_exists=>tdc_exists
             tdc_name = header_tdc-name.
       ENDIF.
-      header_tdc-accessor->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
-        i_variant_name = header_tdc-variant
-        CHANGING e_param_value = existing_table_list ).
-
     CATCH cx_ecatt_tdc_access.
 
       cl_apl_ecatt_tdc_api=>create_tdc( EXPORTING i_tr_order = header_tdc-tr_order
@@ -500,6 +495,14 @@ FORM create_tdc_exporter
         IMPORTING e_tdc_ref = header_tdc-accessor ).
       is_new_bundle = abap_true.
 
+  ENDTRY.
+
+  TRY.
+      header_tdc-accessor->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST'
+        i_variant_name = header_tdc-variant
+        CHANGING e_param_value = existing_table_list ).
+      ##NO_HANDLER
+    CATCH cx_ecatt_tdc_access.
   ENDTRY.
 
   PERFORM set_tdc_title.
