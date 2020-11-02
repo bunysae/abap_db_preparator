@@ -83,7 +83,7 @@ MODULE set_overwrite_sign_0001 INPUT.
 
   ##ENH_OK
   MOVE-CORRESPONDING zexport_table_mod TO table.
-  MODIFY bundle FROM table INDEX bundle_tdc-current_line.
+  MODIFY bundle FROM table INDEX bundle_cluster-current_line.
   IF sy-subrc <> 0.
     APPEND table TO bundle.
   ENDIF.
@@ -271,6 +271,8 @@ FORM user_command_0002.
         WHEN 'DISPLAY'.
           PERFORM display_tdc_content.
       ENDCASE.
+    CATCH zcx_import_error INTO DATA(import_error).
+      MESSAGE import_error TYPE 'S' DISPLAY LIKE 'E'.
     CATCH zcx_export_error INTO DATA(export_error).
       MESSAGE export_error TYPE 'S' DISPLAY LIKE 'E'.
     CATCH cx_ecatt_tdc_access INTO DATA(tdc_error).

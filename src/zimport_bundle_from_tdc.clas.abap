@@ -79,15 +79,20 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
           i_testdatacontainer_version = tdc_version ).
         me->variant = variant.
 
+      CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
+        zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
+    ENDTRY.
+
+    TRY.
         " The tables are read from the parameter "ZEXPORT_TABLE_LIST".
         " The parameter-list is not used, because different variants can use
         " different parameters and some parameters may be not database-tables.
         me->tdc->get_value( EXPORTING i_param_name = 'ZEXPORT_TABLE_LIST' i_variant_name = variant
           CHANGING e_param_value = table_list ).
-
-      CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
-        zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
+        ##NO_HANDLER
+      CATCH cx_ecatt_tdc_access.
     ENDTRY.
+
 
   ENDMETHOD.
 
