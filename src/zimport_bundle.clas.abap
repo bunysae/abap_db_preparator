@@ -32,6 +32,11 @@ public section.
       INDICIES type INDEX_TABLE
     raising
       ZCX_IMPORT_ERROR .
+  methods source_table_has_changed
+    IMPORTING
+      table_conjunction TYPE zexport_table_list
+    RETURNING VALUE(has_changed) TYPE abap_bool
+    RAISING zcx_import_error.
 protected section.
 
   types:
@@ -176,4 +181,27 @@ ENDMETHOD.
     RAISE EXCEPTION TYPE zcx_import_not_allowed.
 
   endmethod.
+
+
+  METHOD source_table_has_changed.
+    DATA: actual_content   TYPE REF TO data,
+          exported_content TYPE REF TO data.
+    FIELD-SYMBOLS: <actual_content>   TYPE STANDARD TABLE,
+                   <exported_content> TYPE STANDARD TABLE.
+
+    CREATE DATA:
+        actual_content TYPE STANDARD TABLE OF (table_conjunction-source_table),
+        exported_content TYPE STANDARD TABLE OF (table_conjunction-source_table).
+    ASSIGN actual_content->* TO <actual_content>.
+
+    get_exported_content( EXPORTING table_conjunction = table_conjunction
+        IMPORTING content = exported_content ).
+    ASSIGN exported_content->* TO <exported_content>.
+    SELECT * FROM (table_conjunction-source_table)
+      INTO TABLE @<actual_content>
+      WHERE (table_conjunction-where_restriction).
+
+    has_changed = compare( lhs = <exported_content> rhs = <actual_content> ).
+
+  ENDMETHOD.
 ENDCLASS.

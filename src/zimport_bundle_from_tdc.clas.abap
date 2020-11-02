@@ -22,8 +22,8 @@ public section.
     redefinition .
 protected section.
 
-  methods get_exported_content
-    redefinition.
+  methods GET_EXPORTED_CONTENT
+    redefinition .
 private section.
 
   data TDC type ref to CL_APL_ECATT_TDC_API .

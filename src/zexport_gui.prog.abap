@@ -123,6 +123,30 @@ MODULE exit_command_9000 INPUT.
 
 ENDMODULE.
 
+MODULE header_tdc_changed INPUT.
+
+  PERFORM header_tdc_changed.
+
+ENDMODULE.
+
+FORM header_tdc_changed.
+
+  IF header_tdc-name IS NOT INITIAL AND header_tdc-version IS NOT INITIAL
+    AND header_tdc-variant IS NOT INITIAL
+    AND sy-ucomm <> 'READ'.
+
+    TRY.
+        PERFORM merge_bundle_tdc.
+      ##NO_HANDLER
+      CATCH cx_ecatt_tdc_access.
+      CATCH zcx_import_error INTO DATA(failure).
+        MESSAGE failure TYPE 'S' DISPLAY LIKE 'E'.
+    ENDTRY.
+
+  ENDIF.
+
+ENDFORM.
+
 FORM exit_command_9000.
   DATA: procedure TYPE char30.
 
@@ -213,7 +237,7 @@ MODULE delete_row_0002 INPUT.
 
 ENDMODULE.
 
-MODULE user_commmand_0001 INPUT.
+MODULE user_command_0001 INPUT.
   PERFORM user_command_0001.
 ENDMODULE.
 
@@ -245,7 +269,7 @@ FORM user_command_0001.
 
 ENDFORM.
 
-MODULE user_commmand_0002 INPUT.
+MODULE user_command_0002 INPUT.
   PERFORM user_command_0002.
 ENDMODULE.
 
@@ -400,6 +424,52 @@ FORM read_bundle_tdc
       overwrite = overwrite_option-no ) TO bundle.
   ENDLOOP.
   PERFORM mark_changed_tables USING importer.
+
+ENDFORM.
+
+FORM merge_bundle_tdc
+  RAISING zcx_import_error cx_ecatt_tdc_access.
+  DATA importer TYPE REF TO zimport_bundle.
+
+  IF header_tdc-accessor IS BOUND.
+    header_tdc-accessor->close_instance( ).
+  ENDIF.
+
+  LOOP AT bundle ASSIGNING FIELD-SYMBOL(<bundle>).
+    <bundle>-overwrite = overwrite_option-yes.
+    <bundle>-changed = abap_false.
+  ENDLOOP.
+
+  header_tdc-accessor = cl_apl_ecatt_tdc_api=>get_instance(
+    i_testdatacontainer = header_tdc-name
+    i_testdatacontainer_version = header_tdc-version
+    i_write_access = abap_true ).
+
+  PERFORM read_package_bundle_tdc.
+
+  importer = NEW zimport_bundle_from_tdc(
+    tdc = header_tdc-name tdc_version = header_tdc-version
+    variant = header_tdc-variant ).
+
+  LOOP AT importer->table_list REFERENCE INTO DATA(table).
+    READ TABLE bundle ASSIGNING <bundle> WITH KEY
+      name = table->*-source_table fake = table->*-fake_table
+      where_restriction = table->*-where_restriction.
+    IF sy-subrc = 0.
+      <bundle>-changed = importer->source_table_has_changed( table->* ).
+      <bundle>-overwrite = overwrite_option-no.
+      CONTINUE.
+    ENDIF.
+    IF line_exists( bundle[ fake = table->*-fake_table ] ).
+      RAISE EXCEPTION TYPE zcx_import_merge_conflict
+        EXPORTING
+          table = table->*-fake_table.
+    ENDIF.
+    APPEND VALUE #( name = table->*-source_table fake = table->*-fake_table
+      where_restriction = table->*-where_restriction
+      overwrite = overwrite_option-no
+      changed = importer->source_table_has_changed( table->* ) ) TO bundle.
+  ENDLOOP.
 
 ENDFORM.
 
@@ -591,13 +661,6 @@ FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
   PERFORM create_tdc_exporter CHANGING exporter existing_table_list
     is_new_bundle.
 
-  IF is_new_bundle = abap_true.
-    LOOP AT bundle INTO table.
-      exporter->add_table_to_bundle( _table = VALUE #(
-        source_table = table-name fake_table = table-fake
-        where_restriction = table-where_restriction ) ).
-    ENDLOOP.
-  ELSE.
     LOOP AT bundle INTO table.
       IF table-overwrite = overwrite_option-yes.
         exporter->add_table_to_bundle( _table = VALUE #(
@@ -611,7 +674,6 @@ FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
         ENDIF.
       ENDIF.
     ENDLOOP.
-  ENDIF.
   exporter->export( transport_request = header_tdc-tr_order ).
 
   is_changed = abap_false.

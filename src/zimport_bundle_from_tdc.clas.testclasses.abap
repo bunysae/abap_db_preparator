@@ -73,6 +73,10 @@ CLASS test_export_import DEFINITION FOR TESTING
       RAISING
         cx_static_check.
 
+    METHODS source_table_has_changed FOR TESTING
+      RAISING
+        cx_static_check.
+
     METHODS teardown.
 
 ENDCLASS.
@@ -527,6 +531,27 @@ CLASS test_export_import IMPLEMENTATION.
     APPEND: 2 TO exp_indicies, 3 TO exp_indicies.
     cl_abap_unit_assert=>assert_equals( exp = exp_indicies
       act = act_indicies ).
+
+  ENDMETHOD.
+
+  METHOD source_table_has_changed.
+
+    " given
+    DATA(export_ut2) = VALUE zexport_ut2( primary_key = 'BBB' content = '130' ).
+    INSERT zexport_ut2 FROM export_ut2.
+    COMMIT WORK AND WAIT.
+
+    " when
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+
+    " then
+    cl_abap_unit_assert=>assert_true( act = cut->source_table_has_changed(
+      table_conjunction = VALUE #( source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2'
+        tdc_parameter_name = 'ZIMPORT_UT2' ) ) ).
+    cl_abap_unit_assert=>assert_false( act = cut->source_table_has_changed(
+      table_conjunction = VALUE #( source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1'
+        tdc_parameter_name = 'ZIMPORT_UT1' ) ) ).
 
   ENDMETHOD.
 

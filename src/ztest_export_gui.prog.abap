@@ -349,3 +349,106 @@ CLASS test_export_cluster IMPLEMENTATION.
   ENDMETHOD.
 
 ENDCLASS.
+
+CLASS test_tdc_bundle_reader DEFINITION FOR TESTING
+  DURATION SHORT RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    METHODS setup
+      RAISING
+        cx_static_check.
+
+    METHODS setup_tables
+      RAISING
+        cx_static_check.
+
+    METHODS change_tables
+      RAISING
+        cx_static_check.
+
+    METHODS merge_bundle_tdc_success FOR TESTING
+      RAISING
+        cx_static_check.
+
+    METHODS merge_bundle_tdc_conflict FOR TESTING
+      RAISING
+        cx_static_check.
+
+ENDCLASS.
+
+CLASS test_tdc_bundle_reader IMPLEMENTATION.
+
+  METHOD setup.
+
+    setup_tables( ).
+
+    bundle = VALUE #(
+      ( name = 'ZEXPORT_UT1' fake = 'ZIMPORT_UT1' overwrite = overwrite_option-yes )
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' overwrite = overwrite_option-yes )
+    ).
+    header_tdc = VALUE #( name = 'ZEXPORT_UNIT_TEST' version = 1 variant = 'TDC_MERGE'
+      package = '$TMP' overwrite = abap_true ).
+    PERFORM export_screen_0002.
+    change_tables( ).
+
+  ENDMETHOD.
+
+  METHOD setup_tables.
+    DATA: export_ut1 TYPE zexport_ut1,
+          export_ut2 TYPE zexport_ut2.
+
+    DELETE FROM: zexport_ut1, zexport_ut2.
+
+    export_ut1 = VALUE #( primary_key = 'AAA' content = 'char' ).
+    ##LITERAL
+    export_ut2 = VALUE #( primary_key = 'AAA' content = '130' ).
+
+    INSERT zexport_ut1 FROM export_ut1.
+    INSERT zexport_ut2 FROM export_ut2.
+
+  ENDMETHOD.
+
+  METHOD change_tables.
+
+    DATA(export_ut1) = VALUE zexport_ut1( primary_key = 'BBB' content = 'char' ).
+    INSERT zexport_ut1 FROM export_ut1.
+
+  ENDMETHOD.
+
+  METHOD merge_bundle_tdc_success.
+    DATA: exp_bundle LIKE bundle.
+
+    bundle = VALUE #(
+      ( name = 'ZEXPORT_UT3' )
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' )
+    ).
+    PERFORM merge_bundle_tdc.
+
+    exp_bundle = VALUE #(
+      ( name = 'ZEXPORT_UT3' overwrite = overwrite_option-yes )
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' overwrite = overwrite_option-no )
+      ( name = 'ZEXPORT_UT1' fake = 'ZIMPORT_UT1' overwrite = overwrite_option-no
+        changed = abap_true )
+    ).
+    cl_abap_unit_assert=>assert_equals( act = bundle
+      exp = exp_bundle ).
+
+  ENDMETHOD.
+
+  METHOD merge_bundle_tdc_conflict.
+
+    bundle = VALUE #(
+      ( name = 'ZEXPORT_UT3' )
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' where_restriction = '1' )
+    ).
+    TRY.
+        PERFORM merge_bundle_tdc.
+        cl_abap_unit_assert=>fail( ).
+      ##NO_HANDLER
+      CATCH zcx_import_merge_conflict.
+    ENDTRY.
+
+  ENDMETHOD.
+
+ENDCLASS.
