@@ -146,7 +146,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
           " <con> contains the parameter value of the "ECATTDEFAULT"-variant.
           " Therefore INSERT-Statement is only executed, when the exported content is not initial.
           IF table->*-is_initial = abap_false.
-            INSERT (table->*-fake_table) FROM TABLE <con>.
+            MODIFY (table->*-fake_table) FROM TABLE <con>.
           ENDIF.
 
         ENDLOOP.

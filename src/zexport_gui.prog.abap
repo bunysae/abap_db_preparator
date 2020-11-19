@@ -137,6 +137,7 @@ FORM header_tdc_changed.
 
     TRY.
         PERFORM merge_bundle_tdc.
+        PERFORM read_title_tdc.
       ##NO_HANDLER
       CATCH cx_ecatt_tdc_access.
       CATCH zcx_import_error INTO DATA(failure).
