@@ -5,10 +5,11 @@ class ZIMPORT_BUNDLE definition
 
 public section.
 
+  types:
+    index_table type standard table of i .
+
   data:
     TABLE_LIST type standard table of ZEXPORT_TABLE_LIST read-only .
-  types:
-    index_table type standard table of i.
 
   methods REPLACE_CONTENT_ALL_TABLES
   abstract
@@ -29,14 +30,17 @@ public section.
   "! Indicies relate to the attribute "table_list"
   methods GET_CHANGED_SOURCE_TABLES
     exporting
-      INDICIES type INDEX_TABLE
+      !INDICIES type INDEX_TABLE
     raising
       ZCX_IMPORT_ERROR .
-  methods source_table_has_changed
-    IMPORTING
-      table_conjunction TYPE zexport_table_list
-    RETURNING VALUE(has_changed) TYPE abap_bool
-    RAISING zcx_import_error.
+  methods SOURCE_TABLE_HAS_CHANGED
+    importing
+      !TABLE_CONJUNCTION type ZEXPORT_TABLE_LIST
+    returning
+      value(HAS_CHANGED) type ABAP_BOOL
+    raising
+      ZCX_IMPORT_ERROR .
+  methods PREVENT_COMMIT_WORK .
 protected section.
 
   types:
@@ -181,6 +185,15 @@ ENDMETHOD.
     RAISE EXCEPTION TYPE zcx_import_not_allowed.
 
   endmethod.
+
+
+  METHOD prevent_commit_work.
+
+    SET UPDATE TASK LOCAL.
+    CALL FUNCTION 'ZIMPORT_PREVENT_COMMIT_WORK'
+      IN UPDATE TASK.
+
+  ENDMETHOD.
 
 
   METHOD source_table_has_changed.
