@@ -77,7 +77,6 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
 
   method ADD_PRIOR_CONTENT.
-    FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     IF _table-fake_table IS INITIAL.
       _table-fake_table = _table-source_table.
