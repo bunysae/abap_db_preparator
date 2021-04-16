@@ -1,80 +1,92 @@
-class ZIMPORT_BUNDLE definition
-  public
-  abstract
-  create public .
+CLASS zimport_bundle DEFINITION
+  PUBLIC
+  ABSTRACT
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  types:
-    index_table type standard table of i .
+    TYPES:
+      index_table TYPE STANDARD TABLE OF i .
 
-  data:
-    TABLE_LIST type standard table of ZEXPORT_TABLE_LIST read-only .
+    DATA:
+      table_list TYPE STANDARD TABLE OF zexport_table_list READ-ONLY .
 
-  methods REPLACE_CONTENT_ALL_TABLES
-  abstract
-    raising
-      ZCX_IMPORT_ERROR .
-  methods REPLACE_CONTENT_COMPLETLY
-  abstract
-    raising
-      ZCX_IMPORT_ERROR .
-  methods ADD_CONTENT_ALL_TABLES
-  abstract
-    raising
-      ZCX_IMPORT_ERROR .
+    METHODS replace_content_all_tables
+          ABSTRACT
+      RAISING
+        zcx_import_error .
+    METHODS replace_content_completly
+          ABSTRACT
+      RAISING
+        zcx_import_error .
+    METHODS add_content_all_tables
+          ABSTRACT
+      RAISING
+        zcx_import_error .
     "! 7.51 feature, for backwards-compatibility uses dynamic method calls
-  methods ACTIVATE_OSQL_REPLACEMENT
-    raising
-      ZCX_IMPORT_ERROR .
-  "! Indicies relate to the attribute "table_list"
-  methods GET_CHANGED_SOURCE_TABLES
-    exporting
-      !INDICIES type INDEX_TABLE
-    raising
-      ZCX_IMPORT_ERROR .
-  methods SOURCE_TABLE_HAS_CHANGED
-    importing
-      !TABLE_CONJUNCTION type ZEXPORT_TABLE_LIST
-    returning
-      value(HAS_CHANGED) type ABAP_BOOL
-    raising
-      ZCX_IMPORT_ERROR .
-  methods PREVENT_COMMIT_WORK .
-protected section.
+    METHODS activate_osql_replacement
+      RAISING
+        zcx_import_error .
+    "! Indicies relate to the attribute "table_list"
+    METHODS get_changed_source_tables
+      EXPORTING
+        !indicies TYPE index_table
+      RAISING
+        zcx_import_error .
+    METHODS source_table_has_changed
+      IMPORTING
+        !table_conjunction TYPE zexport_table_list
+      RETURNING
+        VALUE(has_changed) TYPE abap_bool
+      RAISING
+        zcx_import_error .
+    METHODS prevent_commit_work .
+  PROTECTED SECTION.
 
-  types:
-    WHITELIST type range of TABNAME .
+    TYPES:
+      whitelist TYPE RANGE OF tabname .
 
-  methods GET_EXPORTED_CONTENT
-        abstract
-    importing
-      !TABLE_CONJUNCTION type ZEXPORT_TABLE_LIST
-    exporting
-      !CONTENT           type ref to DATA
-    raising
-      ZCX_IMPORT_ERROR .
-  methods PERMISSION_IS_GRANTED
-    raising
-      ZCX_IMPORT_NOT_ALLOWED .
-  methods GET_WHITELIST
-    returning
-      value(RESULT) type WHITELIST .
-private section.
+    METHODS get_exported_content
+          ABSTRACT
+      IMPORTING
+        !table_conjunction TYPE zexport_table_list
+      EXPORTING
+        !content           TYPE REF TO data
+      RAISING
+        zcx_import_error .
+    METHODS permission_is_granted
+      RAISING
+        zcx_import_not_allowed .
+    METHODS get_whitelist
+      RETURNING
+        VALUE(result) TYPE whitelist .
+    METHODS delete
+      IMPORTING
+        table_conjunction TYPE zexport_table_list
+      RAISING
+        zcx_import_error.
+  PRIVATE SECTION.
 
-  types:
-    begin of REPLACED_TABLE,
-      SOURCE type TABNAME,
-      TARGET type STRING,
-    end of REPLACED_TABLE .
-  types:
-    REPLACED_TABLES type sorted table of REPLACED_TABLE with unique key SOURCE .
+    TYPES:
+      BEGIN OF replaced_table,
+        source TYPE tabname,
+        target TYPE string,
+      END OF replaced_table .
+    TYPES:
+      replaced_tables TYPE SORTED TABLE OF replaced_table WITH UNIQUE KEY source .
 
-  methods COMPARE
-    importing
-      LHS type standard table
-      RHS type standard table
-    returning value(differs) type abap_bool.
+    METHODS compare
+      IMPORTING
+                lhs            TYPE STANDARD TABLE
+                rhs            TYPE STANDARD TABLE
+      RETURNING VALUE(differs) TYPE abap_bool.
+    METHODS select_from_fake
+      IMPORTING
+        table_conjunction TYPE zexport_table_list
+      EXPORTING
+        content           TYPE STANDARD TABLE
+      RAISING
+        zcx_import_error.
 ENDCLASS.
 
 
@@ -82,30 +94,30 @@ ENDCLASS.
 CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
 
 
-METHOD activate_osql_replacement.
-  DATA: replaced_tables TYPE replaced_tables,
-        _replaced_tables TYPE REF TO data.
-  FIELD-SYMBOLS: <replaced_tables> TYPE ANY TABLE.
+  METHOD activate_osql_replacement.
+    DATA: replaced_tables  TYPE replaced_tables,
+          _replaced_tables TYPE REF TO data.
+    FIELD-SYMBOLS: <replaced_tables> TYPE ANY TABLE.
 
-  CREATE DATA _replaced_tables TYPE ('CL_OSQL_REPLACE=>TT_REPLACEMENT').
-  ASSIGN _replaced_tables->* TO <replaced_tables>.
+    CREATE DATA _replaced_tables TYPE ('CL_OSQL_REPLACE=>TT_REPLACEMENT').
+    ASSIGN _replaced_tables->* TO <replaced_tables>.
 
-  LOOP AT table_list REFERENCE INTO DATA(pair).
-    IF pair->*-source_table <> pair->*-fake_table.
-      INSERT VALUE #( source = pair->*-source_table target = pair->*-fake_table )
-        INTO TABLE replaced_tables.
-    ENDIF.
-  ENDLOOP.
+    LOOP AT table_list REFERENCE INTO DATA(pair).
+      IF pair->*-source_table <> pair->*-fake_table.
+        INSERT VALUE #( source = pair->*-source_table target = pair->*-fake_table )
+          INTO TABLE replaced_tables.
+      ENDIF.
+    ENDLOOP.
 
-  MOVE-CORRESPONDING replaced_tables TO <replaced_tables>.
-  CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement
-    EXPORTING
-      replacement_table = <replaced_tables>.
+    MOVE-CORRESPONDING replaced_tables TO <replaced_tables>.
+    CALL METHOD ('CL_OSQL_REPLACE')=>activate_replacement
+      EXPORTING
+        replacement_table = <replaced_tables>.
 
-ENDMETHOD.
+  ENDMETHOD.
 
 
-  method COMPARE.
+  METHOD compare.
     FIELD-SYMBOLS: <lhs> TYPE any,
                    <rhs> TYPE any.
 
@@ -128,13 +140,27 @@ ENDMETHOD.
       ENDIF.
     ENDLOOP.
 
-  endmethod.
+  ENDMETHOD.
+
+
+  METHOD delete.
+    DATA: content TYPE REF TO data.
+    FIELD-SYMBOLS: <content> TYPE STANDARD TABLE.
+
+    CREATE DATA content TYPE STANDARD TABLE OF (table_conjunction-fake_table).
+    ASSIGN content->* TO <content>.
+
+    select_from_fake( EXPORTING table_conjunction = table_conjunction
+      IMPORTING content = <content> ).
+    DELETE (table_conjunction-fake_table) FROM TABLE <content>.
+
+  ENDMETHOD.
 
 
   METHOD get_changed_source_tables.
-    DATA: actual_content TYPE REF TO data,
+    DATA: actual_content   TYPE REF TO data,
           exported_content TYPE REF TO data.
-    FIELD-SYMBOLS: <actual_content> TYPE STANDARD TABLE,
+    FIELD-SYMBOLS: <actual_content>   TYPE STANDARD TABLE,
                    <exported_content> TYPE STANDARD TABLE.
 
     CLEAR indicies.
@@ -163,16 +189,16 @@ ENDMETHOD.
   ENDMETHOD.
 
 
-  method GET_WHITELIST.
+  METHOD get_whitelist.
 
     SELECT sign, opti AS option, low, high FROM tvarvc
       INTO CORRESPONDING FIELDS OF TABLE @result
       WHERE name = 'ZIMPORT_REPLACE_WHITELIST' AND type = 'S'.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method PERMISSION_IS_GRANTED.
+  METHOD permission_is_granted.
 
     DATA(aunit_setup) = cl_aunit_customizing=>get_setup( ).
     IF aunit_setup-client-max_risk_level >= if_aunit_attribute_enums=>c_risk_level-dangerous
@@ -184,7 +210,7 @@ ENDMETHOD.
 
     RAISE EXCEPTION TYPE zcx_import_not_allowed.
 
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD prevent_commit_work.
@@ -192,6 +218,48 @@ ENDMETHOD.
     SET UPDATE TASK LOCAL.
     CALL FUNCTION 'ZIMPORT_PREVENT_COMMIT_WORK'
       IN UPDATE TASK.
+
+  ENDMETHOD.
+
+
+  METHOD select_from_fake.
+    DATA: table_for_all_entries TYPE REF TO data.
+
+    TRY.
+        zexport_utils=>get_table_for_all_entries( EXPORTING
+          table_conjunction = table_conjunction
+          RECEIVING table_name = DATA(table_name)
+          EXCEPTIONS not_for_all_entries_cond = 4 ).
+        IF sy-subrc = 0.
+
+          READ TABLE table_list REFERENCE INTO DATA(foe_conjunction)
+            WITH KEY source_table = table_name+1.
+          IF sy-subrc <> 0.
+            RAISE EXCEPTION TYPE zcx_export_invalid_name
+              EXPORTING
+                name = table_name.
+          ENDIF.
+
+          CREATE DATA table_for_all_entries TYPE STANDARD TABLE OF (table_name+1).
+          get_exported_content( EXPORTING table_conjunction = foe_conjunction->*
+            IMPORTING content = table_for_all_entries ).
+          ASSIGN table_for_all_entries->* TO FIELD-SYMBOL(<table_for_all_entries>).
+          zexport_utils=>select( EXPORTING table_for_all_entries = <table_for_all_entries>
+            table_conjunction = table_conjunction table_name = table_name
+            select_from_fake = abap_true
+            IMPORTING result = content ).
+
+        ELSE.
+
+          SELECT * FROM (table_conjunction-fake_table) INTO TABLE @content
+            WHERE (table_conjunction-where_restriction).
+
+        ENDIF.
+      CATCH zcx_export_error INTO DATA(exc).
+        RAISE EXCEPTION TYPE zcx_import_error
+          EXPORTING
+            previous = exc.
+    ENDTRY.
 
   ENDMETHOD.
 

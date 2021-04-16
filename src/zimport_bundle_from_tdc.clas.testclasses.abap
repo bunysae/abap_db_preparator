@@ -1,8 +1,9 @@
+CONSTANTS: tdc_name TYPE etobj_name VALUE 'ZEXPORT_UNIT_TEST'.
+
 CLASS test_export_import DEFINITION FOR TESTING
   DURATION SHORT RISK LEVEL DANGEROUS.
 
   PRIVATE SECTION.
-    CONSTANTS: tdc_name TYPE etobj_name VALUE 'ZEXPORT_UNIT_TEST'.
 
     METHODS setup
       RAISING
@@ -552,6 +553,153 @@ CLASS test_export_import IMPLEMENTATION.
     cl_abap_unit_assert=>assert_false( act = cut->source_table_has_changed(
       table_conjunction = VALUE #( source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1'
         tdc_parameter_name = 'ZIMPORT_UT1' ) ) ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS test_for_all_entries DEFINITION FOR TESTING
+  DURATION SHORT RISK LEVEL HARMLESS.
+
+  PRIVATE SECTION.
+
+    METHODS setup
+      RAISING
+        cx_static_check.
+
+    METHODS create_tdc
+      RAISING
+        cx_static_check.
+
+    METHODS setup_tables_ecattdefault_vari.
+
+    METHODS export_in_ecattdefault_variant
+      RAISING
+        cx_static_check.
+
+    METHODS setup_import_tables.
+
+    "! Export and import with for all entries.
+    "! Content is replaced by where-condition.
+    METHODS replace_and_import FOR TESTING
+      RAISING
+        cx_static_check.
+
+
+ENDCLASS.
+
+CLASS test_for_all_entries IMPLEMENTATION.
+
+  METHOD setup.
+
+    create_tdc( ).
+    setup_tables_ecattdefault_vari( ).
+    export_in_ecattdefault_variant( ).
+    setup_import_tables( ).
+    COMMIT WORK AND WAIT.
+
+  ENDMETHOD.
+
+  METHOD create_tdc.
+
+    TRY.
+        cl_apl_ecatt_tdc_api=>delete_tdc( i_name = tdc_name ).
+        ##NO_HANDLER
+      CATCH cx_ecatt_tdc_access.
+    ENDTRY.
+
+    cl_apl_ecatt_tdc_api=>create_tdc( EXPORTING
+      i_name = tdc_name i_tadir_devclass = '$TMP' i_write_access = abap_true
+      IMPORTING e_tdc_ref = DATA(tdc_accessor) ).
+    tdc_accessor->commit_changes( i_release_lock = abap_true
+      i_commit_mode = abap_false ).
+
+  ENDMETHOD.
+
+  METHOD setup_tables_ecattdefault_vari.
+    DATA: export_ut1 TYPE STANDARD TABLE OF zexport_ut1,
+          export_ut2 TYPE STANDARD TABLE OF zexport_ut2,
+          export_ut3 TYPE zexport_ut3.
+
+    " setup the tables in this package
+    DELETE FROM: zexport_ut1, zexport_ut2, zexport_ut3.
+
+    export_ut1 = VALUE #(
+      ( primary_key = 'AAA' content = 'char' )
+      ( primary_key = 'AAB' content = 'num' )
+      ( primary_key = 'AAC' content = 'int' )
+    ).
+    ##LITERAL
+    export_ut2 = VALUE #(
+      ( primary_key = 'AAA' content = '130' )
+      ( primary_key = 'AAB' content = '140' )
+      ( primary_key = 'DDD' content = '150' )
+    ).
+    export_ut3 = VALUE #( primary_key = 'ADA' content = '9999' ).
+
+    INSERT zexport_ut1 FROM TABLE export_ut1.
+    INSERT zexport_ut2 FROM TABLE export_ut2.
+    INSERT zexport_ut3 FROM export_ut3.
+
+  ENDMETHOD.
+
+  METHOD export_in_ecattdefault_variant.
+
+    DATA(tdc_accessor) = cl_apl_ecatt_tdc_api=>get_instance( EXPORTING i_testdatacontainer = tdc_name
+      i_testdatacontainer_version = 1 i_write_access = abap_true ).
+    DATA(exporter) = NEW zexport_bundle_in_tdc( tdc = tdc_accessor
+      variant = 'ECATTDEFAULT' ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' ) ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2'
+      where_restriction = 'FOR ALL ENTRIES IN xzexport_ut1 WHERE primary_key = xzexport_ut1-primary_key' ) ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'ZEXPORT_UT3' ) ).
+    exporter->export( transport_request = space ).
+
+  ENDMETHOD.
+
+  METHOD setup_import_tables.
+    DATA: import_ut2 TYPE zimport_ut2.
+
+    DELETE FROM: zimport_ut1, zimport_ut2, zexport_ut3.
+    import_ut2 = VALUE #( primary_key = 'CCC' content = '400' ).
+
+    INSERT zimport_ut2 FROM import_ut2.
+
+  ENDMETHOD.
+
+  METHOD replace_and_import.
+    DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2.
+
+    exp_cont_import_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+      ( client = sy-mandt primary_key = 'AAB' content = 'num' )
+      ( client = sy-mandt primary_key = 'AAC' content = 'int' )
+    ).
+    exp_cont_import_ut2 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = '130' )
+      ( client = sy-mandt primary_key = 'AAB' content = '140' )
+      ( client = sy-mandt primary_key = 'CCC' content = '400' )
+    ).
+
+    " when
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    cut->replace_content_all_tables( ).
+    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+      ORDER BY PRIMARY KEY.
+    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+      ORDER BY PRIMARY KEY.
+
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
+      act = act_cont_import_ut1 ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
+      act = act_cont_import_ut2 ).
 
   ENDMETHOD.
 

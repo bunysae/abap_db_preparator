@@ -59,6 +59,13 @@ In figure 1 the original table is named `scarr`, the fake table `zcarr_fake`.
 Fake tables can be left empty, if the OpenSQL replacement service isn't
 installed.
 
+#### FOR ALL ENTRIES IN ####
+The SQL where restriction can be prefixed a `FOR ALL ENTRIES IN`, which acts
+like the corresponding ABAP-statement. As internal table any original table from the bundle can be given. Internal table name should be `'X' && table_name`. E.g.
+```
+FOR ALL ENTRIES xscarr WHERE carrid = xscarr-carrid
+```
+
 ### Import step ###
 In the ABAP unit-testclass the database records exported in previous step
 can be imported in the fake tables or in the original tables,
