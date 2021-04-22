@@ -80,9 +80,18 @@ CLASS zimport_bundle DEFINITION
                 lhs            TYPE STANDARD TABLE
                 rhs            TYPE STANDARD TABLE
       RETURNING VALUE(differs) TYPE abap_bool.
+    METHODS select
+      IMPORTING
+        table_conjunction TYPE zexport_table_list
+        from_fake         TYPE sap_bool OPTIONAL
+      EXPORTING
+        content           TYPE STANDARD TABLE
+      RAISING
+        zcx_import_error.
     METHODS select_from_fake
       IMPORTING
         table_conjunction TYPE zexport_table_list
+        from_fake         TYPE sap_bool OPTIONAL
       EXPORTING
         content           TYPE STANDARD TABLE
       RAISING
@@ -176,9 +185,8 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
       get_exported_content( EXPORTING table_conjunction = table_conjunction->*
         IMPORTING content = exported_content ).
       ASSIGN exported_content->* TO <exported_content>.
-      SELECT * FROM (table_conjunction->*-source_table)
-        INTO TABLE @<actual_content>
-        WHERE (table_conjunction->*-where_restriction).
+      select( EXPORTING table_conjunction = table_conjunction->*
+        IMPORTING content = <actual_content> ).
 
       IF compare( lhs = <exported_content> rhs = <actual_content> ) = abap_true.
         APPEND idx TO indicies.
@@ -222,7 +230,7 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD select_from_fake.
+  METHOD select.
     DATA: table_for_all_entries TYPE REF TO data.
 
     TRY.
@@ -246,12 +254,14 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
           ASSIGN table_for_all_entries->* TO FIELD-SYMBOL(<table_for_all_entries>).
           zexport_utils=>select( EXPORTING table_for_all_entries = <table_for_all_entries>
             table_conjunction = table_conjunction table_name = table_name
-            select_from_fake = abap_true
+            select_from_fake = from_fake
             IMPORTING result = content ).
 
         ELSE.
 
-          SELECT * FROM (table_conjunction-fake_table) INTO TABLE @content
+          DATA(data_source) = COND tabname( WHEN from_fake = abap_true
+            THEN table_conjunction-fake_table ELSE table_conjunction-source_table ).
+          SELECT * FROM (data_source) INTO TABLE @content
             WHERE (table_conjunction-where_restriction).
 
         ENDIF.
@@ -260,6 +270,15 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
           EXPORTING
             previous = exc.
     ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD select_from_fake.
+
+    select( EXPORTING table_conjunction = table_conjunction
+      from_fake = abap_true
+      IMPORTING content = content ).
 
   ENDMETHOD.
 
@@ -278,9 +297,8 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
     get_exported_content( EXPORTING table_conjunction = table_conjunction
         IMPORTING content = exported_content ).
     ASSIGN exported_content->* TO <exported_content>.
-    SELECT * FROM (table_conjunction-source_table)
-      INTO TABLE @<actual_content>
-      WHERE (table_conjunction-where_restriction).
+    select( EXPORTING table_conjunction = table_conjunction
+      IMPORTING content = <actual_content> ).
 
     has_changed = compare( lhs = <exported_content> rhs = <actual_content> ).
 

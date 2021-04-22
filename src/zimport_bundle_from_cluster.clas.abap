@@ -1,48 +1,48 @@
-class ZIMPORT_BUNDLE_FROM_CLUSTER definition
-  public
-  inheriting from ZIMPORT_BUNDLE
-  final
-  create public .
+CLASS zimport_bundle_from_cluster DEFINITION
+  PUBLIC
+  INHERITING FROM zimport_bundle
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !TESTCASE_ID type W3OBJID
-    raising
-      ZCX_IMPORT_ERROR .
-  methods GET_EXPORTED_CONTENT_FOR_TABLE
-    importing
-      source_table type tabname
-    exporting
-      content type ref to data
-      table_conjunction type zexport_table_list
-    raising
-      zcx_import_error.
+    METHODS constructor
+      IMPORTING
+        !testcase_id TYPE w3objid
+      RAISING
+        zcx_import_error .
+    METHODS get_exported_content_for_table
+      IMPORTING
+        source_table      TYPE tabname
+      EXPORTING
+        content           TYPE REF TO data
+        table_conjunction TYPE zexport_table_list
+      RAISING
+        zcx_import_error.
 
-  methods ADD_CONTENT_ALL_TABLES
-    redefinition .
-  methods REPLACE_CONTENT_ALL_TABLES
-    redefinition .
-  methods REPLACE_CONTENT_COMPLETLY
-    redefinition .
-protected section.
+    METHODS add_content_all_tables
+         REDEFINITION .
+    METHODS replace_content_all_tables
+         REDEFINITION .
+    METHODS replace_content_completly
+         REDEFINITION .
+  PROTECTED SECTION.
 
-  methods get_exported_content redefinition.
-private section.
+    METHODS get_exported_content REDEFINITION.
+  PRIVATE SECTION.
 
-  data CLUSTER_OBJECTS type ABAP_TRANS_SRCBIND_TAB .
-  data MIME_KEY type WWWDATATAB .
+    DATA cluster_objects TYPE abap_trans_srcbind_tab .
+    DATA mime_key TYPE wwwdatatab .
 
-  methods IMPORT_MIME_OBJECT
-    raising
-      ZCX_IMPORT_OBJECT_NOT_EXISTS .
-  methods GET_FILESIZE
-    returning
-      value(SIZE) type I .
-  methods DESERIALIZE
-    importing
-      !BINARY_CONTENT type XSTRING .
+    METHODS import_mime_object
+      RAISING
+        zcx_import_object_not_exists .
+    METHODS get_filesize
+      RETURNING
+        VALUE(size) TYPE i .
+    METHODS deserialize
+      IMPORTING
+        !binary_content TYPE xstring .
 ENDCLASS.
 
 
@@ -50,7 +50,7 @@ ENDCLASS.
 CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
 
-  method ADD_CONTENT_ALL_TABLES.
+  METHOD add_content_all_tables.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     permission_is_granted( ).
@@ -62,10 +62,10 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
     ENDLOOP.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method CONSTRUCTOR.
+  METHOD constructor.
 
     super->constructor( ).
 
@@ -74,10 +74,10 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
     import_mime_object( ).
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method DESERIALIZE.
+  METHOD deserialize.
     DATA: binary_table_content TYPE xstring.
 
     IMPORT content = binary_table_content table_list = table_list
@@ -93,7 +93,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
       SOURCE XML binary_table_content
       RESULT (cluster_objects).
 
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD get_exported_content.
@@ -105,7 +105,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method GET_EXPORTED_CONTENT_FOR_TABLE.
+  METHOD get_exported_content_for_table.
 
     READ TABLE table_list INTO table_conjunction
       WITH KEY source_table = source_table.
@@ -113,7 +113,7 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
     get_exported_content( EXPORTING table_conjunction = table_conjunction
       IMPORTING content = content ).
 
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD get_filesize.
@@ -128,15 +128,15 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method IMPORT_MIME_OBJECT.
-    DATA: mime_content TYPE STANDARD TABLE OF w3mime,
+  METHOD import_mime_object.
+    DATA: mime_content   TYPE STANDARD TABLE OF w3mime,
           binary_content TYPE xstring.
 
     CALL FUNCTION 'WWWDATA_IMPORT'
       EXPORTING
-        key = mime_key
+        key          = mime_key
       TABLES
-        mime = mime_content
+        mime         = mime_content
       EXCEPTIONS
         import_error = 4.
     IF sy-subrc <> 0.
@@ -151,16 +151,16 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
       EXPORTING
         input_length = length
       IMPORTING
-        buffer = binary_content
+        buffer       = binary_content
       TABLES
-        binary_tab = mime_content.
+        binary_tab   = mime_content.
 
     deserialize( binary_content ).
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method REPLACE_CONTENT_ALL_TABLES.
+  METHOD replace_content_all_tables.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     permission_is_granted( ).
@@ -172,15 +172,15 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
         WITH KEY fake_table = CONV tabname( object->*-name ).
       ASSERT FIELDS object->*-name CONDITION sy-subrc = 0.
 
-      DELETE FROM (object->*-name) WHERE (_table->*-where_restriction).
+      delete( _table->* ).
       INSERT (object->*-name) FROM TABLE <con>.
 
     ENDLOOP.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method REPLACE_CONTENT_COMPLETLY.
+  METHOD replace_content_completly.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     permission_is_granted( ).
@@ -193,5 +193,5 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
     ENDLOOP.
 
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

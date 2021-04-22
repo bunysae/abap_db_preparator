@@ -123,8 +123,8 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
     ASSIGN <content>-value->* TO <con>.
 
     TRY.
-        SELECT * FROM (_table-source_table) INTO TABLE @<con>
-          WHERE (_table-where_restriction).
+        select( EXPORTING table_conjunction = _table
+          IMPORTING content = <con> ).
       CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
         RAISE EXCEPTION TYPE zcx_export_where_clause_invali
           EXPORTING

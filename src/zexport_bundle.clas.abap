@@ -13,7 +13,8 @@ CLASS zexport_bundle DEFINITION
       EXPORTING
         content           TYPE STANDARD TABLE
       RAISING
-        zcx_export_error.
+        zcx_export_error
+        cx_sy_dynamic_osql_syntax.
 
     METHODS get_exported_content ABSTRACT
       IMPORTING

@@ -579,12 +579,17 @@ CLASS test_for_all_entries DEFINITION FOR TESTING
 
     METHODS setup_import_tables.
 
-    "! Export and import with for all entries.
-    "! Content is replaced by where-condition.
-    METHODS replace_and_import FOR TESTING
+    METHODS import_and_replace FOR TESTING
       RAISING
         cx_static_check.
 
+    METHODS import_and_add FOR TESTING
+      RAISING
+        cx_static_check.
+
+    METHODS import_and_replace_all FOR TESTING
+      RAISING
+        cx_static_check.
 
 ENDCLASS.
 
@@ -665,12 +670,11 @@ CLASS test_for_all_entries IMPLEMENTATION.
 
     DELETE FROM: zimport_ut1, zimport_ut2, zexport_ut3.
     import_ut2 = VALUE #( primary_key = 'CCC' content = '400' ).
-
     INSERT zimport_ut2 FROM import_ut2.
 
   ENDMETHOD.
 
-  METHOD replace_and_import.
+  METHOD import_and_replace.
     DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
           exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
           act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
@@ -691,6 +695,71 @@ CLASS test_for_all_entries IMPLEMENTATION.
     DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
       variant = 'ECATTDEFAULT' ).
     cut->replace_content_all_tables( ).
+    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+      ORDER BY PRIMARY KEY.
+    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+      ORDER BY PRIMARY KEY.
+
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
+      act = act_cont_import_ut1 ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
+      act = act_cont_import_ut2 ).
+
+  ENDMETHOD.
+
+  METHOD import_and_add.
+    DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2.
+
+    exp_cont_import_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+      ( client = sy-mandt primary_key = 'AAB' content = 'num' )
+      ( client = sy-mandt primary_key = 'AAC' content = 'int' )
+    ).
+    exp_cont_import_ut2 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = '130' )
+      ( client = sy-mandt primary_key = 'AAB' content = '140' )
+      ( client = sy-mandt primary_key = 'CCC' content = '400' )
+    ).
+
+    " when
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    cut->add_content_all_tables( ).
+    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+      ORDER BY PRIMARY KEY.
+    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+      ORDER BY PRIMARY KEY.
+
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
+      act = act_cont_import_ut1 ).
+    cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut2
+      act = act_cont_import_ut2 ).
+
+  ENDMETHOD.
+
+  METHOD import_and_replace_all.
+    DATA: act_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          exp_cont_import_ut1 TYPE STANDARD TABLE OF zimport_ut1,
+          act_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2,
+          exp_cont_import_ut2 TYPE STANDARD TABLE OF zimport_ut2.
+
+    exp_cont_import_ut1 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
+      ( client = sy-mandt primary_key = 'AAB' content = 'num' )
+      ( client = sy-mandt primary_key = 'AAC' content = 'int' )
+    ).
+    exp_cont_import_ut2 = VALUE #(
+      ( client = sy-mandt primary_key = 'AAA' content = '130' )
+      ( client = sy-mandt primary_key = 'AAB' content = '140' )
+    ).
+
+    " when
+    DATA(cut) = NEW zimport_bundle_from_tdc( tdc = tdc_name
+      variant = 'ECATTDEFAULT' ).
+    cut->replace_content_completly( ).
     SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
       ORDER BY PRIMARY KEY.
     SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
