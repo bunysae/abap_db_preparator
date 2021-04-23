@@ -62,9 +62,23 @@ installed.
 #### FOR ALL ENTRIES IN ####
 The SQL where restriction can be prefixed a `FOR ALL ENTRIES IN`, which acts
 like the corresponding ABAP-statement. As internal table any original table from the bundle can be given. Internal table name should be `'X' && table_name`. E.g.
+Database table | Fake database table | SQL where restriction
+-------------- | ------------------- | ---------------------
+SCARR | ZCARR_FAKE | carrid in ('TG', 'AA')
+SPFLI | ZCARR_SPFLI | FOR ALL ENTRIES IN xscarr WHERE carrid = xscarr-carrid
+
+#### JOINS ####
+Joins can be expressed with subqueries. Let's consider the following join:
 ```
-FOR ALL ENTRIES xscarr WHERE carrid = xscarr-carrid
+SELECT * FROM sflight AS f INNER JOIN spfli AS p
+  ON p~carrid = f~carrid AND p~connid = f~connid
+  WHERE p~airpto = 'BKK' AND f~fldate = '20210420'.
 ```
+The database records can be picked up in programm ```zexport_gui``` with subqueries:
+Database table | Fake database table | SQL where restriction
+-------------- | ------------------- | ---------------------
+SFLIGHT | ZCARR_SFLIGHT | fldate = '20210420' AND EXISTS ( SELECT * FROM spfli WHERE carrid = sflight~carrid AND connid = sflight~connid AND airpto = 'BKK' )
+SPFLI | ZCARR_SPFLI | FOR ALL ENTRIES IN xsflight WHERE carrid = xsflight-carrid AND connid = xsflight-connid
 
 ### Import step ###
 In the ABAP unit-testclass the database records exported in previous step
