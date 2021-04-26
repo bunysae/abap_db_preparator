@@ -122,16 +122,8 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
       (_table-source_table).
     ASSIGN <content>-value->* TO <con>.
 
-    TRY.
-        select( EXPORTING table_conjunction = _table
-          IMPORTING content = <con> ).
-      CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
-        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
-          EXPORTING
-            table               = _table-source_table
-            where_clause        = _table-where_restriction
-            failure_description = osql_syntax_error->msgtext.
-    ENDTRY.
+    select( EXPORTING table_conjunction = _table
+      IMPORTING content = <con> ).
 
     instance = me.
 

@@ -13,8 +13,7 @@ CLASS zexport_bundle DEFINITION
       EXPORTING
         content           TYPE STANDARD TABLE
       RAISING
-        zcx_export_error
-        cx_sy_dynamic_osql_syntax.
+        zcx_export_error.
 
     METHODS get_exported_content ABSTRACT
       IMPORTING
@@ -42,7 +41,7 @@ CLASS ZEXPORT_BUNDLE IMPLEMENTATION.
     IF sy-subrc = 0.
 
       READ TABLE table_list REFERENCE INTO DATA(foe_conjunction)
-        WITH KEY source_table = table_name+1.
+        WITH KEY fake_table = table_name+1.
       IF sy-subrc <> 0.
         RAISE EXCEPTION TYPE zcx_export_invalid_name
           EXPORTING
@@ -59,8 +58,17 @@ CLASS ZEXPORT_BUNDLE IMPLEMENTATION.
 
     ELSE.
 
-      SELECT * FROM (table_conjunction-source_table) INTO TABLE @content
-        WHERE (table_conjunction-where_restriction).
+      TRY.
+          SELECT * FROM (table_conjunction-source_table)
+            INTO CORRESPONDING FIELDS OF TABLE @content
+            WHERE (table_conjunction-where_restriction).
+        CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
+          RAISE EXCEPTION TYPE zcx_export_where_clause_invali
+            EXPORTING
+              table               = table_conjunction-source_table
+              where_clause        = table_conjunction-where_restriction
+              failure_description = osql_syntax_error->msgtext.
+      ENDTRY.
 
     ENDIF.
 

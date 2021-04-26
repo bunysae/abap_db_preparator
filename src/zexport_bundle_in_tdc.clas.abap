@@ -113,7 +113,7 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     TRY.
         _table-tdc_parameter_name = create_parameter( _table-fake_table ).
 
-        CREATE DATA content TYPE STANDARD TABLE OF (_table-source_table).
+        CREATE DATA content TYPE STANDARD TABLE OF (_table-fake_table).
         ASSIGN content->* TO <con>.
 
         select( EXPORTING table_conjunction = _table
@@ -124,12 +124,6 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
         INSERT _table INTO TABLE table_list.
 
-      CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
-        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
-          EXPORTING
-            table               = _table-source_table
-            where_clause        = _table-where_restriction
-            failure_description = osql_syntax_error->msgtext.
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.

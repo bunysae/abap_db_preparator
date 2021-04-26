@@ -89,9 +89,17 @@ CLASS ZEXPORT_UTILS IMPLEMENTATION.
     DATA(select_table) = COND tabname( WHEN select_from_fake = abap_true
       THEN table_conjunction-fake_table
       ELSE table_conjunction-source_table ).
-    SELECT * FROM (select_table) INTO TABLE result
-      FOR ALL ENTRIES IN table_for_all_entries
-      WHERE (where_restriction).
+    TRY.
+        SELECT * FROM (select_table) INTO TABLE result
+          FOR ALL ENTRIES IN table_for_all_entries
+          WHERE (where_restriction).
+      CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
+        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
+          EXPORTING
+            table               = table_conjunction-source_table
+            where_clause        = table_conjunction-where_restriction
+            failure_description = osql_syntax_error->msgtext.
+    ENDTRY.
 
   ENDMETHOD.
 ENDCLASS.
