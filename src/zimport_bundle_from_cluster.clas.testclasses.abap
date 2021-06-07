@@ -242,6 +242,7 @@ CLASS test_export_import IMPLEMENTATION.
           export_ut2 TYPE zexport_ut2.
 
     " given
+    ##LITERAL
     export_ut2 = VALUE #( primary_key = 'BBB' content = '130' ).
     INSERT zexport_ut2 FROM export_ut2.
     COMMIT WORK AND WAIT.
@@ -433,7 +434,7 @@ CLASS test_for_all_entries IMPLEMENTATION.
       source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' ) ).
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2'
-      where_restriction = 'FOR ALL ENTRIES IN xzexport_ut1 WHERE primary_key = xzexport_ut1-primary_key' ) ).
+      where_restriction = 'FOR ALL ENTRIES IN xzimport_ut1 WHERE primary_key = xzimport_ut1-primary_key' ) ).
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = 'ZEXPORT_UT3' ) ).
 
@@ -445,6 +446,7 @@ CLASS test_for_all_entries IMPLEMENTATION.
     DATA: import_ut2 TYPE zimport_ut2.
 
     DELETE FROM: zimport_ut1, zimport_ut2, zexport_ut3.
+    ##LITERAL
     import_ut2 = VALUE #( primary_key = 'CCC' content = '400' ).
     INSERT zimport_ut2 FROM import_ut2.
 

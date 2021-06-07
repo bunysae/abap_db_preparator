@@ -658,7 +658,7 @@ CLASS test_for_all_entries IMPLEMENTATION.
       source_table = 'ZEXPORT_UT1' fake_table = 'ZIMPORT_UT1' ) ).
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2'
-      where_restriction = 'FOR ALL ENTRIES IN xzexport_ut1 WHERE primary_key = xzexport_ut1-primary_key' ) ).
+      where_restriction = 'FOR ALL ENTRIES IN xzimport_ut1 WHERE primary_key = xzimport_ut1-primary_key' ) ).
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = 'ZEXPORT_UT3' ) ).
     exporter->export( transport_request = space ).

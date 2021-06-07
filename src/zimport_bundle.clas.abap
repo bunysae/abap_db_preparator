@@ -91,7 +91,6 @@ CLASS zimport_bundle DEFINITION
     METHODS select_from_fake
       IMPORTING
         table_conjunction TYPE zexport_table_list
-        from_fake         TYPE sap_bool OPTIONAL
       EXPORTING
         content           TYPE STANDARD TABLE
       RAISING
@@ -241,7 +240,7 @@ CLASS ZIMPORT_BUNDLE IMPLEMENTATION.
         IF sy-subrc = 0.
 
           READ TABLE table_list REFERENCE INTO DATA(foe_conjunction)
-            WITH KEY source_table = table_name+1.
+            WITH KEY fake_table = table_name+1.
           IF sy-subrc <> 0.
             RAISE EXCEPTION TYPE zcx_export_invalid_name
               EXPORTING
