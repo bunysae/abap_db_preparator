@@ -65,7 +65,7 @@ like the corresponding ABAP-statement. As internal table any original table from
 Database table | Fake database table | SQL where restriction
 -------------- | ------------------- | ---------------------
 SCARR | ZCARR_FAKE | carrid in ('TG', 'AA')
-SPFLI | ZCARR_SPFLI | FOR ALL ENTRIES IN xscarr WHERE carrid = xscarr-carrid
+SPFLI | ZSPFLI_FAKE | FOR ALL ENTRIES IN xzcarr_fake WHERE carrid = xzcarr_fake-carrid
 
 #### JOINS ####
 Joins can be expressed with subqueries. Let's consider the following join:

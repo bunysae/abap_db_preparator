@@ -191,13 +191,9 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
 
   METHOD get_exported_content.
 
-    TRY.
-      tdc->get_value_ref( EXPORTING i_param_name = table_conjunction-tdc_parameter_name
-        i_variant_name = variant
-        CHANGING e_param_ref = table_for_all_entries ).
-      CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
-        zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
-    ENDTRY.
+    ASSIGN table_for_all_entries->* TO FIELD-SYMBOL(<content>).
+    select( EXPORTING table_conjunction = table_conjunction
+      IMPORTING content = <content> ).
 
   ENDMETHOD.
 
