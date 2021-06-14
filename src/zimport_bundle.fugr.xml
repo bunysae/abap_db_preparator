@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
@@ -41,31 +41,26 @@
        <PARAMETER>TESTCASE_ID</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Id of cluster</STEXT>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CONTENT_HANDLER</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Handler (method)</STEXT>
-       <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>DO_COMMIT</PARAMETER>
        <KIND>P</KIND>
        <STEXT>execute &quot;COMMIT WORK&quot;</STEXT>
-       <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>ZCX_IMPORT_ERROR</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Import-Errors</STEXT>
-       <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CX_SY_DYN_CALL_ILLEGAL_METHOD</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Content-Handler is not a valid method</STEXT>
-       <INDEX> 005</INDEX>
       </RSFDO>
      </DOCUMENTATION>
      <EXCEPTION_CLASSES>X</EXCEPTION_CLASSES>
@@ -114,46 +109,44 @@
        <PARAMETER>TDC</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Testdatacontainer</STEXT>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>TDC_VERSION</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Version TDC</STEXT>
-       <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>VARIANT</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Variant name</STEXT>
-       <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CONTENT_HANDLER</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Handler (method)</STEXT>
-       <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>DO_COMMIT</PARAMETER>
        <KIND>P</KIND>
        <STEXT>execute &quot;COMMIT WORK AND WAIT&quot;</STEXT>
-       <INDEX> 005</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>ZCX_IMPORT_ERROR</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Import-Errors</STEXT>
-       <INDEX> 006</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CX_SY_DYN_CALL_ILLEGAL_METHOD</PARAMETER>
        <KIND>X</KIND>
        <STEXT>content-handler is invalid</STEXT>
-       <INDEX> 007</INDEX>
       </RSFDO>
      </DOCUMENTATION>
      <EXCEPTION_CLASSES>X</EXCEPTION_CLASSES>
+    </item>
+    <item>
+     <FUNCNAME>ZIMPORT_PREVENT_COMMIT_WORK</FUNCNAME>
+     <UPDATE_TASK>1</UPDATE_TASK>
+     <SHORT_TEXT>Prevent COMMIT WORK</SHORT_TEXT>
     </item>
     <item>
      <FUNCNAME>ZRFCIMPORT_BUNDLE_FROM_CLUSTER</FUNCNAME>
@@ -188,31 +181,26 @@
        <PARAMETER>TESTCASE_ID</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Id of cluster</STEXT>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CONTENT_HANDLER</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Handler (method)</STEXT>
-       <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>DO_COMMIT</PARAMETER>
        <KIND>P</KIND>
        <STEXT>execute &quot;COMMIT WORK&quot;</STEXT>
-       <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IMPORT_ERROR</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Import-errors</STEXT>
-       <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>INVALID_CONTENT_HANDLER</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Content-Handler is invalid</STEXT>
-       <INDEX> 005</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -256,43 +244,36 @@
        <PARAMETER>TDC</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Testdatacontainer</STEXT>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>TDC_VERSION</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Version TDC</STEXT>
-       <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>VARIANT</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Variant name</STEXT>
-       <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CONTENT_HANDLER</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Handler (method)</STEXT>
-       <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>DO_COMMIT</PARAMETER>
        <KIND>P</KIND>
        <STEXT>execute &quot;COMMIT WORK AND WAIT&quot;</STEXT>
-       <INDEX> 005</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IMPORT_ERROR</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Import-Error</STEXT>
-       <INDEX> 006</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>INVALID_CONTENT_HANDLER</PARAMETER>
        <KIND>X</KIND>
        <STEXT>Content-Handler is invalid</STEXT>
-       <INDEX> 007</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>

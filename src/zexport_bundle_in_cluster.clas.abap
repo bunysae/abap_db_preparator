@@ -1,74 +1,75 @@
-class ZEXPORT_BUNDLE_IN_CLUSTER definition
-  public
-  final
-  create public .
+CLASS zexport_bundle_in_cluster DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC
+  INHERITING FROM zexport_bundle.
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !TESTCASE_ID type W3OBJID
-      !FORCE_OVERWRITE type ABAP_BOOL default ABAP_FALSE
-      !DEV_PACKAGE type DEVCLASS
-      !TITLE type W3_TEXT
-    raising
-      ZCX_EXPORT_OBJECT_EXISTS .
-  "! Add the content of the table to the bundle (uses the builder-pattern).
-  "! @parameter _table |
-  "! <ul>
-  "! <li> Component "source_table":
-  "!   Database table (transparent table), where the content lies.
-  "! </li>
-  "! <li> Component "fake_table":
-  "! The fake table, which is used in the unit-test.
-  "! The import-class <em>zimport_bundle_from_cluster</em>
-  "! overwrites the content of the fake-table.
-  "! This parameter can be used, if working with class <em>cl_osq_replace</em>
-  "! to replace table contents.
-  "! If this parameter is omitted, parameter <em>table</em> is used.
-  "! </li>
-  "! <li> Component "where_restriction":
-  "! An valid sql-where-clause for an restriction of the exported rows.
-  "! </li>
-  "! </ul>
-  "! @raising zcx_export_error | If a table name is
-  "! used more than one time,
-  "! or the "where_restriction" is invalid.
-  methods ADD_TABLE_TO_BUNDLE
-    importing
-      value(_TABLE) type ZEXPORT_TABLE_LIST
-    returning
-      value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_CLUSTER
-    raising
-      ZCX_EXPORT_ERROR .
-  methods EXPORT .
-  "! Attach the MIME-Object to an workbench order for transportation pruposes
-  methods ATTACH_TO_WB_ORDER
-    raising
-      ZCX_EXPORT_ERROR .
-  methods ADD_PRIOR_CONTENT
-    importing
-      value(_table) type zexport_table_list
-      content type ref to data
-    returning value(instance) type ref to ZEXPORT_BUNDLE_IN_CLUSTER
-    raising
-      zcx_export_error.
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        !testcase_id     TYPE w3objid
+        !force_overwrite TYPE abap_bool DEFAULT abap_false
+        !dev_package     TYPE devclass
+        !title           TYPE w3_text
+      RAISING
+        zcx_export_object_exists .
+    "! Add the content of the table to the bundle (uses the builder-pattern).
+    "! @parameter _table |
+    "! <ul>
+    "! <li> Component "source_table":
+    "!   Database table (transparent table), where the content lies.
+    "! </li>
+    "! <li> Component "fake_table":
+    "! The fake table, which is used in the unit-test.
+    "! The import-class <em>zimport_bundle_from_cluster</em>
+    "! overwrites the content of the fake-table.
+    "! This parameter can be used, if working with class <em>cl_osq_replace</em>
+    "! to replace table contents.
+    "! If this parameter is omitted, parameter <em>table</em> is used.
+    "! </li>
+    "! <li> Component "where_restriction":
+    "! An valid sql-where-clause for an restriction of the exported rows.
+    "! </li>
+    "! </ul>
+    "! @raising zcx_export_error | If a table name is
+    "! used more than one time,
+    "! or the "where_restriction" is invalid.
+    METHODS add_table_to_bundle
+      IMPORTING
+        VALUE(_table)   TYPE zexport_table_list
+      RETURNING
+        VALUE(instance) TYPE REF TO zexport_bundle_in_cluster
+      RAISING
+        zcx_export_error .
+    METHODS export .
+    "! Attach the MIME-Object to an workbench order for transportation pruposes
+    METHODS attach_to_wb_order
+      RAISING
+        zcx_export_error .
+    METHODS add_prior_content
+      IMPORTING
+                VALUE(_table)   TYPE zexport_table_list
+                content         TYPE REF TO data
+      RETURNING VALUE(instance) TYPE REF TO zexport_bundle_in_cluster
+      RAISING
+                zcx_export_error.
+  PROTECTED SECTION.
+    METHODS get_exported_content REDEFINITION.
+  PRIVATE SECTION.
 
-  data CLUSTER_OBJECTS type ABAP_TRANS_SRCBIND_TAB .
-  DATA table_list TYPE STANDARD TABLE OF zexport_table_list.
-  data MIME_KEY type WWWDATATAB .
+    DATA cluster_objects TYPE abap_trans_srcbind_tab .
+    DATA mime_key TYPE wwwdatatab .
 
-  methods SERIALIZE
-    returning
-      value(RESULT) type ref to CL_SXML_STRING_WRITER .
-  methods CREATE_MIME_OBJECT
-    importing
-      !CONTENT type ref to CL_SXML_STRING_WRITER .
-  methods SET_FILESIZE
-    importing
-      !SIZE type I .
+    METHODS serialize
+      RETURNING
+        VALUE(result) TYPE REF TO cl_sxml_string_writer .
+    METHODS create_mime_object
+      IMPORTING
+        !content TYPE REF TO cl_sxml_string_writer .
+    METHODS set_filesize
+      IMPORTING
+        !size TYPE i .
 ENDCLASS.
 
 
@@ -76,7 +77,7 @@ ENDCLASS.
 CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
 
-  method ADD_PRIOR_CONTENT.
+  METHOD add_prior_content.
 
     IF _table-fake_table IS INITIAL.
       _table-fake_table = _table-source_table.
@@ -96,10 +97,10 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
     instance = me.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method ADD_TABLE_TO_BUNDLE.
+  METHOD add_table_to_bundle.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
     IF _table-fake_table IS INITIAL.
@@ -121,25 +122,17 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
       (_table-source_table).
     ASSIGN <content>-value->* TO <con>.
 
-    TRY.
-      SELECT * FROM (_table-source_table) INTO TABLE @<con>
-        WHERE (_table-where_restriction).
-      CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
-        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
-          EXPORTING
-            table = _table-source_table
-            where_clause = _table-where_restriction
-            failure_description = osql_syntax_error->msgtext.
-    ENDTRY.
+    select( EXPORTING table_conjunction = _table
+      IMPORTING content = <con> ).
 
     instance = me.
 
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD attach_to_wb_order.
     DATA: header TYPE STANDARD TABLE OF ko200,
-          items TYPE STANDARD TABLE OF e071k.
+          items  TYPE STANDARD TABLE OF e071k.
 
     header = VALUE #(
       ( pgmid = 'R3TR' object = 'W3' && mime_key-relid obj_name = mime_key-objid
@@ -147,22 +140,22 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
     CALL FUNCTION 'TR_OBJECTS_CHECK'
       TABLES
-        wt_ko200 = header
-        wt_e071k = items
+        wt_ko200                = header
+        wt_e071k                = items
       EXCEPTIONS
         cancel_edit_other_error = 2
-        show_only_other_error = 4.
+        show_only_other_error   = 4.
     IF sy-subrc <> 0.
       zcx_export_error=>wrap_t100_message( ).
     ENDIF.
 
     CALL FUNCTION 'TR_OBJECTS_INSERT'
       TABLES
-        wt_ko200 = header
-        wt_e071k = items
+        wt_ko200                = header
+        wt_e071k                = items
       EXCEPTIONS
         cancel_edit_other_error = 2
-        show_only_other_error = 4.
+        show_only_other_error   = 4.
     IF sy-subrc <> 0.
       zcx_export_error=>wrap_t100_message( ).
     ENDIF.
@@ -170,8 +163,9 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method CONSTRUCTOR.
+  METHOD constructor.
 
+    super->constructor( ).
     mime_key-relid = 'MI'.
     mime_key-objid = testcase_id.
     mime_key-devclass = dev_package.
@@ -187,13 +181,13 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method CREATE_MIME_OBJECT.
-    DATA: mime_content TYPE STANDARD TABLE OF w3mime,
+  METHOD create_mime_object.
+    DATA: mime_content   TYPE STANDARD TABLE OF w3mime,
           binary_content TYPE xstring,
-          length TYPE i.
+          length         TYPE i.
 
     DATA(binary_table_content) = content->get_output( ).
 
@@ -203,28 +197,42 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
 
     CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
       EXPORTING
-        buffer = binary_content
+        buffer        = binary_content
       IMPORTING
         output_length = length
       TABLES
-        binary_tab = mime_content.
+        binary_tab    = mime_content.
 
     CALL FUNCTION 'WWWDATA_EXPORT'
       EXPORTING
-        key = mime_key
+        key  = mime_key
       TABLES
         mime = mime_content.
 
     set_filesize( length ).
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method EXPORT.
+  METHOD export.
 
     create_mime_object( serialize( ) ).
 
-  endmethod.
+  ENDMETHOD.
+
+
+  METHOD get_exported_content.
+
+    READ TABLE cluster_objects ASSIGNING FIELD-SYMBOL(<content>)
+      WITH KEY name = table_conjunction-fake_table.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_export_invalid_name
+        EXPORTING
+          name = table_conjunction-fake_table.
+    ENDIF.
+    table_for_all_entries = <content>-value.
+
+  ENDMETHOD.
 
 
   METHOD serialize.

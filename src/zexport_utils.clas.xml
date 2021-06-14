@@ -3,23 +3,23 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCX_IMPORT_OBJECT_NOT_EXISTS</CLSNAME>
+    <CLSNAME>ZEXPORT_UTILS</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Imported MIM-Object doesn&apos;t exist</DESCRIPT>
-    <CATEGORY>40</CATEGORY>
+    <DESCRIPT>Utils</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
+    <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
-   <DESCRIPTIONS>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCX_IMPORT_OBJECT_NOT_EXISTS</CLSNAME>
-     <CMPNAME>CONSTRUCTOR</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
-    </SEOCOMPOTX>
-   </DESCRIPTIONS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Keyword &apos;WHERE&apos; missing</ENTRY>
+     <LENGTH>46</LENGTH>
+    </item>
+   </TPOOL>
   </asx:values>
  </asx:abap>
 </abapGit>

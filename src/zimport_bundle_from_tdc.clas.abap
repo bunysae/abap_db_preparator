@@ -1,38 +1,38 @@
-class ZIMPORT_BUNDLE_FROM_TDC definition
-  public
-  inheriting from ZIMPORT_BUNDLE
-  final
-  create public .
+CLASS zimport_bundle_from_tdc DEFINITION
+  PUBLIC
+  INHERITING FROM zimport_bundle
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !TDC type ETOBJ_NAME
-      !TDC_VERSION type ETOBJ_VER optional
-      !VARIANT type ETVAR_ID
-    raising
-      ZCX_IMPORT_ERROR .
+    METHODS constructor
+      IMPORTING
+        !tdc         TYPE etobj_name
+        !tdc_version TYPE etobj_ver OPTIONAL
+        !variant     TYPE etvar_id
+      RAISING
+        zcx_import_error .
 
-  methods ADD_CONTENT_ALL_TABLES
-    redefinition .
-  methods REPLACE_CONTENT_ALL_TABLES
-    redefinition .
-  methods REPLACE_CONTENT_COMPLETLY
-    redefinition .
-protected section.
+    METHODS add_content_all_tables
+         REDEFINITION .
+    METHODS replace_content_all_tables
+         REDEFINITION .
+    METHODS replace_content_completly
+         REDEFINITION .
+  PROTECTED SECTION.
 
-  methods GET_EXPORTED_CONTENT
-    redefinition .
-private section.
+    METHODS get_exported_content
+         REDEFINITION .
+  PRIVATE SECTION.
 
-  data TDC type ref to CL_APL_ECATT_TDC_API .
-  data VARIANT type ETVAR_ID .
+    DATA tdc TYPE REF TO cl_apl_ecatt_tdc_api .
+    DATA variant TYPE etvar_id .
 
-  methods get_tdc_parameter_name
-    IMPORTING
-      table TYPE zexport_table_list
-    RETURNING VALUE(result) TYPE etp_name.
+    METHODS get_tdc_parameter_name
+      IMPORTING
+                table         TYPE zexport_table_list
+      RETURNING VALUE(result) TYPE etp_name.
 ENDCLASS.
 
 
@@ -111,7 +111,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method GET_TDC_PARAMETER_NAME.
+  METHOD get_tdc_parameter_name.
 
     " backwards-compatibility: until commit
     " 550688c21ca119ffaecd4e1c11a68ab504fc53ee
@@ -123,7 +123,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
       result = table-tdc_parameter_name.
     ENDIF.
 
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD replace_content_all_tables.
@@ -141,7 +141,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
             i_variant_name = variant
             CHANGING e_param_value = <con> ).
 
-          DELETE FROM (table->*-fake_table) WHERE (table->*-where_restriction).
+          delete( table->* ).
           " If no content is exported in other than the "ECATTDEFAULT"-variant,
           " <con> contains the parameter value of the "ECATTDEFAULT"-variant.
           " Therefore INSERT-Statement is only executed, when the exported content is not initial.
@@ -158,7 +158,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method REPLACE_CONTENT_COMPLETLY.
+  METHOD replace_content_completly.
     DATA: content TYPE REF TO data.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
@@ -190,5 +190,5 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
         zcx_import_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.
 
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

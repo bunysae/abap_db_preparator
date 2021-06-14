@@ -1,81 +1,81 @@
-class ZEXPORT_BUNDLE_IN_TDC definition
-  public
-  final
-  create public .
+CLASS zexport_bundle_in_tdc DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC
+  INHERITING FROM zexport_bundle.
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !TDC type ref to CL_APL_ECATT_TDC_API
-      !VARIANT type ETVAR_ID
-    raising
-      CX_ECATT_TDC_ACCESS .
-  "! Add the content of the table to the bundle (uses the builder-pattern).
-  "! @parameter _table |
-  "! <ul>
-  "! <li> Component "source_table":
-  "!   Database table (transparent table), where the content lies.
-  "! </li>
-  "! <li> Component "fake_table":
-  "! The fake table, which is used in the unit-test.
-  "! The import-class <em>zimport_bundle_from_cluster</em>
-  "! overwrites the content of the fake-table.
-  "! This parameter can be used, if working with class <em>cl_osq_replace</em>
-  "! to replace table contents.
-  "! If this parameter is omitted, parameter <em>table</em> is used.
-  "! </li>
-  "! <li> Component "where_restriction":
-  "! An valid sql-where-clause for an restriction of the exported rows.
-  "! </li>
-  "! </ul>
-  "! @raising zcx_export_error | If a table name is
-  "! used more than one time or,
-  "! if the "where_restriction" is invalid.
-  methods ADD_TABLE_TO_BUNDLE
-    importing
-      value(_TABLE) type ZEXPORT_TABLE_LIST
-    returning
-      value(INSTANCE) type ref to ZEXPORT_BUNDLE_IN_TDC
-    raising
-      ZCX_EXPORT_ERROR .
-  methods EXPORT
-    importing
-      !TRANSPORT_REQUEST type E070-TRKORR
-    raising
-      ZCX_EXPORT_ERROR .
-  methods ADD_PRIOR_CONTENT
-    importing
-      table_conjunction type zexport_table_list
-    raising
-      ZCX_EXPORT_ERROR .
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        !tdc     TYPE REF TO cl_apl_ecatt_tdc_api
+        !variant TYPE etvar_id
+      RAISING
+        cx_ecatt_tdc_access .
+    "! Add the content of the table to the bundle (uses the builder-pattern).
+    "! @parameter _table |
+    "! <ul>
+    "! <li> Component "source_table":
+    "!   Database table (transparent table), where the content lies.
+    "! </li>
+    "! <li> Component "fake_table":
+    "! The fake table, which is used in the unit-test.
+    "! The import-class <em>zimport_bundle_from_cluster</em>
+    "! overwrites the content of the fake-table.
+    "! This parameter can be used, if working with class <em>cl_osq_replace</em>
+    "! to replace table contents.
+    "! If this parameter is omitted, parameter <em>table</em> is used.
+    "! </li>
+    "! <li> Component "where_restriction":
+    "! An valid sql-where-clause for an restriction of the exported rows.
+    "! </li>
+    "! </ul>
+    "! @raising zcx_export_error | If a table name is
+    "! used more than one time or,
+    "! if the "where_restriction" is invalid.
+    METHODS add_table_to_bundle
+      IMPORTING
+        VALUE(_table)   TYPE zexport_table_list
+      RETURNING
+        VALUE(instance) TYPE REF TO zexport_bundle_in_tdc
+      RAISING
+        zcx_export_error .
+    METHODS export
+      IMPORTING
+        !transport_request TYPE e070-trkorr
+      RAISING
+        zcx_export_error .
+    METHODS add_prior_content
+      IMPORTING
+        table_conjunction TYPE zexport_table_list
+      RAISING
+        zcx_export_error .
+  PROTECTED SECTION.
+    METHODS get_exported_content REDEFINITION.
+  PRIVATE SECTION.
 
-  data TDC type ref to CL_APL_ECATT_TDC_API .
-  data VARIANT type ETVAR_ID .
-  data:
-    table_list TYPE STANDARD TABLE OF zexport_table_list .
+    DATA tdc TYPE REF TO cl_apl_ecatt_tdc_api .
+    DATA variant TYPE etvar_id .
 
-  methods CREATE_PARAMETER
-    importing
-      !TABLE type TABNAME
-    returning
-      value(NAME) type ETP_NAME
-    raising
-      CX_ECATT_TDC_ACCESS .
-  methods SET_PARAMETER_VALUE
-    importing
-      !CONTENT type STANDARD TABLE
-      !NAME type ETP_NAME
-    raising
-      CX_ECATT_TDC_ACCESS .
-  "! Invalid characters for ecatt parameters are replaced by '_'.
-  methods GET_PARAMETER_NAME
-    importing
-      !TABLE_NAME type TABNAME
-    returning
-      value(RESULT) type ETP_NAME .
+    METHODS create_parameter
+      IMPORTING
+        !table      TYPE tabname
+      RETURNING
+        VALUE(name) TYPE etp_name
+      RAISING
+        cx_ecatt_tdc_access .
+    METHODS set_parameter_value
+      IMPORTING
+        !content TYPE STANDARD TABLE
+        !name    TYPE etp_name
+      RAISING
+        cx_ecatt_tdc_access .
+    "! Invalid characters for ecatt parameters are replaced by '_'.
+    METHODS get_parameter_name
+      IMPORTING
+        !table_name   TYPE tabname
+      RETURNING
+        VALUE(result) TYPE etp_name .
 ENDCLASS.
 
 
@@ -113,23 +113,17 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     TRY.
         _table-tdc_parameter_name = create_parameter( _table-fake_table ).
 
-        CREATE DATA content TYPE STANDARD TABLE OF (_table-source_table).
+        CREATE DATA content TYPE STANDARD TABLE OF (_table-fake_table).
         ASSIGN content->* TO <con>.
 
-        SELECT * FROM (_table-source_table) INTO TABLE @<con>
-          WHERE (_table-where_restriction).
+        select( EXPORTING table_conjunction = _table
+          IMPORTING content = <con> ).
         _table-is_initial = xsdbool( <con> IS INITIAL ).
 
         set_parameter_value( content = <con> name = _table-tdc_parameter_name ).
 
         INSERT _table INTO TABLE table_list.
 
-      CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).
-        RAISE EXCEPTION TYPE zcx_export_where_clause_invali
-          EXPORTING
-            table        = _table-source_table
-            where_clause = _table-where_restriction
-            failure_description = osql_syntax_error->msgtext.
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.
@@ -137,8 +131,9 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method CONSTRUCTOR.
+  METHOD constructor.
 
+    super->constructor( ).
     me->tdc = tdc.
     me->variant = variant.
 
@@ -151,7 +146,7 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
         ENDIF.
     ENDTRY.
 
-  endmethod.
+  ENDMETHOD.
 
 
   METHOD create_parameter.
@@ -162,8 +157,8 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
     name = get_parameter_name( table ).
 
     TRY.
-      tdc->create_parameter( i_param_name = name
-        i_param_def = type_definition ).
+        tdc->create_parameter( i_param_name = name
+          i_param_def = type_definition ).
       CATCH cx_ecatt_tdc_access INTO DATA(failure).
         IF failure->textid = cx_ecatt_tdc_access=>parameter_exists.
           IF tdc->get_param_definition( name ) <> type_definition.
@@ -178,35 +173,44 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method EXPORT.
+  METHOD export.
 
     TRY.
-      DATA(param_for_list) = create_parameter( table = 'ZEXPORT_TABLE_LIST' ).
-      set_parameter_value( content = table_list name = param_for_list ).
+        DATA(param_for_list) = create_parameter( table = 'ZEXPORT_TABLE_LIST' ).
+        set_parameter_value( content = table_list name = param_for_list ).
 
-      tdc->commit_changes( i_commit_mode = abap_false
-        i_tr_order = transport_request i_release_lock = abap_true ).
+        tdc->commit_changes( i_commit_mode = abap_false
+          i_tr_order = transport_request i_release_lock = abap_true ).
 
       CATCH cx_ecatt_tdc_access INTO DATA(ecatt_failure).
         zcx_export_error=>wrap_ecatt_failure( ecatt_failure ).
     ENDTRY.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method GET_PARAMETER_NAME.
+  METHOD get_exported_content.
+
+    ASSIGN table_for_all_entries->* TO FIELD-SYMBOL(<content>).
+    select( EXPORTING table_conjunction = table_conjunction
+      IMPORTING content = <content> ).
+
+  ENDMETHOD.
+
+
+  METHOD get_parameter_name.
 
     result = table_name.
     REPLACE ALL OCCURRENCES OF REGEX '[^A-Za-z0-9_\s]'
       IN result WITH '_'.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method SET_PARAMETER_VALUE.
+  METHOD set_parameter_value.
 
     tdc->set_value( i_param_name = name i_param_value = content
       i_variant_name = variant ).
 
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.
