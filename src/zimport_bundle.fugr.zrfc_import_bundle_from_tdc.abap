@@ -1,4 +1,4 @@
-FUNCTION zrfc_import_bundle_from_tdc .
+FUNCTION zrfc_import_bundle_from_tdc.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING

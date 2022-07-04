@@ -1,8 +1,8 @@
 *******************************************************************
 *   System-defined Include-files.                                 *
 *******************************************************************
-  INCLUDE LZIMPORT_BUNDLETOP.                " Global Data
-  INCLUDE LZIMPORT_BUNDLEUXX.                " Function Modules
+INCLUDE lzimport_bundletop.                " Global Data
+INCLUDE lzimport_bundleuxx.                " Function Modules
 
 *******************************************************************
 *   User-defined Include-files (if necessary).                    *

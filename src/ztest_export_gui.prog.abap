@@ -45,8 +45,7 @@ CLASS test_export_tdc IMPLEMENTATION.
       package = '$TMP' overwrite = abap_true ).
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT1' overwrite = overwrite_option-yes )
-      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-yes )
-    ).
+      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-yes ) ).
     setup_tables( ).
     PERFORM export_screen_0002.
 
@@ -91,14 +90,11 @@ CLASS test_export_tdc IMPLEMENTATION.
       ( source_table = 'ZEXPORT_UT1' fake_table = 'ZEXPORT_UT1'
         tdc_parameter_name = 'ZEXPORT_UT1' )
       ( source_table = 'ZEXPORT_UT2' fake_table = 'ZEXPORT_UT2'
-        tdc_parameter_name = 'ZEXPORT_UT2' )
-    ).
+        tdc_parameter_name = 'ZEXPORT_UT2' ) ).
     exp_export_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' ) ).
     exp_export_ut2 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 130 )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 130 ) ).
 
     " when: is done in setup
     " then
@@ -116,21 +112,17 @@ CLASS test_export_tdc IMPLEMENTATION.
       ( source_table = 'ZEXPORT_UT1' fake_table = 'ZEXPORT_UT1'
         tdc_parameter_name = 'ZEXPORT_UT1' )
       ( source_table = 'ZEXPORT_UT2' fake_table = 'ZEXPORT_UT2'
-        tdc_parameter_name = 'ZEXPORT_UT2' )
-    ).
+        tdc_parameter_name = 'ZEXPORT_UT2' ) ).
     exp_export_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'TTT' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'TTT' content = 'char' ) ).
     exp_export_ut2 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 130 )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 130 ) ).
 
     " given
     change_tables( ).
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT1' overwrite = overwrite_option-yes )
-      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-no )
-    ).
+      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-no ) ).
 
     " when
     PERFORM export_screen_0002.
@@ -146,7 +138,7 @@ CLASS test_export_tdc IMPLEMENTATION.
           act_export_ut1 TYPE _export_ut1,
           act_export_ut2 TYPE _export_ut2.
 
-    DATA(tdc) = cl_apl_ecatt_tdc_api=>get_instance( EXPORTING
+    DATA(tdc) = cl_apl_ecatt_tdc_api=>get_instance(
       i_testdatacontainer = tdc_name
       i_testdatacontainer_version = 1 ).
 
@@ -214,8 +206,7 @@ CLASS test_export_cluster IMPLEMENTATION.
       overwrite = abap_true ).
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT1' overwrite = overwrite_option-yes )
-      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-yes )
-    ).
+      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-yes ) ).
     setup_tables( ).
     PERFORM export_screen_0001.
 
@@ -272,14 +263,11 @@ CLASS test_export_cluster IMPLEMENTATION.
 
     exp_table_list = VALUE #(
       ( source_table = 'ZEXPORT_UT1' fake_table = 'ZEXPORT_UT1' )
-      ( source_table = 'ZEXPORT_UT2' fake_table = 'ZEXPORT_UT2' )
-    ).
+      ( source_table = 'ZEXPORT_UT2' fake_table = 'ZEXPORT_UT2' ) ).
     exp_export_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' ) ).
     exp_export_ut2 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 130 )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 130 ) ).
 
     " when: is done in setup
     " then
@@ -295,21 +283,17 @@ CLASS test_export_cluster IMPLEMENTATION.
 
     exp_table_list = VALUE #(
       ( source_table = 'ZEXPORT_UT1' fake_table = 'ZEXPORT_UT1' )
-      ( source_table = 'ZEXPORT_UT2' fake_table = 'ZEXPORT_UT2' )
-    ).
+      ( source_table = 'ZEXPORT_UT2' fake_table = 'ZEXPORT_UT2' ) ).
     exp_export_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'TTT' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'TTT' content = 'char' ) ).
     exp_export_ut2 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 130 )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 130 ) ).
 
     " given
     change_tables( ).
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT1' overwrite = overwrite_option-yes )
-      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-no )
-    ).
+      ( name = 'ZEXPORT_UT2' overwrite = overwrite_option-no ) ).
 
     " when
     PERFORM export_screen_0001.
@@ -385,8 +369,7 @@ CLASS test_tdc_bundle_reader IMPLEMENTATION.
 
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT1' fake = 'ZIMPORT_UT1' overwrite = overwrite_option-yes )
-      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' overwrite = overwrite_option-yes )
-    ).
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' overwrite = overwrite_option-yes ) ).
     header_tdc = VALUE #( name = 'ZEXPORT_UNIT_TEST' version = 1 variant = 'TDC_MERGE'
       package = '$TMP' overwrite = abap_true ).
     PERFORM export_screen_0002.
@@ -421,16 +404,14 @@ CLASS test_tdc_bundle_reader IMPLEMENTATION.
 
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT3' )
-      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' )
-    ).
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' ) ).
     PERFORM merge_bundle_tdc.
 
     exp_bundle = VALUE #(
       ( name = 'ZEXPORT_UT3' overwrite = overwrite_option-yes )
       ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' overwrite = overwrite_option-no )
       ( name = 'ZEXPORT_UT1' fake = 'ZIMPORT_UT1' overwrite = overwrite_option-no
-        changed = abap_true )
-    ).
+        changed = abap_true ) ).
     cl_abap_unit_assert=>assert_equals( act = bundle
       exp = exp_bundle ).
 
@@ -440,8 +421,7 @@ CLASS test_tdc_bundle_reader IMPLEMENTATION.
 
     bundle = VALUE #(
       ( name = 'ZEXPORT_UT3' )
-      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' where_restriction = '1' )
-    ).
+      ( name = 'ZEXPORT_UT2' fake = 'ZIMPORT_UT2' where_restriction = '1' ) ).
     TRY.
         PERFORM merge_bundle_tdc.
         cl_abap_unit_assert=>fail( ).

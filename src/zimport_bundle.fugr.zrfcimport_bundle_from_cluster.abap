@@ -1,4 +1,4 @@
-FUNCTION ZRFCIMPORT_BUNDLE_FROM_CLUSTER.
+FUNCTION zrfcimport_bundle_from_cluster.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING
@@ -14,9 +14,9 @@ FUNCTION ZRFCIMPORT_BUNDLE_FROM_CLUSTER.
 
       CALL FUNCTION 'ZIMPORT_BUNDLE_FROM_CLUSTER'
         EXPORTING
-          testcase_id = testcase_id
+          testcase_id     = testcase_id
           content_handler = content_handler
-          do_commit = do_commit.
+          do_commit       = do_commit.
 
     CATCH zcx_import_error INTO DATA(error).
       MESSAGE error TYPE 'E' RAISING import_error.

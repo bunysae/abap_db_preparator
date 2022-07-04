@@ -100,20 +100,20 @@ CLASS test_export_import IMPLEMENTATION.
     ##LITERAL
     import_ut2 = VALUE #( primary_key = 'CCC' content = '30' ).
 
-    INSERT zexport_ut1 FROM export_ut1.
-    INSERT zexport_ut2 FROM export_ut2.
+    INSERT zexport_ut1 FROM @export_ut1.
+    INSERT zexport_ut2 FROM @export_ut2.
 
-    INSERT zimport_ut1 FROM import_ut1.
-    INSERT zimport_ut2 FROM import_ut2.
+    INSERT zimport_ut1 FROM @import_ut1.
+    INSERT zimport_ut2 FROM @import_ut2.
 
-    INSERT zexport_ut3 FROM export_ut3.
+    INSERT zexport_ut3 FROM @export_ut3.
 
   ENDMETHOD.
 
   METHOD export.
     DATA: dev_package TYPE devclass.
 
-    SELECT SINGLE devclass FROM tadir INTO dev_package
+    SELECT SINGLE devclass FROM tadir INTO @dev_package
       WHERE pgmid = 'R3TR' AND object = 'CLAS' AND obj_name = 'ZIMPORT_BUNDLE_FROM_CLUSTER'.
 
     DATA(exporter) = NEW zexport_bundle_in_cluster( testcase_id = testcase_id
@@ -139,23 +139,20 @@ CLASS test_export_import IMPLEMENTATION.
           exp_cont_export_ut3 TYPE STANDARD TABLE OF zexport_ut3.
 
     exp_cont_import_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' ) ).
     exp_cont_import_ut2 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = '130' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = '130' ) ).
     exp_cont_export_ut3 = VALUE #(
-      ( client = sy-mandt primary_key = 'ADA' content = '9999' )
-    ).
+      ( client = sy-mandt primary_key = 'ADA' content = '9999' ) ).
 
     DATA(cut) = NEW zimport_bundle_from_cluster( testcase_id ).
 
     cut->replace_content_all_tables( ).
     COMMIT WORK AND WAIT.
 
-    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1.
-    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2.
-    SELECT * FROM zexport_ut3 INTO TABLE act_cont_export_ut3.
+    SELECT * FROM zimport_ut1 INTO TABLE @act_cont_import_ut1.
+    SELECT * FROM zimport_ut2 INTO TABLE @act_cont_import_ut2.
+    SELECT * FROM zexport_ut3 INTO TABLE @act_cont_export_ut3.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
       act = act_cont_import_ut1
@@ -179,26 +176,23 @@ CLASS test_export_import IMPLEMENTATION.
 
     exp_cont_import_ut1 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-      ( client = sy-mandt primary_key = 'CCC' content = 'imp' )
-    ).
+      ( client = sy-mandt primary_key = 'CCC' content = 'imp' ) ).
     exp_cont_import_ut2 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = '130' )
-      ( client = sy-mandt primary_key = 'CCC' content = '30' )
-    ).
+      ( client = sy-mandt primary_key = 'CCC' content = '30' ) ).
     exp_cont_export_ut3 = VALUE #(
-      ( client = sy-mandt primary_key = 'ADA' content = '9999' )
-    ).
+      ( client = sy-mandt primary_key = 'ADA' content = '9999' ) ).
 
     DATA(cut) = NEW zimport_bundle_from_cluster( testcase_id ).
 
     cut->add_content_all_tables( ).
     COMMIT WORK AND WAIT.
 
-    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+    SELECT * FROM zimport_ut1 INTO TABLE @act_cont_import_ut1
       ORDER BY PRIMARY KEY.
-    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+    SELECT * FROM zimport_ut2 INTO TABLE @act_cont_import_ut2
       ORDER BY PRIMARY KEY.
-    SELECT * FROM zexport_ut3 INTO TABLE act_cont_export_ut3.
+    SELECT * FROM zexport_ut3 INTO TABLE @act_cont_export_ut3.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
       act = act_cont_import_ut1
@@ -217,8 +211,7 @@ CLASS test_export_import IMPLEMENTATION.
           exp_cont_export_ut1 TYPE STANDARD TABLE OF zexport_ut1.
 
     exp_cont_export_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' ) ).
 
     " when
     DELETE FROM zexport_ut1.
@@ -228,7 +221,7 @@ CLASS test_export_import IMPLEMENTATION.
     COMMIT WORK AND WAIT.
 
     " then
-    SELECT * FROM zexport_ut1 INTO TABLE act_cont_export_ut1.
+    SELECT * FROM zexport_ut1 INTO TABLE @act_cont_export_ut1.
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_export_ut1
       act = act_cont_export_ut1 ).
 
@@ -244,7 +237,7 @@ CLASS test_export_import IMPLEMENTATION.
     " given
     ##LITERAL
     export_ut2 = VALUE #( primary_key = 'BBB' content = '130' ).
-    INSERT zexport_ut2 FROM export_ut2.
+    INSERT zexport_ut2 FROM @export_ut2.
     COMMIT WORK AND WAIT.
 
     " when
@@ -265,8 +258,7 @@ CLASS test_export_import IMPLEMENTATION.
     FIELD-SYMBOLS: <act_content> LIKE exp_content.
 
     exp_content = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' ) ).
 
     " when
     CREATE DATA act_content LIKE exp_content.
@@ -285,7 +277,7 @@ CLASS test_export_import IMPLEMENTATION.
     DATA: prior_content_ut1 TYPE REF TO data,
           dev_package TYPE devclass.
 
-    SELECT SINGLE devclass FROM tadir INTO dev_package
+    SELECT SINGLE devclass FROM tadir INTO @dev_package
       WHERE pgmid = 'R3TR' AND object = 'CLAS' AND obj_name = 'ZIMPORT_BUNDLE_FROM_CLUSTER'.
 
     DATA(exporter) = NEW zexport_bundle_in_cluster( testcase_id = testcase_id
@@ -313,8 +305,7 @@ CLASS test_export_import IMPLEMENTATION.
     FIELD-SYMBOLS: <act_content_ut1> LIKE exp_content_ut1.
 
     exp_content_ut1 = VALUE #(
-      ( client = sy-mandt primary_key = 'AAA' content = 'char' )
-    ).
+      ( client = sy-mandt primary_key = 'AAA' content = 'char' ) ).
 
     " when
     reexport( ).
@@ -405,19 +396,17 @@ CLASS test_for_all_entries IMPLEMENTATION.
     export_ut1 = VALUE #(
       ( primary_key = 'AAA' content = 'char' )
       ( primary_key = 'AAB' content = 'num' )
-      ( primary_key = 'AAC' content = 'int' )
-    ).
+      ( primary_key = 'AAC' content = 'int' ) ).
     ##LITERAL
     export_ut2 = VALUE #(
       ( primary_key = 'AAA' content = '130' )
       ( primary_key = 'AAB' content = '140' )
-      ( primary_key = 'DDD' content = '150' )
-    ).
+      ( primary_key = 'DDD' content = '150' ) ).
     export_ut3 = VALUE #( primary_key = 'ADA' content = '9999' ).
 
-    INSERT zexport_ut1 FROM TABLE export_ut1.
-    INSERT zexport_ut2 FROM TABLE export_ut2.
-    INSERT zexport_ut3 FROM export_ut3.
+    INSERT zexport_ut1 FROM TABLE @export_ut1.
+    INSERT zexport_ut2 FROM TABLE @export_ut2.
+    INSERT zexport_ut3 FROM @export_ut3.
 
   ENDMETHOD.
 
@@ -448,7 +437,7 @@ CLASS test_for_all_entries IMPLEMENTATION.
     DELETE FROM: zimport_ut1, zimport_ut2, zexport_ut3.
     ##LITERAL
     import_ut2 = VALUE #( primary_key = 'CCC' content = '400' ).
-    INSERT zimport_ut2 FROM import_ut2.
+    INSERT zimport_ut2 FROM @import_ut2.
 
   ENDMETHOD.
 
@@ -461,20 +450,18 @@ CLASS test_for_all_entries IMPLEMENTATION.
     exp_cont_import_ut1 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = 'char' )
       ( client = sy-mandt primary_key = 'AAB' content = 'num' )
-      ( client = sy-mandt primary_key = 'AAC' content = 'int' )
-    ).
+      ( client = sy-mandt primary_key = 'AAC' content = 'int' ) ).
     exp_cont_import_ut2 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = '130' )
       ( client = sy-mandt primary_key = 'AAB' content = '140' )
-      ( client = sy-mandt primary_key = 'CCC' content = '400' )
-    ).
+      ( client = sy-mandt primary_key = 'CCC' content = '400' ) ).
 
     " when
     DATA(cut) = NEW zimport_bundle_from_cluster( testcase_id ).
     cut->replace_content_all_tables( ).
-    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+    SELECT * FROM zimport_ut1 INTO TABLE @act_cont_import_ut1
       ORDER BY PRIMARY KEY.
-    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+    SELECT * FROM zimport_ut2 INTO TABLE @act_cont_import_ut2
       ORDER BY PRIMARY KEY.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
@@ -493,20 +480,18 @@ CLASS test_for_all_entries IMPLEMENTATION.
     exp_cont_import_ut1 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = 'char' )
       ( client = sy-mandt primary_key = 'AAB' content = 'num' )
-      ( client = sy-mandt primary_key = 'AAC' content = 'int' )
-    ).
+      ( client = sy-mandt primary_key = 'AAC' content = 'int' ) ).
     exp_cont_import_ut2 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = '130' )
       ( client = sy-mandt primary_key = 'AAB' content = '140' )
-      ( client = sy-mandt primary_key = 'CCC' content = '400' )
-    ).
+      ( client = sy-mandt primary_key = 'CCC' content = '400' ) ).
 
     " when
     DATA(cut) = NEW zimport_bundle_from_cluster( testcase_id ).
     cut->add_content_all_tables( ).
-    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+    SELECT * FROM zimport_ut1 INTO TABLE @act_cont_import_ut1
       ORDER BY PRIMARY KEY.
-    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+    SELECT * FROM zimport_ut2 INTO TABLE @act_cont_import_ut2
       ORDER BY PRIMARY KEY.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1
@@ -525,19 +510,17 @@ CLASS test_for_all_entries IMPLEMENTATION.
     exp_cont_import_ut1 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = 'char' )
       ( client = sy-mandt primary_key = 'AAB' content = 'num' )
-      ( client = sy-mandt primary_key = 'AAC' content = 'int' )
-    ).
+      ( client = sy-mandt primary_key = 'AAC' content = 'int' ) ).
     exp_cont_import_ut2 = VALUE #(
       ( client = sy-mandt primary_key = 'AAA' content = '130' )
-      ( client = sy-mandt primary_key = 'AAB' content = '140' )
-    ).
+      ( client = sy-mandt primary_key = 'AAB' content = '140' ) ).
 
     " when
     DATA(cut) = NEW zimport_bundle_from_cluster( testcase_id ).
     cut->replace_content_completly( ).
-    SELECT * FROM zimport_ut1 INTO TABLE act_cont_import_ut1
+    SELECT * FROM zimport_ut1 INTO TABLE @act_cont_import_ut1
       ORDER BY PRIMARY KEY.
-    SELECT * FROM zimport_ut2 INTO TABLE act_cont_import_ut2
+    SELECT * FROM zimport_ut2 INTO TABLE @act_cont_import_ut2
       ORDER BY PRIMARY KEY.
 
     cl_abap_unit_assert=>assert_equals( exp = exp_cont_import_ut1

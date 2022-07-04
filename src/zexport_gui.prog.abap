@@ -327,7 +327,7 @@ FORM check_header_tdc RAISING zcx_export_error.
   IF package_type <> '$'.
     " for non-local packages transport order must be specified
     SELECT COUNT(*) FROM e070
-      WHERE trkorr = header_tdc-tr_order AND trfunction = 'K'
+      WHERE trkorr = @header_tdc-tr_order AND trfunction = 'K'
       AND trstatus = 'D'.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_export_tr_order
@@ -386,15 +386,15 @@ ENDFORM.
 
 FORM read_package_bundle_cluster.
 
-  SELECT SINGLE devclass INTO header_cluster-package FROM tadir
-    WHERE pgmid = 'R3TR' AND object = 'W3MI' AND obj_name = header_cluster-testcase_id.
+  SELECT SINGLE devclass INTO @header_cluster-package FROM tadir
+    WHERE pgmid = 'R3TR' AND object = 'W3MI' AND obj_name = @header_cluster-testcase_id.
 
 ENDFORM.
 
 FORM read_title_cluster.
 
-  SELECT text UP TO 1 ROWS FROM wwwdata INTO header_cluster-title
-    WHERE relid = 'MI' AND objid = header_cluster-testcase_id.
+  SELECT text UP TO 1 ROWS FROM wwwdata INTO @header_cluster-title
+    WHERE relid = 'MI' AND objid = @header_cluster-testcase_id.
   ENDSELECT.
 
 ENDFORM.
@@ -478,16 +478,16 @@ ENDFORM.
 FORM read_package_bundle_tdc.
   DATA: task_contains_tdc TYPE e070-trkorr.
 
-  SELECT SINGLE devclass INTO header_tdc-package FROM tadir
-    WHERE pgmid = 'R3TR' AND object = cl_apl_ecatt_const=>obj_type_test_data
-    AND obj_name = header_tdc-name.
+  SELECT SINGLE devclass INTO @header_tdc-package FROM tadir
+    WHERE pgmid = 'R3TR' AND object = @cl_apl_ecatt_const=>obj_type_test_data
+    AND obj_name = @header_tdc-name.
 
-  SELECT trkorr UP TO 1 ROWS INTO task_contains_tdc FROM e071
-    WHERE pgmid = 'R3TR' AND object = cl_apl_ecatt_const=>obj_type_test_data
-    AND obj_name = header_tdc-name AND lockflag = abap_true.
+  SELECT trkorr UP TO 1 ROWS INTO @task_contains_tdc FROM e071
+    WHERE pgmid = 'R3TR' AND object = @cl_apl_ecatt_const=>obj_type_test_data
+    AND obj_name = @header_tdc-name AND lockflag = @abap_true.
 
-    SELECT SINGLE strkorr INTO header_tdc-tr_order FROM e070
-      WHERE trkorr = task_contains_tdc.
+    SELECT SINGLE strkorr INTO @header_tdc-tr_order FROM e070
+      WHERE trkorr = @task_contains_tdc.
 
   ENDSELECT.
 
@@ -549,7 +549,7 @@ FORM create_tdc_exporter
   ENDIF.
 
   TRY.
-      header_tdc-accessor = cl_apl_ecatt_tdc_api=>get_instance( EXPORTING
+      header_tdc-accessor = cl_apl_ecatt_tdc_api=>get_instance(
         i_testdatacontainer = header_tdc-name
         i_testdatacontainer_version = header_tdc-version
         i_write_access = abap_true ).
@@ -587,9 +587,8 @@ ENDFORM.
 FORM set_tdc_title
   RAISING cx_ecatt_tdc_access.
 
-  header_tdc-accessor->set_tdc_attributes( EXPORTING
-    i_version_dependant_attribs = VALUE #( twb_title = header_tdc-title )
-  ).
+  header_tdc-accessor->set_tdc_attributes(
+    i_version_dependant_attribs = VALUE #( twb_title = header_tdc-title ) ).
 
 ENDFORM.
 
@@ -662,19 +661,19 @@ FORM export_screen_0002 RAISING cx_ecatt_tdc_access zcx_export_error.
   PERFORM create_tdc_exporter CHANGING exporter existing_table_list
     is_new_bundle.
 
-    LOOP AT bundle INTO table.
-      IF table-overwrite = overwrite_option-yes.
-        exporter->add_table_to_bundle( _table = VALUE #(
-          source_table = table-name fake_table = table-fake
-          where_restriction = table-where_restriction ) ).
-      ELSE.
-        READ TABLE existing_table_list REFERENCE INTO DATA(table_conjunction)
-          WITH KEY source_table = table-name.
-        IF sy-subrc = 0.
-          exporter->add_prior_content( table_conjunction->* ).
-        ENDIF.
+  LOOP AT bundle INTO table.
+    IF table-overwrite = overwrite_option-yes.
+      exporter->add_table_to_bundle( _table = VALUE #(
+        source_table = table-name fake_table = table-fake
+        where_restriction = table-where_restriction ) ).
+    ELSE.
+      READ TABLE existing_table_list REFERENCE INTO DATA(table_conjunction)
+        WITH KEY source_table = table-name.
+      IF sy-subrc = 0.
+        exporter->add_prior_content( table_conjunction->* ).
       ENDIF.
-    ENDLOOP.
+    ENDIF.
+  ENDLOOP.
   exporter->export( transport_request = header_tdc-tr_order ).
 
   is_changed = abap_false.
@@ -745,7 +744,6 @@ ENDFORM.
 FORM get_new_req_props   CHANGING properties TYPE trwbo_new_req_props.
 
   properties-trfunctions = trco.
-  "properties-tarsystem   = target_system.
 
 * task type
   properties-taskfunc = tcol.

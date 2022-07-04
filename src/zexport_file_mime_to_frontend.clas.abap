@@ -1,38 +1,38 @@
-class ZEXPORT_FILE_MIME_TO_FRONTEND definition
-  public
-  final
-  create public .
+CLASS zexport_file_mime_to_frontend DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods EXPORT_TO_SAPGUI_WORK_DIR
-    importing
-      !MIME_KEY type WWWDATATAB
-    raising
-      ZCX_EXPORT_TO_FILE
-      ZCX_IMPORT_OBJECT_NOT_EXISTS .
-  class-methods GET_FILENAME
-    importing
-      !KEY type WWWDATATAB
-    returning
-      value(FILENAME) type STRING .
-  class-methods DELETE_FROM_SAPGUI_WORK
-    importing
-      !KEY type WWWDATATAB.
-protected section.
-private section.
+    CLASS-METHODS export_to_sapgui_work_dir
+      IMPORTING
+        !mime_key TYPE wwwdatatab
+      RAISING
+        zcx_export_to_file
+        zcx_import_object_not_exists .
+    CLASS-METHODS get_filename
+      IMPORTING
+        !key            TYPE wwwdatatab
+      RETURNING
+        VALUE(filename) TYPE string .
+    CLASS-METHODS delete_from_sapgui_work
+      IMPORTING
+        !key TYPE wwwdatatab.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 
-  types:
-    _mime_content TYPE STANDARD TABLE OF w3mime .
+    TYPES:
+      _mime_content TYPE STANDARD TABLE OF w3mime .
 
-  class-methods GET_MIME_OBJECT
-    importing
-      !KEY type WWWDATATAB
-    exporting
-      !CONTENT type _MIME_CONTENT
-      size TYPE i
-    raising
-      ZCX_IMPORT_OBJECT_NOT_EXISTS .
+    CLASS-METHODS get_mime_object
+      IMPORTING
+        !key     TYPE wwwdatatab
+      EXPORTING
+        !content TYPE _mime_content
+        size     TYPE i
+      RAISING
+        zcx_import_object_not_exists .
 ENDCLASS.
 
 
@@ -40,7 +40,7 @@ ENDCLASS.
 CLASS ZEXPORT_FILE_MIME_TO_FRONTEND IMPLEMENTATION.
 
 
-  method DELETE_FROM_SAPGUI_WORK.
+  METHOD delete_from_sapgui_work.
     DATA:
           ##NEEDED
           return_code TYPE i.
@@ -49,10 +49,10 @@ CLASS ZEXPORT_FILE_MIME_TO_FRONTEND IMPLEMENTATION.
       filename = get_filename( key )
       CHANGING rc = return_code EXCEPTIONS OTHERS = 0 ).
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method EXPORT_TO_SAPGUI_WORK_DIR.
+  METHOD export_to_sapgui_work_dir.
     DATA subrc TYPE sy-subrc.
 
     get_mime_object( EXPORTING key = mime_key
@@ -72,33 +72,33 @@ CLASS ZEXPORT_FILE_MIME_TO_FRONTEND IMPLEMENTATION.
         subrc = subrc filename = get_filename( mime_key ) ).
     ENDIF.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method GET_FILENAME.
-    DATA: file_separator(1),
+  METHOD get_filename.
+    DATA: file_separator(1) TYPE c,
           file_extension TYPE wwwparams-value.
 
     cl_gui_frontend_services=>get_sapgui_workdir( CHANGING sapworkdir = filename ).
     cl_gui_frontend_services=>get_file_separator( CHANGING file_separator = file_separator ).
 
-    SELECT SINGLE value FROM wwwparams INTO file_extension
-      WHERE relid = key-relid AND objid = key-objid
+    SELECT SINGLE value FROM wwwparams INTO @file_extension
+      WHERE relid = @key-relid AND objid = @key-objid
       AND name = 'fileextension'.
 
     filename = filename && file_separator && key-objid && file_extension.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method GET_MIME_OBJECT.
+  METHOD get_mime_object.
     DATA: c_size TYPE wwwparams-value.
 
     CALL FUNCTION 'WWWDATA_IMPORT'
       EXPORTING
-        key = key
+        key          = key
       TABLES
-        mime = content
+        mime         = content
       EXCEPTIONS
         import_error = 4.
     IF sy-subrc <> 0.
@@ -107,11 +107,11 @@ CLASS ZEXPORT_FILE_MIME_TO_FRONTEND IMPLEMENTATION.
           testcase_id = key-objid.
     ENDIF.
 
-    SELECT SINGLE value FROM wwwparams INTO c_size
-      WHERE relid = key-relid AND objid = key-objid
+    SELECT SINGLE value FROM wwwparams INTO @c_size
+      WHERE relid = @key-relid AND objid = @key-objid
       AND name = 'filesize'.
 
     size = c_size.
 
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

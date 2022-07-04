@@ -1,4 +1,4 @@
-FUNCTION ZIMPORT_BUNDLE_FROM_CLUSTER.
+FUNCTION zimport_bundle_from_cluster.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING

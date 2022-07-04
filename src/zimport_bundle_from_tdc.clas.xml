@@ -13,18 +13,6 @@
     <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
    <DESCRIPTIONS>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIMPORT_BUNDLE_FROM_TDC</CLSNAME>
-     <CMPNAME>CONSTRUCTOR</CMPNAME>
-     <LANGU>D</LANGU>
-     <DESCRIPT>fix the data container and the variant in the constructor</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIMPORT_BUNDLE_FROM_TDC</CLSNAME>
-     <CMPNAME>CONSTRUCTOR</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>fix the data container and the variant in the constructor</DESCRIPT>
-    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

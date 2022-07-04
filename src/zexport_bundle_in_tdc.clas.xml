@@ -12,50 +12,6 @@
     <UNICODE>X</UNICODE>
     <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
-   <DESCRIPTIONS>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>ADD_PRIOR_CONTENT</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>add content of prior version</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>ADD_TABLE_TO_BUNDLE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>adds the table content to the bundle</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>CONSTRUCTOR</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>fix test data container in constructor</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>CREATE_PARAMETER</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>create parameter with name of the bundle</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>EXPORT</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>export table contents in tdc</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>GET_PARAMETER_NAME</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>get tdc parameter name (all invalid characters replaced)</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZEXPORT_BUNDLE_IN_TDC</CLSNAME>
-     <CMPNAME>SET_PARAMETER_VALUE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>set the content as parameter value</DESCRIPT>
-    </SEOCOMPOTX>
-   </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
 </abapGit>

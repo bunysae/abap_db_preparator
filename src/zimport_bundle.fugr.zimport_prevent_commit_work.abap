@@ -1,4 +1,4 @@
-FUNCTION ZIMPORT_PREVENT_COMMIT_WORK.
+FUNCTION zimport_prevent_commit_work.
 *"----------------------------------------------------------------------
 *"*"Update Function Module:
 *"

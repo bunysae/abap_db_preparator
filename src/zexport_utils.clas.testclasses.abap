@@ -55,8 +55,7 @@ CLASS test_utils IMPLEMENTATION.
     mockup = VALUE #(
       ( client = sy-mandt primary_key = 'AA' content = 'A' )
       ( client = sy-mandt primary_key = 'AB' content = 'AB' )
-      ( client = sy-mandt primary_key = 'BB' content = 'B' )
-    ).
+      ( client = sy-mandt primary_key = 'BB' content = 'B' ) ).
     INSERT zexport_ut1 FROM TABLE mockup.
 
     DATA(table_conjunction) = VALUE zexport_table_list(
@@ -88,8 +87,7 @@ CLASS test_utils IMPLEMENTATION.
     mockup = VALUE #(
       ( client = sy-mandt primary_key = 'AA' content = 'A' )
       ( client = sy-mandt primary_key = 'AB' content = 'AB' )
-      ( client = sy-mandt primary_key = 'BB' content = 'B' )
-    ).
+      ( client = sy-mandt primary_key = 'BB' content = 'B' ) ).
     INSERT zexport_ut1 FROM TABLE mockup.
 
     DATA(table_conjunction) = VALUE zexport_table_list(

@@ -1,4 +1,4 @@
-FUNCTION zimport_bundle_from_tdc .
+FUNCTION zimport_bundle_from_tdc.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING

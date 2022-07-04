@@ -172,8 +172,8 @@ CLASS ZEXPORT_BUNDLE_IN_CLUSTER IMPLEMENTATION.
     mime_key-text = title.
 
     IF force_overwrite = abap_false.
-      SELECT COUNT(*) FROM wwwdata WHERE relid = mime_key-relid
-        AND objid = mime_key-objid.
+      SELECT COUNT(*) FROM wwwdata WHERE relid = @mime_key-relid
+        AND objid = @mime_key-objid.
       IF sy-subrc = 0.
         RAISE EXCEPTION TYPE zcx_export_object_exists
           EXPORTING
