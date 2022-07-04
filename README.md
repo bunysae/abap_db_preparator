@@ -158,3 +158,4 @@ need higher releases (SAP NetWeaver 7.51 or 7.52).
 
 ## Further links ##
 [Blog entry on SAP community network](https://blogs.sap.com/?p=1049057)
+[Repository mirror](https://github.com/ABAP-prep/abap_db_preparator)
