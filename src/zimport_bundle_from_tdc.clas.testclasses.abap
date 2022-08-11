@@ -184,6 +184,8 @@ CLASS test_export_import IMPLEMENTATION.
       source_table = 'ZEXPORT_UT2' fake_table = 'ZIMPORT_UT2' ) ).
     exporter->add_table_to_bundle( _table = VALUE #(
       source_table = 'ZEXPORT_UT3' ) ).
+    exporter->add_table_to_bundle( _table = VALUE #(
+      source_table = 'DEMO_CDS_AGGREGATE' ) ).
     exporter->export( transport_request = space ).
 
   ENDMETHOD.

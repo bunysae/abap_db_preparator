@@ -13,6 +13,14 @@ CLASS test_utils DEFINITION FOR TESTING
       RAISING
         cx_static_check.
 
+    METHODS is_cds_view_entity FOR TESTING
+      RAISING
+        cx_static_check.
+
+    METHODS get_cds_view_name FOR TESTING
+      RAISING
+        cx_static_check.
+
 ENDCLASS.
 
 CLASS test_utils IMPLEMENTATION.
@@ -104,6 +112,20 @@ CLASS test_utils IMPLEMENTATION.
     DELETE mockup WHERE primary_key = 'AB'.
     cl_abap_unit_assert=>assert_equals( exp = mockup
       act = act_result ).
+
+  ENDMETHOD.
+
+  METHOD is_cds_view_entity.
+
+    cl_abap_unit_assert=>assert_true( act = zexport_utils=>is_cds_view_entity( 'DEMO_CDS_AGGREGATE' ) ).
+    cl_abap_unit_assert=>assert_false( act = zexport_utils=>is_cds_view_entity( 'SCARR' ) ).
+
+  ENDMETHOD.
+
+  METHOD get_cds_view_name.
+
+    cl_abap_unit_assert=>assert_equals( exp = 'DEMO_CDS_AGG'
+      act = zexport_utils=>get_cds_view_name( 'DEMO_CDS_AGGREGATE' ) ).
 
   ENDMETHOD.
 

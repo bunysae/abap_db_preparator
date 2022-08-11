@@ -49,6 +49,10 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
+          IF zexport_utils=>is_cds_view_entity( table->*-source_table ) = abap_true.
+            CONTINUE.
+          ENDIF.
+
           CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
           tdc->get_value( EXPORTING i_param_name = get_tdc_parameter_name( table->* )
@@ -135,6 +139,10 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
+          IF zexport_utils=>is_cds_view_entity( table->*-source_table ) = abap_true.
+            CONTINUE.
+          ENDIF.
+
           CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
           tdc->get_value( EXPORTING i_param_name = get_tdc_parameter_name( table->* )
@@ -167,9 +175,11 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
-          IF table->*-fake_table NOT IN get_whitelist( ).
+          IF zexport_utils=>is_cds_view_entity( table->*-source_table ) = abap_true
+              OR table->*-fake_table NOT IN get_whitelist( ).
             CONTINUE.
           ENDIF.
+
           CREATE DATA content TYPE STANDARD TABLE OF (table->*-fake_table).
           ASSIGN content->* TO <con>.
           tdc->get_value( EXPORTING i_param_name = get_tdc_parameter_name( table->* )

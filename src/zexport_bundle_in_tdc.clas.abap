@@ -101,7 +101,11 @@ CLASS ZEXPORT_BUNDLE_IN_TDC IMPLEMENTATION.
           param_name TYPE etp_name.
     FIELD-SYMBOLS: <con> TYPE STANDARD TABLE.
 
-    IF _table-fake_table IS INITIAL.
+    " Parameters in test data containers can only refer to the
+    " CDS-Database-view. So write CDS-Database-view-name to fake table name.
+    IF zexport_utils=>is_cds_view_entity( _table-source_table ) = abap_true.
+      _table-fake_table = zexport_utils=>get_cds_view_name( _table-source_table ).
+    ELSEIF _table-fake_table IS INITIAL.
       _table-fake_table = _table-source_table.
     ENDIF.
     IF line_exists( table_list[ fake_table = _table-fake_table ] ).

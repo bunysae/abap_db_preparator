@@ -27,6 +27,16 @@ CLASS zexport_utils DEFINITION
         result                 TYPE STANDARD TABLE
       RAISING
         zcx_export_error.
+    CLASS-METHODS is_cds_view_entity
+      IMPORTING
+        table_name    TYPE tabname
+      RETURNING
+        VALUE(result) TYPE sap_bool.
+    CLASS-METHODS get_cds_view_name
+      IMPORTING
+        entity_name    TYPE tabname
+      RETURNING
+        VALUE(result) TYPE ddstrucobjname.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -34,6 +44,18 @@ ENDCLASS.
 
 
 CLASS ZEXPORT_UTILS IMPLEMENTATION.
+
+
+  METHOD get_cds_view_name.
+
+    cl_dd_ddl_handler_factory=>create( )->get_viewname_from_entityname(
+      EXPORTING
+        ddnames = VALUE #( ( name = entity_name ) )
+      IMPORTING
+        view_of_entity = DATA(entities) ).
+    result = entities[ 1 ]-viewname.
+
+  ENDMETHOD.
 
 
   METHOD get_table_for_all_entries.
@@ -53,6 +75,22 @@ CLASS ZEXPORT_UTILS IMPLEMENTATION.
       IGNORING CASE.
     table_name = where_restriction+0(length).
     CONDENSE table_name NO-GAPS.
+
+  ENDMETHOD.
+
+
+  METHOD is_cds_view_entity.
+    DATA: object_type TYPE dd02v-tabclass.
+
+    CALL FUNCTION 'DDIF_NAMETAB_GET'
+      EXPORTING
+        tabname = table_name
+      IMPORTING
+        ddobjtype = object_type
+      EXCEPTIONS
+        not_found = 4.
+    ASSERT sy-subrc = 0.
+    result = xsdbool( object_type = 'STOB' ).
 
   ENDMETHOD.
 
@@ -78,7 +116,7 @@ CLASS ZEXPORT_UTILS IMPLEMENTATION.
         EXPORTING
           table               = table_conjunction-source_table
           where_clause        = table_conjunction-where_restriction
-          failure_description = CONV string( text-001 ).
+          failure_description = CONV string( TEXT-001 ).
     ENDIF.
     offset = offset + length.
     DATA(where_restriction) = table_conjunction-where_restriction+offset.
@@ -90,7 +128,8 @@ CLASS ZEXPORT_UTILS IMPLEMENTATION.
       THEN table_conjunction-fake_table
       ELSE table_conjunction-source_table ).
     TRY.
-        SELECT * FROM (select_table) INTO TABLE result
+        SELECT * FROM (select_table)
+          INTO CORRESPONDING FIELDS OF TABLE result
           FOR ALL ENTRIES IN table_for_all_entries
           WHERE (where_restriction).
       CATCH cx_sy_dynamic_osql_error INTO DATA(osql_syntax_error).

@@ -10,14 +10,17 @@ TYPES: BEGIN OF _table,
          fake              TYPE zexport_fake_table,
          where_restriction TYPE string,
          marked            TYPE abap_bool.
-        INCLUDE TYPE zexport_table_mod.
-TYPES END OF _table.
+         INCLUDE TYPE zexport_table_mod.
+       TYPES END OF _table.
 TYPES _table_list TYPE STANDARD TABLE OF zexport_table_list.
 INCLUDE: rddkorri, zexport_batch_input.
 
-CONSTANTS: transparent_table TYPE dd02v-tabclass VALUE 'TRANSP',
-           cluster_table     TYPE dd02v-tabclass VALUE 'CLUSTER',
-           pool_table        TYPE dd02v-tabclass VALUE 'POOL'.
+CONSTANTS: transparent_table  TYPE dd02v-tabclass VALUE 'TRANSP',
+           cluster_table      TYPE dd02v-tabclass VALUE 'CLUSTER',
+           pool_table         TYPE dd02v-tabclass VALUE 'POOL',
+           cds_view           TYPE dd02v-tabclass VALUE 'STOB',
+           cds_table_function TYPE dd02v-tabclass VALUE 'STTF',
+           dictionary_view    TYPE dd02v-tabclass VALUE 'VIEW'.
 CONSTANTS: BEGIN OF overwrite_option,
              no  TYPE zexport_overwrite VALUE '1',
              yes TYPE zexport_overwrite VALUE '2',
@@ -138,7 +141,7 @@ FORM header_tdc_changed.
     TRY.
         PERFORM merge_bundle_tdc.
         PERFORM read_title_tdc.
-      ##NO_HANDLER
+        ##NO_HANDLER
       CATCH cx_ecatt_tdc_access.
       CATCH zcx_import_error INTO DATA(failure).
         MESSAGE failure TYPE 'S' DISPLAY LIKE 'E'.
@@ -338,24 +341,33 @@ FORM check_header_tdc RAISING zcx_export_error.
 
 ENDFORM.
 
-DEFINE check_name.
+FORM check_name USING table_name TYPE tabname.
+  DATA: supported_object_types TYPE RANGE OF dd02v-tabclass,
+        object_type            TYPE dd02v-tabclass.
+
+  supported_object_types = VALUE #(
+    ( sign = 'I' option = 'EQ' low = transparent_table )
+    ( sign = 'I' option = 'EQ' low = cluster_table )
+    ( sign = 'I' option = 'EQ' low = pool_table )
+    ( sign = 'I' option = 'EQ' low = cds_view )
+    ( sign = 'I' option = 'EQ' low = cds_table_function )
+    ( sign = 'I' option = 'EQ' low = dictionary_view ) ).
 
   CALL FUNCTION 'DDIF_NAMETAB_GET'
     EXPORTING
-      tabname   = &1
+      tabname   = table_name
     IMPORTING
       ddobjtype = object_type
     EXCEPTIONS
       not_found = 4.
   IF sy-subrc <> 0.
-    MESSAGE e004 WITH &1.
+    MESSAGE e004 WITH table_name.
   ENDIF.
-  IF NOT ( object_type = transparent_table OR object_type = cluster_table
-    OR object_type = pool_table ).
-    MESSAGE e005 WITH &1.
+  IF NOT object_type IN supported_object_types.
+    MESSAGE e005 WITH table_name.
   ENDIF.
 
-END-OF-DEFINITION.
+ENDFORM.
 
 FORM mark_changed_tables USING importer TYPE REF TO zimport_bundle
   RAISING zcx_import_error.
@@ -507,9 +519,9 @@ ENDFORM.
 FORM check_table_names.
   DATA: object_type TYPE dd02v-tabclass.
 
-  check_name table-name.
+  PERFORM check_name USING table-name.
   IF table-fake IS NOT INITIAL.
-    check_name table-fake.
+    PERFORM check_name USING table-fake.
   ENDIF.
 
 ENDFORM.
@@ -691,8 +703,8 @@ FORM save_cancel_or_discard USING export_procedure TYPE char30
 
   CALL FUNCTION 'POPUP_TO_CONFIRM'
     EXPORTING
-      titlebar      = text-sav
-      text_question = text-sav
+      titlebar      = TEXT-sav
+      text_question = TEXT-sav
     IMPORTING
       answer        = answer.
 
@@ -725,7 +737,7 @@ FORM show_own_orders.
 * parameters for new request
   PERFORM get_new_req_props CHANGING new_request_props.
 
-  title = text-enw.
+  title = TEXT-enw.
 
   CALL FUNCTION 'TR_PRESENT_REQUESTS_SEL_POPUP'
     EXPORTING
