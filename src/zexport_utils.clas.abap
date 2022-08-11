@@ -32,6 +32,11 @@ CLASS zexport_utils DEFINITION
         table_name    TYPE tabname
       RETURNING
         VALUE(result) TYPE sap_bool.
+    CLASS-METHODS is_view
+      IMPORTING
+        table_name    TYPE tabname
+      RETURNING
+        VALUE(result) TYPE sap_bool.
     CLASS-METHODS get_cds_view_name
       IMPORTING
         entity_name    TYPE tabname
@@ -91,6 +96,23 @@ CLASS ZEXPORT_UTILS IMPLEMENTATION.
         not_found = 4.
     ASSERT sy-subrc = 0.
     result = xsdbool( object_type = 'STOB' ).
+
+  ENDMETHOD.
+
+
+  METHOD is_view.
+
+    DATA: object_type TYPE dd02v-tabclass.
+
+    CALL FUNCTION 'DDIF_NAMETAB_GET'
+      EXPORTING
+        tabname = table_name
+      IMPORTING
+        ddobjtype = object_type
+      EXCEPTIONS
+        not_found = 4.
+    ASSERT sy-subrc = 0.
+    result = xsdbool( object_type = 'STOB' OR object_type = 'STTF' OR object_type = 'VIEW' ).
 
   ENDMETHOD.
 

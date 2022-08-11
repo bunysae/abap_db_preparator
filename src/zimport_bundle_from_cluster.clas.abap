@@ -56,6 +56,9 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
     permission_is_granted( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
+      IF zexport_utils=>is_view( CONV tabname( object->*-name ) ) = abap_true.
+        CONTINUE.
+      ENDIF.
       ASSIGN object->*-value->* TO <con>.
 
       MODIFY (object->*-name) FROM TABLE <con>.
@@ -166,6 +169,10 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
     permission_is_granted( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
 
+      IF zexport_utils=>is_view( CONV tabname( object->*-name ) ) = abap_true.
+        CONTINUE.
+      ENDIF.
+
       ASSIGN object->*-value->* TO <con>.
 
       READ TABLE table_list REFERENCE INTO DATA(_table)
@@ -185,6 +192,10 @@ CLASS ZIMPORT_BUNDLE_FROM_CLUSTER IMPLEMENTATION.
 
     permission_is_granted( ).
     LOOP AT cluster_objects REFERENCE INTO DATA(object).
+
+      IF zexport_utils=>is_view( CONV tabname( object->*-name ) ) = abap_true.
+        CONTINUE.
+      ENDIF.
 
       ASSIGN object->*-value->* TO <con>.
 

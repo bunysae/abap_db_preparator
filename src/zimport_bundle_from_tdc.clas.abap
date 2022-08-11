@@ -49,7 +49,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
-          IF zexport_utils=>is_cds_view_entity( table->*-source_table ) = abap_true.
+          IF zexport_utils=>is_view( table->*-source_table ) = abap_true.
             CONTINUE.
           ENDIF.
 
@@ -139,7 +139,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
-          IF zexport_utils=>is_cds_view_entity( table->*-source_table ) = abap_true.
+          IF zexport_utils=>is_view( table->*-source_table ) = abap_true.
             CONTINUE.
           ENDIF.
 
@@ -175,7 +175,7 @@ CLASS ZIMPORT_BUNDLE_FROM_TDC IMPLEMENTATION.
 
         LOOP AT table_list REFERENCE INTO DATA(table).
 
-          IF zexport_utils=>is_cds_view_entity( table->*-source_table ) = abap_true
+          IF zexport_utils=>is_view( table->*-source_table ) = abap_true
               OR table->*-fake_table NOT IN get_whitelist( ).
             CONTINUE.
           ENDIF.
